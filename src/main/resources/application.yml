@@ -1,0 +1,46 @@
+spring:
+    application:
+        name: miniinsta
+    data:
+        redis:
+            host: 172.18.243.18
+            port: 6379
+    datasource:
+        url: jdbc:mysql://localhost:3306/miniinsta
+        username: root
+        password: thaihoc285 
+    jpa:
+        generate-ddl: true
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+    rabbitmq:
+        host: localhost
+        port: 5672
+        username: guest
+        password: guest
+    security:
+        oauth2:
+            client:
+                registration:
+                    google:
+                        client-id: C530931534038-cbhnu4hu1q18u2i919pv15chhbmqpidq.apps.googleusercontent.com
+                        client-secret: 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
+                        scope:
+                            - email
+                            - profile
+
+springdoc:
+    api-docs:
+        path: /api-docs
+logging:
+    file:
+        name: ./log/application.log
+    level:
+        org:
+            springframework:
+                jdbc:
+                    core: TRACE
+                web:
+                    filter:
+                        CommonsRequestLoggingFilter: DEBUG
