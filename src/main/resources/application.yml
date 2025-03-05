@@ -17,8 +17,12 @@ spring:
     rabbitmq:
         host: localhost
         port: 5672
-        username: guest
-        password: guest
+        # stomp:
+        #     relay:
+        #         host: localhost
+        #         port: 61613
+        #         login: guest
+        #         passcode: guest
     security:
         oauth2:
             client:
@@ -40,7 +44,7 @@ logging:
         org:
             springframework:
                 jdbc:
-                    core: TRACE
+                    core: DEBUG
                 web:
                     filter:
                         CommonsRequestLoggingFilter: DEBUG
