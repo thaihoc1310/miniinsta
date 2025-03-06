@@ -40,7 +40,7 @@ dependencies {
 	implementation("io.projectreactor.netty:reactor-netty")
 	compileOnly("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")
-	runtimeOnly("com.mysql:mysql-connector-j")
+	runtimeOnly("mysql:mysql-connector-java:8.0.33")
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.amqp:spring-rabbit-test")
