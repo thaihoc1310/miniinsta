@@ -15,7 +15,7 @@ import com.thaihoc.miniinsta.service.UploadService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping(path = "/upload")
+@RequestMapping(path = "api/v1/upload")
 public class UploadController {
     @Autowired
     UploadService uploadService;
