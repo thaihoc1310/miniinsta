@@ -3,6 +3,7 @@ package com.thaihoc.miniinsta.service.feed;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.thaihoc.miniinsta.dto.UserPrincipal;
@@ -42,6 +43,12 @@ public class PrecomputedFeedServiceImpl implements FeedService {
 
     return GetFeedResponse.builder()
         .posts(posts).totalPage(totalPage).build();
+  }
+
+  @Override
+  public GetFeedResponse getFeed(UserPrincipal userPrincipal, Pageable pageable) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'getFeed'");
   }
 
 }

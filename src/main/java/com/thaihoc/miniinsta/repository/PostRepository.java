@@ -2,6 +2,8 @@ package com.thaihoc.miniinsta.repository;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,10 +18,15 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
   List<Post> findByCreatedBy(Profile createdBy);
 
-  @Query(value = "select * from post where created_by_id in :ids order by created_at desc LIMIT :limit OFFSET :offset", nativeQuery = true)
-  List<Post> findByCreatedBy(@Param("ids") List<Integer> createdByIdList, @Param(value = "limit") int limit,
-      @Param(value = "offset") int offset);
+  // @Query(value = "select * from post where created_by_id in :ids order by
+  // created_at desc LIMIT :limit OFFSET :offset", nativeQuery = true)
+  // List<Post> findByCreatedBy(@Param("ids") List<Integer> createdByIdList,
+  // @Param(value = "limit") int limit,
+  // @Param(value = "offset") int offset);
 
-  @Query(value = "select count(*) from post where created_by_id in :ids", nativeQuery = true)
-  int countByCreatedByIn(@Param("ids") List<Integer> createdByIdList);
+  Page<Post> findByCreatedByIn(List<Integer> createdByIdList, Pageable pageable);
+
+  // @Query(value = "select count(*) from post where created_by_id in :ids",
+  // nativeQuery = true)
+  // int countByCreatedByIn(@Param("ids") List<Integer> createdByIdList);
 }

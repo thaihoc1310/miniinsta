@@ -1,6 +1,7 @@
 package com.thaihoc.miniinsta.controller.profile;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
@@ -36,17 +37,15 @@ public class FollowerController {
 
   @GetMapping("/user/followers/{id}")
   public ResponseEntity<GetFollowerResponse> getFollowers(@PathVariable int id,
-      @RequestParam("page") @Min(1) Integer page,
-      @RequestParam("limit") @Min(1) int limit) {
-    log.info("userId={}, page={}, limit={}", id, page, limit);
-    return ResponseEntity.ok().body(followerService.getFollowers(id, page, limit));
+      Pageable pageable) {
+    log.info("userId={}, page={}, limit={}", id, pageable.getPageNumber() + 1, pageable.getPageSize());
+    return ResponseEntity.ok().body(followerService.getFollowers(id, pageable));
   }
 
   @GetMapping("/user/followings/{id}")
-  public ResponseEntity<GetFollowingResponse> getFollowing(@PathVariable int id, @RequestParam("page") @Min(1) int page,
-      @RequestParam("limit") @Min(1) int limit) {
-    log.info("userId={}, page={}, limit={}", id, page, limit);
-    return ResponseEntity.ok().body(followerService.getFollowings(id, page, limit));
+  public ResponseEntity<GetFollowingResponse> getFollowing(@PathVariable int id, Pageable pageable) {
+    log.info("userId={}, page={}, limit={}", id, pageable.getPageNumber() + 1, pageable.getPageSize());
+    return ResponseEntity.ok().body(followerService.getFollowings(id, pageable));
   }
 
   @PostMapping()

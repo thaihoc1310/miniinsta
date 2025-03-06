@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.thaihoc.miniinsta.dto.UserPrincipal;
@@ -56,33 +58,43 @@ public class FollowerServiceImpl implements FollowerService {
   }
 
   @Override
-  public GetFollowerResponse getFollowers(int profileId, int page, int limit) {
+  public GetFollowerResponse getFollowers(int profileId, Pageable pageable) {
     profileService.getUserProfile(profileId);
-    int totalFollower = followerRepository.countByFollowingUserId(profileId);
-    log.info("totalFollower={}", totalFollower);
-    int totalPage = (int) Math.ceil((double) totalFollower / limit);
-    int offset = (page - 1) * limit;
-    List<Profile> followerProfiles = followerRepository.findByFollowingUserId(profileId, limit, offset).stream()
+    // int totalFollower = followerRepository.countByFollowingUserId(profileId);
+    // log.info("totalFollower={}", totalFollower);
+    // int totalPage = (int) Math.ceil((double) totalFollower / limit);
+    // int offset = (page - 1) * limit;
+    // List<Profile> followerProfiles =
+    // followerRepository.findByFollowingUserId(profileId, limit, offset).stream()
+    // .map(userFollowing ->
+    // profileService.getUserProfile(userFollowing.getFollowerUserId())).toList();
+
+    Page<UserFollowing> userFollowingPage = followerRepository.findByFollowingUserId(profileId, pageable);
+    List<Profile> followerProfiles = userFollowingPage.stream()
         .map(userFollowing -> profileService.getUserProfile(userFollowing.getFollowerUserId())).toList();
 
     return GetFollowerResponse.builder()
-        .totalPage(totalPage)
+        .totalPage(userFollowingPage.getTotalPages())
         .followers(followerProfiles)
         .build();
   }
 
   @Override
-  public GetFollowingResponse getFollowings(int profileId, int page, int limit) {
+  public GetFollowingResponse getFollowings(int profileId, Pageable pageable) {
     profileService.getUserProfile(profileId);
-    int totalFollowing = followerRepository.countByFollowerUserId(profileId);
-    log.info("totalFollowing={}", totalFollowing);
-    int totalPage = (int) Math.ceil((double) totalFollowing / limit);
-    int offset = (page - 1) * limit;
-    List<Profile> followingProfiles = followerRepository.findByFollowerUserId(profileId, limit, offset).stream()
+    // int totalFollowing = followerRepository.countByFollowerUserId(profileId);
+    // log.info("totalFollowing={}", totalFollowing);
+    // int totalPage = (int) Math.ceil((double) totalFollowing / limit);
+    // int offset = (page - 1) * limit;
+    // List<Profile> followingProfiles =
+    // followerRepository.findByFollowerUserId(profileId, limit, offset).stream()
+    // .map(userFollowing ->
+    // profileService.getUserProfile(userFollowing.getFollowingUserId())).toList();
+    Page<UserFollowing> userFollowingPage = followerRepository.findByFollowerUserId(profileId, pageable);
+    List<Profile> followingProfiles = userFollowingPage.stream()
         .map(userFollowing -> profileService.getUserProfile(userFollowing.getFollowingUserId())).toList();
-
     return GetFollowingResponse.builder()
-        .totalPage(totalPage)
+        .totalPage(userFollowingPage.getTotalPages())
         .followings(followingProfiles)
         .build();
   }
