@@ -3,6 +3,7 @@ package com.thaihoc.miniinsta.config;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -16,6 +17,7 @@ import org.springframework.retry.support.RetryTemplate;
 public class MessageQueueConfig {
   public static final String PRIVATE_CHAT_QUEUE = "privateChatQueue";
   public static final String CHAT_EXCHANGE = "chatExchange";
+  public static final String AFTER_CREATE_POST_QUEUE = "after-create-post-queue";
 
   @Bean
   public RetryTemplate retryTemplate() {
@@ -54,4 +56,9 @@ public class MessageQueueConfig {
     return BindingBuilder.bind(queue).to(exchange).with("chat.private.#");
   }
 
+  @Bean
+  Queue afterCreatePostQueue() {
+    return QueueBuilder.durable(AFTER_CREATE_POST_QUEUE).build();
+
+  }
 }
