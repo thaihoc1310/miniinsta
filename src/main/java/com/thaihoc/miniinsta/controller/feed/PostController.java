@@ -27,7 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
-@RequestMapping(path = "/posts")
+@RequestMapping(path = "api/v1/posts")
 public class PostController {
   @Autowired
   private PostService postService;
