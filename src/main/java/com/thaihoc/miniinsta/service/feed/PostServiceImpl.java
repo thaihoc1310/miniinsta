@@ -15,7 +15,7 @@ import com.thaihoc.miniinsta.exception.PostNotFoundException;
 import com.thaihoc.miniinsta.model.Post;
 import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.repository.PostRepository;
-import com.thaihoc.miniinsta.service.UploadService;
+import com.thaihoc.miniinsta.service.FileService;
 import com.thaihoc.miniinsta.service.profile.ProfileService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -28,7 +28,7 @@ public class PostServiceImpl implements PostService {
   private ProfileService profileService;
 
   @Autowired
-  private UploadService uploadService;
+  private FileService uploadService;
 
   @Autowired
   private PostRepository postRepository;

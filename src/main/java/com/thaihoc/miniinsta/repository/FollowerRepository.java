@@ -35,7 +35,7 @@ public interface FollowerRepository extends JpaRepository<UserFollowing, Integer
 
         Page<UserFollowing> findByFollowingUserId(int followingUserId, Pageable pageable);
 
-        int countByFollowingUserId(int followingUserId);
+        // int countByFollowingUserId(int followingUserId);
 
         UserFollowing findByFollowerUserIdAndFollowingUserId(int followerUserId, int followingUserId);
 

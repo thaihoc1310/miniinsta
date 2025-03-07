@@ -54,7 +54,7 @@ public class MessageController {
     UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
     ChatMessage chatMessage = chatMessageRepository
         .save(ChatMessage.builder().content(input.getContent()).receiver(input.getReceiver())
-            .sender(userPrincipal.getId().toString()).timestamp(LocalDateTime.now()).build());
+            .sender(userPrincipal.getUsername()).timestamp(LocalDateTime.now()).build());
     // send chat message to topic exchange
     String routingKey = "chat.private." + input.getReceiver();
 

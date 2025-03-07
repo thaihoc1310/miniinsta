@@ -11,12 +11,12 @@ import com.thaihoc.miniinsta.dto.profile.UpdateProfileRequest;
 import com.thaihoc.miniinsta.exception.UserNotFoundException;
 import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.repository.ProfileRepository;
-import com.thaihoc.miniinsta.service.UploadService;
+import com.thaihoc.miniinsta.service.FileService;
 
 @Service
 public class ProfileServiceImpl implements ProfileService {
   @Autowired
-  private UploadService uploadService;
+  private FileService uploadService;
   @Autowired
   private ProfileRepository profileRepository;
 

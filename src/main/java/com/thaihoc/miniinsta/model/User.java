@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Data
 @Entity
-public class User implements UserDetails {
+public class User {
 
     @Id
     @JdbcTypeCode(java.sql.Types.VARCHAR)

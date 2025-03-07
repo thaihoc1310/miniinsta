@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class UploadServiceImpl implements UploadService {
+public class FileServiceImpl implements FileService {
   @Autowired
   MinioClient minioClient;
 
@@ -56,4 +56,8 @@ public class UploadServiceImpl implements UploadService {
     return fileName;
   }
 
+  @Override
+  public String downloadImage(String fileName) {
+    return "http://127.0.0.1:9000/spring-boot/" + fileName;
+  }
 }
