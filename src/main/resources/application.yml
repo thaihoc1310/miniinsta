@@ -17,12 +17,12 @@ spring:
     rabbitmq:
         host: localhost
         port: 5672
-        # stomp:
-        #     relay:
-        #         host: localhost
-        #         port: 61613
-        #         login: guest
-        #         passcode: guest
+        stomp:
+            relay:
+                host: localhost
+                port: 61613
+                login: guest
+                passcode: guest
     security:
         oauth2:
             client:
@@ -48,3 +48,25 @@ logging:
                 web:
                     filter:
                         CommonsRequestLoggingFilter: DEBUG
+---
+spring.config.activate.on-profile: local
+---
+spring.config.activate.on-profile: docker-compose
+spring:
+    datasource:
+        url: 'jdbc:mysql://mysql/app'
+        username: app
+        password: app
+    data:
+        redis:
+            host: redis
+            port: 6379
+    rabbitmq:
+        host: rabbitmq
+        port: 5672
+        stomp:
+            relay:
+                host: rabbitmq
+                port: 61613
+                login: guest
+                passcode: guest
