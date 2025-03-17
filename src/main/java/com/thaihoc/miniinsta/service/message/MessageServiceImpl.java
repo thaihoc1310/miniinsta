@@ -1,6 +1,6 @@
 package com.thaihoc.miniinsta.service.message;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,7 +15,6 @@ import com.thaihoc.miniinsta.dto.message.MessageRequest;
 import com.thaihoc.miniinsta.dto.message.MessageResponse;
 import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
 import com.thaihoc.miniinsta.exception.MessageNotFoundException;
-import com.thaihoc.miniinsta.exception.ProfileNotFoundException;
 import com.thaihoc.miniinsta.model.Message;
 import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.repository.MessageRepository;
@@ -44,7 +43,7 @@ public class MessageServiceImpl implements MessageService {
         message.setSender(sender);
         message.setRecipient(recipient);
         message.setContent(request.getContent());
-        message.setCreatedAt(new Date());
+        message.setCreatedAt(LocalDateTime.now());
         message.setRead(false);
 
         if (request.getBase64Image() != null && !request.getBase64Image().isEmpty()) {
@@ -70,7 +69,7 @@ public class MessageServiceImpl implements MessageService {
         message.setRecipient(recipient);
         message.setContent(content);
         message.setImageUrl(imageUrl);
-        message.setCreatedAt(new Date());
+        message.setCreatedAt(LocalDateTime.now());
         message.setRead(false);
 
         Message savedMessage = messageRepository.save(message);
@@ -86,7 +85,7 @@ public class MessageServiceImpl implements MessageService {
 
         // Đánh dấu tin nhắn đã đọc
         List<Integer> unreadMessageIds = conversation.getContent().stream()
-                .filter(m -> !m.isRead() && m.getRecipient().getId().equals(currentProfile.getId()))
+                .filter(m -> !m.isRead() && m.getRecipient().getId() == currentProfile.getId())
                 .map(Message::getId)
                 .collect(Collectors.toList());
 
@@ -110,9 +109,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     @Transactional
     public void markMessagesAsRead(UserPrincipal userPrincipal, List<Integer> messageIds) {
-        Profile profile = profileService.getCurrentUserProfile(userPrincipal);
-
-        // Chỉ đánh dấu những tin nhắn mà người dùng hiện tại là người nhận
+        // Không cần lấy profile vì messageRepository.markAsRead đã xử lý
         messageRepository.markAsRead(messageIds);
     }
 
@@ -148,7 +145,7 @@ public class MessageServiceImpl implements MessageService {
                 .orElseThrow(() -> new MessageNotFoundException("Message not found with id: " + messageId));
 
         // Chỉ cho phép người gửi xóa tin nhắn
-        if (!message.getSender().getId().equals(profile.getId())) {
+        if (message.getSender().getId() != profile.getId()) {
             throw new RuntimeException("You don't have permission to delete this message");
         }
 

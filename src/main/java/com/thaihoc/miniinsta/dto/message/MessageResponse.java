@@ -1,6 +1,6 @@
 package com.thaihoc.miniinsta.dto.message;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
 
@@ -19,7 +19,7 @@ public class MessageResponse {
     private String content;
     private ProfileResponse sender;
     private ProfileResponse recipient;
-    private Date createdAt;
+    private LocalDateTime createdAt;
     private boolean isRead;
     private String imageUrl;
 }
