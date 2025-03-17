@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thaihoc.miniinsta.dto.UserPrincipal;
 import com.thaihoc.miniinsta.dto.hashtag.HashtagResponse;
 import com.thaihoc.miniinsta.exception.HashtagNotFoundException;
 import com.thaihoc.miniinsta.model.Hashtag;
@@ -46,8 +45,7 @@ public class HashtagServiceImpl implements HashtagService {
     @Transactional
     public Hashtag createHashtagIfNotExists(String name) {
         // Chuẩn hóa tên hashtag
-        String normalizedName = name.startsWith("#") ? name.substring(1) : name;
-        normalizedName = normalizedName.toLowerCase();
+        String normalizedName = (name.startsWith("#") ? name.substring(1) : name).toLowerCase();
 
         return hashtagRepository.findByName(normalizedName)
                 .orElseGet(() -> {
