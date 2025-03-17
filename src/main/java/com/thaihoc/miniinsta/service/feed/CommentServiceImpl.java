@@ -1,8 +1,8 @@
 package com.thaihoc.miniinsta.service.feed;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,18 +51,19 @@ public class CommentServiceImpl implements CommentService {
 
     Comment comment = new Comment();
     comment.setComment(request.getComment());
-    comment.setCreatedAt(new Date());
+    comment.setCreatedAt(LocalDateTime.now());
     comment.setCreatedBy(profile);
     comment.setPost(post);
 
     Comment savedComment = commentRepository.save(comment);
 
     // Thêm comment vào post và cập nhật count
-    post.addComment(savedComment);
+    post.getComments().add(savedComment);
+    post.setCommentCount(post.getCommentCount() + 1);
     postRepository.save(post);
 
     // Gửi thông báo cho người tạo bài viết
-    if (!post.getCreatedBy().getId().equals(profile.getId())) {
+    if (post.getCreatedBy().getId() != profile.getId()) {
       notificationService.createNotification(
           post.getCreatedBy(),
           profile,
@@ -87,7 +88,7 @@ public class CommentServiceImpl implements CommentService {
 
     Comment reply = new Comment();
     reply.setComment(request.getComment());
-    reply.setCreatedAt(new Date());
+    reply.setCreatedAt(LocalDateTime.now());
     reply.setCreatedBy(profile);
     reply.setPost(post);
     reply.setParentComment(parentComment);
@@ -95,11 +96,12 @@ public class CommentServiceImpl implements CommentService {
     Comment savedReply = commentRepository.save(reply);
 
     // Thêm comment vào post và cập nhật count
-    post.addComment(savedReply);
+    post.getComments().add(savedReply);
+    post.setCommentCount(post.getCommentCount() + 1);
     postRepository.save(post);
 
     // Gửi thông báo cho người comment gốc
-    if (!parentComment.getCreatedBy().getId().equals(profile.getId())) {
+    if (parentComment.getCreatedBy().getId() != profile.getId()) {
       notificationService.createNotification(
           parentComment.getCreatedBy(),
           profile,
@@ -120,13 +122,14 @@ public class CommentServiceImpl implements CommentService {
         .orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + commentId));
 
     // Chỉ chủ sở hữu comment hoặc chủ bài viết mới có thể xóa
-    if (!comment.getCreatedBy().getId().equals(profile.getId()) &&
-        !comment.getPost().getCreatedBy().getId().equals(profile.getId())) {
+    if (comment.getCreatedBy().getId() != profile.getId() &&
+        comment.getPost().getCreatedBy().getId() != profile.getId()) {
       throw new NoPermissionException("You don't have permission to delete this comment");
     }
 
     Post post = comment.getPost();
-    post.removeComment(comment);
+    post.getComments().remove(comment);
+    post.setCommentCount(Math.max(0, post.getCommentCount() - 1));
     postRepository.save(post);
 
     commentRepository.delete(comment);
@@ -140,11 +143,12 @@ public class CommentServiceImpl implements CommentService {
         .orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + commentId));
 
     if (!comment.getLikes().contains(profile)) {
-      comment.addLike(profile);
+      comment.getLikes().add(profile);
+      comment.setLikeCount(comment.getLikeCount() + 1);
       Comment savedComment = commentRepository.save(comment);
 
       // Gửi thông báo cho người viết comment
-      if (!comment.getCreatedBy().getId().equals(profile.getId())) {
+      if (comment.getCreatedBy().getId() != profile.getId()) {
         notificationService.createNotification(
             comment.getCreatedBy(),
             profile,
@@ -168,7 +172,8 @@ public class CommentServiceImpl implements CommentService {
         .orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + commentId));
 
     if (comment.getLikes().contains(profile)) {
-      comment.removeLike(profile);
+      comment.getLikes().remove(profile);
+      comment.setLikeCount(Math.max(0, comment.getLikeCount() - 1));
       Comment savedComment = commentRepository.save(comment);
       return convertToCommentResponse(savedComment, profile);
     }
@@ -219,15 +224,12 @@ public class CommentServiceImpl implements CommentService {
 
     return replies.map(reply -> {
       boolean isLiked = profile != null && reply.getLikes().contains(profile);
-      return convertToCommentResponse(reply, profile);
+      return convertToCommentResponse(reply, profile, isLiked);
     });
   }
 
   @Override
   public Page<CommentResponse> getTopComments(UserPrincipal userPrincipal, int postId, Pageable pageable) {
-    Post post = postRepository.findById(postId)
-        .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
-
     Profile currentProfile = null;
     if (userPrincipal != null) {
       currentProfile = profileService.getCurrentUserProfile(userPrincipal);
@@ -239,7 +241,7 @@ public class CommentServiceImpl implements CommentService {
 
     return topComments.map(comment -> {
       boolean isLiked = profile != null && comment.getLikes().contains(profile);
-      return convertToCommentResponse(comment, profile);
+      return convertToCommentResponse(comment, profile, isLiked);
     });
   }
 
@@ -258,7 +260,7 @@ public class CommentServiceImpl implements CommentService {
 
     return userComments.map(comment -> {
       boolean isLiked = profile != null && comment.getLikes().contains(profile);
-      return convertToCommentResponse(comment, profile);
+      return convertToCommentResponse(comment, profile, isLiked);
     });
   }
 
@@ -280,7 +282,10 @@ public class CommentServiceImpl implements CommentService {
 
   private CommentResponse convertToCommentResponse(Comment comment, Profile currentProfile) {
     boolean isLiked = currentProfile != null && comment.getLikes().contains(currentProfile);
+    return convertToCommentResponse(comment, currentProfile, isLiked);
+  }
 
+  private CommentResponse convertToCommentResponse(Comment comment, Profile currentProfile, boolean isLiked) {
     ProfileResponse profileResponse = ProfileResponse.builder()
         .id(comment.getCreatedBy().getId())
         .username(comment.getCreatedBy().getUsername())
