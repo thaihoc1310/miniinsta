@@ -2,13 +2,19 @@ package com.thaihoc.miniinsta.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.UUID;
 
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
 @Entity
 public class Authority implements GrantedAuthority {
 
@@ -16,5 +22,5 @@ public class Authority implements GrantedAuthority {
     @JdbcTypeCode(java.sql.Types.VARCHAR)
     private UUID id;
 
-    public String authority;
+    private String authority;
 }

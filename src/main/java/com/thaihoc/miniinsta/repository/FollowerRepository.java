@@ -18,13 +18,13 @@ public interface FollowerRepository extends JpaRepository<UserFollowing, Integer
         // followerUserId,
         // @Param(value = "limit") int limit, @Param(value = "offset") int offset);
 
-        Page<UserFollowing> findByFollowerUserId(int followerUserId, Pageable pageable);
+        Page<UserFollowing> findByFollowerUserId(long followerUserId, Pageable pageable);
 
-        int countByFollowerUserId(int followerUserId);
+        int countByFollowerUserId(long followerUserId);
 
-        List<UserFollowing> findByFollowerUserId(int followerUserId);
+        List<UserFollowing> findByFollowerUserId(long followerUserId);
 
-        List<UserFollowing> findByFollowingUserId(int followingUserId);
+        List<UserFollowing> findByFollowingUserId(long followingUserId);
 
         // @Query(value = "select * from user_following where following_user_id =
         // :followingUserId LIMIT :limit OFFSET :offset", nativeQuery = true)
@@ -33,11 +33,11 @@ public interface FollowerRepository extends JpaRepository<UserFollowing, Integer
         // @Param(value = "limit") int limit,
         // @Param(value = "offset") int offset);
 
-        Page<UserFollowing> findByFollowingUserId(int followingUserId, Pageable pageable);
+        Page<UserFollowing> findByFollowingUserId(long followingUserId, Pageable pageable);
 
         // int countByFollowingUserId(int followingUserId);
 
-        UserFollowing findByFollowerUserIdAndFollowingUserId(int followerUserId, int followingUserId);
+        UserFollowing findByFollowerUserIdAndFollowingUserId(long followerUserId, long followingUserId);
 
-        void deleteByFollowerUserIdAndFollowingUserId(int followerUserId, int followingUserId);
+        void deleteByFollowerUserIdAndFollowingUserId(long followerUserId, long followingUserId);
 }

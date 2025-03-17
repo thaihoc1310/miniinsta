@@ -51,7 +51,7 @@ public class ProfileServiceImpl implements ProfileService {
   public Profile updateProfileImage(UserPrincipal userPrincipal, UpdateProfileImageRequest request) {
     String url = uploadService.uploadImage(request.getBase64ImageString());
     Profile profile = this.getUserProfile(userPrincipal);
-    profile.setProfileImageUrl(url);
+    profile.setProfilePicture(url);
     profileRepository.save(profile);
     return profile;
   }

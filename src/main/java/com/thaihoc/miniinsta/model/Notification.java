@@ -1,10 +1,7 @@
 package com.thaihoc.miniinsta.model;
 
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.thaihoc.miniinsta.model.constraint.NotificationType;
+import com.thaihoc.miniinsta.model.base.BaseEntity;
+import com.thaihoc.miniinsta.model.enums.NotificationType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,43 +13,50 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 
 @Entity
 @Table(name = "notification")
-@Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Notification {
+public class Notification extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
   private int id;
 
   @ManyToOne
-  @JoinColumn(name = "from_user", nullable = false)
-  @JsonProperty("from_user")
-  Profile fromUser;
+  @JoinColumn(name = "recipient_id", nullable = false)
+  private Profile recipient;
 
   @ManyToOne
-  @JoinColumn(name = "to_user", nullable = false)
-  @JsonProperty("to_user")
-  Profile toUser;
+  @JoinColumn(name = "sender_id", nullable = false)
+  private Profile sender;
 
-  @NotNull
+  @Column(name = "content", nullable = false)
+  private String content;
+
   @Enumerated(EnumType.STRING)
-  NotificationType notificationType;
+  @Column(name = "type", nullable = false)
+  private NotificationType type;
 
-  @NotNull
-  private Date createdAt;
+  @Column(name = "related_post_id")
+  private Integer relatedPostId;
 
-  @ManyToOne
-  @JoinColumn(name = "post_id", nullable = false)
-  @JsonIgnore
-  private Post post;
+  @Column(name = "related_comment_id")
+  private Integer relatedCommentId;
+
+  @Column(name = "is_read")
+  private boolean isRead;
 }

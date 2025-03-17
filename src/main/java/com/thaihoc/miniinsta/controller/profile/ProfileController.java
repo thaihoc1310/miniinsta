@@ -34,7 +34,7 @@ public class ProfileController {
       @Valid @RequestBody UpdateProfileImageRequest request, Authentication authentication) {
     UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
     Profile profile = profileService.updateProfileImage(userPrincipal, request);
-    return ResponseEntity.ok().body(UpdateProfileImageResponse.builder().url(profile.getProfileImageUrl()).build());
+    return ResponseEntity.ok().body(UpdateProfileImageResponse.builder().url(profile.getProfilePicture()).build());
   }
 
   @PostMapping()
