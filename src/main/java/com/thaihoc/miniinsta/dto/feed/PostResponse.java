@@ -1,0 +1,30 @@
+package com.thaihoc.miniinsta.dto.feed;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class PostResponse {
+    private int id;
+    private String imageUrl;
+    private String caption;
+    private Date createdAt;
+    private String location;
+    private ProfileResponse createdBy;
+    private List<CommentResponse> comments;
+    private int commentCount;
+    private int likeCount;
+    private boolean likedByCurrentUser;
+    private List<String> hashtags;
+}
