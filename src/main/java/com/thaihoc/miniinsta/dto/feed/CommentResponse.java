@@ -1,6 +1,6 @@
 package com.thaihoc.miniinsta.dto.feed;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class CommentResponse {
     private int id;
     private String comment;
-    private Date createdAt;
+    private LocalDateTime createdAt;
     private ProfileResponse createdBy;
     private int likeCount;
     private boolean likedByCurrentUser;

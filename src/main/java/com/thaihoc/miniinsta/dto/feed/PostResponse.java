@@ -1,8 +1,7 @@
 package com.thaihoc.miniinsta.dto.feed;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
 
@@ -19,7 +18,7 @@ public class PostResponse {
     private int id;
     private String imageUrl;
     private String caption;
-    private Date createdAt;
+    private LocalDateTime createdAt;
     private String location;
     private ProfileResponse createdBy;
     private List<CommentResponse> comments;

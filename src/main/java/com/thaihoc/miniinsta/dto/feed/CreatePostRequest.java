@@ -1,18 +1,27 @@
 package com.thaihoc.miniinsta.dto.feed;
 
-import org.hibernate.validator.constraints.Length;
+import java.util.List;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class CreatePostRequest {
-  @Length(min = 1)
+  @NotBlank(message = "Image is required")
   private String base64ImageString;
-  @Length(min = 1, max = 2000)
+
+  @Size(max = 2200, message = "Caption cannot exceed 2200 characters")
   private String caption;
+
+  private String location;
+
+  private List<String> hashtags;
 }

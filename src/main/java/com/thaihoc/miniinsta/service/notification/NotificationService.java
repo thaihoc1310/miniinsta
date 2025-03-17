@@ -12,29 +12,29 @@ import com.thaihoc.miniinsta.model.enums.NotificationType;
 
 public interface NotificationService {
 
-    // Tạo thông báo mới
-    void createNotification(Profile recipient, Profile sender, String content,
-            NotificationType type, Integer relatedPostId, Integer relatedCommentId);
+        // Tạo thông báo mới
+        void createNotification(Profile recipient, Profile sender, String content,
+                        NotificationType type, Integer relatedPostId, Integer relatedCommentId);
 
-    // Lấy tất cả thông báo của người dùng hiện tại
-    Page<NotificationResponse> getUserNotifications(UserPrincipal userPrincipal, Pageable pageable);
+        // Lấy tất cả thông báo của người dùng hiện tại
+        Page<NotificationResponse> getUserNotifications(UserPrincipal userPrincipal, Pageable pageable);
 
-    // Lấy thông báo chưa đọc của người dùng hiện tại
-    List<NotificationResponse> getUnreadNotifications(UserPrincipal userPrincipal);
+        // Lấy thông báo chưa đọc của người dùng hiện tại
+        List<NotificationResponse> getUnreadNotifications(UserPrincipal userPrincipal);
 
-    // Đánh dấu thông báo đã đọc
-    void markNotificationAsRead(UserPrincipal userPrincipal, int notificationId);
+        // Đánh dấu thông báo đã đọc
+        void markNotificationAsRead(UserPrincipal userPrincipal, int notificationId);
 
-    // Đánh dấu tất cả thông báo đã đọc
-    void markAllNotificationsAsRead(UserPrincipal userPrincipal);
+        // Đánh dấu tất cả thông báo đã đọc
+        void markAllNotificationsAsRead(UserPrincipal userPrincipal);
 
-    // Đếm số thông báo chưa đọc
-    long countUnreadNotifications(UserPrincipal userPrincipal);
+        // Đếm số thông báo chưa đọc
+        long countUnreadNotifications(UserPrincipal userPrincipal);
 
-    // Lấy thông báo theo loại
-    Page<NotificationResponse> getNotificationsByType(UserPrincipal userPrincipal,
-            NotificationType type, Pageable pageable);
+        // Lấy thông báo theo loại
+        Page<NotificationResponse> getNotificationsByType(UserPrincipal userPrincipal,
+                        NotificationType type, Pageable pageable);
 
-    // Xóa thông báo
-    void deleteNotification(UserPrincipal userPrincipal, int notificationId);
+        // Xóa thông báo
+        void deleteNotification(UserPrincipal userPrincipal, int notificationId);
 }

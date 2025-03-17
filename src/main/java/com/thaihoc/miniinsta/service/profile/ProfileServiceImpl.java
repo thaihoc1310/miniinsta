@@ -125,7 +125,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     // Loại bỏ những profile đã follow và chính profile người dùng
     return popularProfiles.stream()
-        .filter(p -> !p.getId().equals(currentProfile.getId()) &&
+        .filter(p -> !Integer.valueOf(p.getId()).equals(currentProfile.getId()) &&
             !isFollowingProfile(userPrincipal, p.getId()))
         .map(this::convertToProfileResponse)
         .limit(limit)

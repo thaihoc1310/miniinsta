@@ -1,20 +1,29 @@
 package com.thaihoc.miniinsta.dto.profile;
 
-import org.hibernate.validator.constraints.Length;
+import jakarta.validation.constraints.Size;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class UpdateProfileRequest {
-  @Length(min = 1, max = 100)
-  private String displayName;
-  @Length(min = 1, max = 100)
+  @Size(min = 3, max = 50)
   private String username;
-  @Length(min = 1, max = 100)
+
+  @Size(max = 100)
+  private String displayName;
+
+  @Size(max = 150)
   private String bio;
+
+  @Size(max = 100)
+  private String website;
+
+  @Size(max = 20)
+  private String phoneNumber;
 }
