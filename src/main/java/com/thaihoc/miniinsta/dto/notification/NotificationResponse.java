@@ -1,6 +1,6 @@
 package com.thaihoc.miniinsta.dto.notification;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
 import com.thaihoc.miniinsta.model.enums.NotificationType;
@@ -22,5 +22,5 @@ public class NotificationResponse {
     private Integer relatedPostId;
     private Integer relatedCommentId;
     private boolean isRead;
-    private Date createdAt;
+    private LocalDateTime createdAt;
 }

@@ -1,6 +1,6 @@
 package com.thaihoc.miniinsta.service.notification;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +34,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void createNotification(Profile recipient, Profile sender, String content,
             NotificationType type, Integer relatedPostId, Integer relatedCommentId) {
         // Không gửi thông báo cho chính mình
-        if (recipient.getId().equals(sender.getId())) {
+        if (recipient.getId() == sender.getId()) {
             return;
         }
 
@@ -46,7 +46,7 @@ public class NotificationServiceImpl implements NotificationService {
         notification.setRelatedPostId(relatedPostId);
         notification.setRelatedCommentId(relatedCommentId);
         notification.setRead(false);
-        notification.setCreatedAt(new Date());
+        notification.setCreatedAt(LocalDateTime.now());
 
         notificationRepository.save(notification);
     }
@@ -77,7 +77,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new NotificationNotFoundException("Notification not found"));
 
         // Kiểm tra nếu thông báo thuộc về người dùng hiện tại
-        if (!notification.getRecipient().getId().equals(profile.getId())) {
+        if (notification.getRecipient().getId() != profile.getId()) {
             throw new RuntimeException("You don't have permission to mark this notification as read");
         }
 
@@ -114,7 +114,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new NotificationNotFoundException("Notification not found"));
 
         // Chỉ cho phép xóa thông báo của chính mình
-        if (!notification.getRecipient().getId().equals(profile.getId())) {
+        if (notification.getRecipient().getId() != profile.getId()) {
             throw new RuntimeException("You don't have permission to delete this notification");
         }
 

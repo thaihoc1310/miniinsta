@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import com.thaihoc.miniinsta.dto.UserPrincipal;
 import com.thaihoc.miniinsta.dto.feed.CommentResponse;
 import com.thaihoc.miniinsta.dto.feed.CreateCommentRequest;
-import com.thaihoc.miniinsta.model.Comment;
 
 public interface CommentService {
   // Tạo comment mới
