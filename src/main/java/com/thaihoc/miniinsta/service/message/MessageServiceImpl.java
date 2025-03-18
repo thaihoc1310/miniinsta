@@ -108,11 +108,11 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Page<MessageResponse> searchMessages(UserPrincipal userPrincipal, int otherProfileId,
-            String searchTerm, Pageable pageable) {
+            String q, Pageable pageable) {
         Profile currentProfile = profileService.getCurrentUserProfile(userPrincipal);
         Profile otherProfile = profileService.getProfileById(otherProfileId);
 
-        Page<Message> messages = messageRepository.searchMessages(currentProfile, otherProfile, searchTerm, pageable);
+        Page<Message> messages = messageRepository.searchMessages(currentProfile, otherProfile, q, pageable);
         return messages.map(this::convertToMessageResponse);
     }
 

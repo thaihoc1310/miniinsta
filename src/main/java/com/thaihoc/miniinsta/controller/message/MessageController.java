@@ -2,14 +2,15 @@ package com.thaihoc.miniinsta.controller.message;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,68 +25,110 @@ import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
 import com.thaihoc.miniinsta.service.message.MessageService;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/messages")
+@RequestMapping("/api/v1/messages")
+@RequiredArgsConstructor
 public class MessageController {
 
-    @Autowired
-    private MessageService messageService;
+    private final MessageService messageService;
 
-    @PostMapping("/send/{recipientId}")
-    public ResponseEntity<MessageResponse> sendMessage(@AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable int recipientId, @Valid @RequestBody MessageRequest request) {
-        MessageResponse response = messageService.sendMessage(userPrincipal, recipientId, request);
-        return ResponseEntity.ok(response);
+    /**
+     * Gửi tin nhắn đến một người dùng
+     */
+    @PostMapping
+    public ResponseEntity<MessageResponse> sendMessage(
+            Authentication authentication,
+            @Valid @RequestBody MessageRequest request) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        MessageResponse response = messageService.sendMessage(userPrincipal, request.getRecipientId(), request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/conversation/{otherProfileId}")
-    public ResponseEntity<Page<MessageResponse>> getConversation(@AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable int otherProfileId, @PageableDefault(size = 20) Pageable pageable) {
-        Page<MessageResponse> conversation = messageService.getConversation(userPrincipal, otherProfileId, pageable);
+    /**
+     * Lấy cuộc trò chuyện với một người dùng
+     */
+    @GetMapping("/users/{profileId}")
+    public ResponseEntity<Page<MessageResponse>> getConversation(
+            Authentication authentication,
+            @PathVariable int profileId,
+            @PageableDefault(size = 20) Pageable pageable) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Page<MessageResponse> conversation = messageService.getConversation(userPrincipal, profileId, pageable);
         return ResponseEntity.ok(conversation);
     }
 
+    /**
+     * Lấy tin nhắn chưa đọc
+     */
     @GetMapping("/unread")
     public ResponseEntity<List<MessageResponse>> getUnreadMessages(
-            @AuthenticationPrincipal UserPrincipal userPrincipal) {
+            Authentication authentication) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         List<MessageResponse> unreadMessages = messageService.getUnreadMessages(userPrincipal);
         return ResponseEntity.ok(unreadMessages);
     }
 
-    @PostMapping("/mark-read")
-    public ResponseEntity<Void> markMessagesAsRead(@AuthenticationPrincipal UserPrincipal userPrincipal,
+    /**
+     * Đánh dấu tin nhắn đã đọc
+     */
+    @PatchMapping("/read")
+    public ResponseEntity<Void> markMessagesAsRead(
+            Authentication authentication,
             @RequestBody List<Integer> messageIds) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         messageService.markMessagesAsRead(userPrincipal, messageIds);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Đếm số tin nhắn chưa đọc
+     */
     @GetMapping("/unread/count")
-    public ResponseEntity<Long> countUnreadMessages(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    public ResponseEntity<Long> countUnreadMessages(
+            Authentication authentication) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         long count = messageService.countUnreadMessages(userPrincipal);
         return ResponseEntity.ok(count);
     }
 
-    @GetMapping("/recent-conversations")
+    /**
+     * Lấy danh sách cuộc trò chuyện gần đây
+     */
+    @GetMapping("/conversations")
     public ResponseEntity<Page<ProfileResponse>> getRecentConversations(
-            @AuthenticationPrincipal UserPrincipal userPrincipal, @PageableDefault(size = 20) Pageable pageable) {
+            Authentication authentication,
+            @PageableDefault(size = 20) Pageable pageable) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         Page<ProfileResponse> conversations = messageService.getRecentConversations(userPrincipal, pageable);
         return ResponseEntity.ok(conversations);
     }
 
-    @GetMapping("/search/{otherProfileId}")
-    public ResponseEntity<Page<MessageResponse>> searchMessages(@AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable int otherProfileId, @RequestParam String searchTerm,
+    /**
+     * Tìm kiếm tin nhắn trong cuộc trò chuyện
+     */
+    @GetMapping("/users/{profileId}/search")
+    public ResponseEntity<Page<MessageResponse>> searchMessages(
+            Authentication authentication,
+            @PathVariable int profileId,
+            @RequestParam String q,
             @PageableDefault(size = 20) Pageable pageable) {
-        Page<MessageResponse> messages = messageService.searchMessages(userPrincipal, otherProfileId, searchTerm,
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Page<MessageResponse> messages = messageService.searchMessages(userPrincipal, profileId, q,
                 pageable);
         return ResponseEntity.ok(messages);
     }
 
-    @DeleteMapping("/{messageId}")
-    public ResponseEntity<Void> deleteMessage(@AuthenticationPrincipal UserPrincipal userPrincipal,
-            @PathVariable int messageId) {
-        messageService.deleteMessage(userPrincipal, messageId);
-        return ResponseEntity.ok().build();
+    /**
+     * Xóa một tin nhắn
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteMessage(
+            Authentication authentication,
+            @PathVariable int id) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        messageService.deleteMessage(userPrincipal, id);
+        return ResponseEntity.noContent().build();
     }
 }

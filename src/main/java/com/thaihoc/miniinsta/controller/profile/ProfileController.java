@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -22,12 +23,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(path = "api/v1/profiles")
+@RequestMapping("/api/v1/profiles")
 @RequiredArgsConstructor
 public class ProfileController {
 
     private final ProfileService profileService;
 
+    /**
+     * Lấy thông tin profile của người dùng hiện tại
+     */
     @GetMapping("/me")
     public ResponseEntity<GetProfileResponse> getCurrentUserProfile(Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
@@ -40,6 +44,9 @@ public class ProfileController {
                 .build());
     }
 
+    /**
+     * Lấy thông tin profile theo ID
+     */
     @GetMapping("/{id}")
     public ResponseEntity<GetProfileResponse> getProfileById(@PathVariable int id) {
         Profile profile = profileService.getProfileById(id);
@@ -51,6 +58,9 @@ public class ProfileController {
                 .build());
     }
 
+    /**
+     * Lấy thông tin profile theo username
+     */
     @GetMapping("/username/{username}")
     public ResponseEntity<GetProfileResponse> getProfileByUsername(@PathVariable String username) {
         Profile profile = profileService.getProfileByUsername(username);
@@ -62,6 +72,9 @@ public class ProfileController {
                 .build());
     }
 
+    /**
+     * Cập nhật thông tin profile của người dùng hiện tại
+     */
     @PutMapping("/me")
     public ResponseEntity<UpdateProfileResponse> updateProfile(Authentication authentication,
             @Valid @RequestBody UpdateProfileRequest request) {
@@ -70,6 +83,9 @@ public class ProfileController {
         return ResponseEntity.ok(UpdateProfileResponse.builder().profile(profile).build());
     }
 
+    /**
+     * Cập nhật ảnh đại diện của người dùng hiện tại
+     */
     @PutMapping("/me/image")
     public ResponseEntity<UpdateProfileResponse> updateProfileImage(Authentication authentication,
             @Valid @RequestBody UpdateProfileImageRequest request) {
@@ -78,18 +94,27 @@ public class ProfileController {
         return ResponseEntity.ok(UpdateProfileResponse.builder().profile(profile).build());
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<Page<ProfileResponse>> searchProfiles(@RequestParam String searchTerm,
+    /**
+     * Tìm kiếm profile theo tên hoặc username
+     */
+    @GetMapping
+    public ResponseEntity<Page<ProfileResponse>> searchProfiles(@RequestParam String q,
             Pageable pageable) {
-        return ResponseEntity.ok(profileService.searchProfiles(searchTerm, pageable));
+        return ResponseEntity.ok(profileService.searchProfiles(q, pageable));
     }
 
-    @PutMapping("/me/private")
+    /**
+     * Bật/tắt chế độ riêng tư cho profile
+     */
+    @PutMapping("/me/privacy")
     public ResponseEntity<Profile> togglePrivateProfile(Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         return ResponseEntity.ok(profileService.togglePrivateProfile(userPrincipal));
     }
 
+    /**
+     * Lấy danh sách profile gợi ý theo dõi
+     */
     @GetMapping("/suggested")
     public ResponseEntity<List<ProfileResponse>> getSuggestedProfiles(Authentication authentication,
             @RequestParam(defaultValue = "5") int limit) {
@@ -97,30 +122,45 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.getSuggestedProfiles(userPrincipal, limit));
     }
 
+    /**
+     * Lấy danh sách người theo dõi của một profile
+     */
     @GetMapping("/{id}/followers")
     public ResponseEntity<Page<ProfileResponse>> getFollowers(@PathVariable int id, Pageable pageable) {
         return ResponseEntity.ok(profileService.getFollowers(id, pageable));
     }
 
+    /**
+     * Lấy danh sách người đang theo dõi của một profile
+     */
     @GetMapping("/{id}/following")
     public ResponseEntity<Page<ProfileResponse>> getFollowing(@PathVariable int id, Pageable pageable) {
         return ResponseEntity.ok(profileService.getFollowing(id, pageable));
     }
 
-    @PostMapping("/{id}/follow")
+    /**
+     * Theo dõi một người dùng
+     */
+    @PostMapping("/{id}/followers")
     public ResponseEntity<Void> followProfile(Authentication authentication, @PathVariable int id) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         profileService.followProfile(userPrincipal, id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/{id}/follow")
+    /**
+     * Hủy theo dõi một người dùng
+     */
+    @DeleteMapping("/{id}/followers")
     public ResponseEntity<Void> unfollowProfile(Authentication authentication, @PathVariable int id) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         profileService.unfollowProfile(userPrincipal, id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Cập nhật thông tin profile (quyền Admin)
+     */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UpdateProfileResponse> updateProfileByAdmin(Authentication authentication,

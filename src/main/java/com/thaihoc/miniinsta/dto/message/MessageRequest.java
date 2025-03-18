@@ -1,6 +1,7 @@
 package com.thaihoc.miniinsta.dto.message;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import lombok.AllArgsConstructor;
@@ -19,4 +20,7 @@ public class MessageRequest {
     private String content;
 
     private String base64Image;
+
+    @NotNull(message = "Recipient ID cannot be null")
+    private Integer recipientId;
 }

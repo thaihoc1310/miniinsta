@@ -32,7 +32,7 @@ public interface MessageService {
 
         // Tìm kiếm trong cuộc hội thoại
         Page<MessageResponse> searchMessages(UserPrincipal userPrincipal, int otherProfileId,
-                        String searchTerm, Pageable pageable);
+                        String q, Pageable pageable);
 
         // Xóa tin nhắn
         void deleteMessage(UserPrincipal userPrincipal, int messageId);

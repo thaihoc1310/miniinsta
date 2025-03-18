@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -16,12 +17,15 @@ import com.thaihoc.miniinsta.service.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(path = "api/v1/notifications")
+@RequestMapping("/api/v1/notifications")
 @RequiredArgsConstructor
 public class NotificationController {
 
     private final NotificationService notificationService;
 
+    /**
+     * Lấy tất cả thông báo của người dùng hiện tại
+     */
     @GetMapping
     public ResponseEntity<Page<NotificationResponse>> getUserNotifications(
             Authentication authentication,
@@ -30,6 +34,9 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getUserNotifications(userPrincipal, pageable));
     }
 
+    /**
+     * Lấy danh sách thông báo chưa đọc
+     */
     @GetMapping("/unread")
     public ResponseEntity<List<NotificationResponse>> getUnreadNotifications(
             Authentication authentication) {
@@ -37,6 +44,9 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getUnreadNotifications(userPrincipal));
     }
 
+    /**
+     * Đếm số thông báo chưa đọc
+     */
     @GetMapping("/unread/count")
     public ResponseEntity<Long> countUnreadNotifications(
             Authentication authentication) {
@@ -44,7 +54,10 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.countUnreadNotifications(userPrincipal));
     }
 
-    @GetMapping("/type/{type}")
+    /**
+     * Lấy thông báo theo loại
+     */
+    @GetMapping("/types/{type}")
     public ResponseEntity<Page<NotificationResponse>> getNotificationsByType(
             Authentication authentication,
             @PathVariable NotificationType type,
@@ -53,29 +66,38 @@ public class NotificationController {
         return ResponseEntity.ok(notificationService.getNotificationsByType(userPrincipal, type, pageable));
     }
 
-    @PutMapping("/{notificationId}/read")
+    /**
+     * Đánh dấu thông báo đã đọc
+     */
+    @PatchMapping("/{id}/read")
     public ResponseEntity<Void> markNotificationAsRead(
             Authentication authentication,
-            @PathVariable int notificationId) {
+            @PathVariable int id) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        notificationService.markNotificationAsRead(userPrincipal, notificationId);
-        return ResponseEntity.ok().build();
+        notificationService.markNotificationAsRead(userPrincipal, id);
+        return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/read-all")
+    /**
+     * Đánh dấu tất cả thông báo đã đọc
+     */
+    @PatchMapping("/read-all")
     public ResponseEntity<Void> markAllNotificationsAsRead(
             Authentication authentication) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         notificationService.markAllNotificationsAsRead(userPrincipal);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{notificationId}")
+    /**
+     * Xóa một thông báo
+     */
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotification(
             Authentication authentication,
-            @PathVariable int notificationId) {
+            @PathVariable int id) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        notificationService.deleteNotification(userPrincipal, notificationId);
-        return ResponseEntity.ok().build();
+        notificationService.deleteNotification(userPrincipal, id);
+        return ResponseEntity.noContent().build();
     }
 }

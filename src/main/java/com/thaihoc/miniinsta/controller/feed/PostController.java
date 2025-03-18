@@ -153,7 +153,7 @@ public class PostController {
     /**
      * Tìm kiếm bài đăng
      */
-    @GetMapping("/search")
+    @GetMapping
     public ResponseEntity<Page<PostResponse>> searchPosts(
             Authentication authentication,
             @RequestParam String q,

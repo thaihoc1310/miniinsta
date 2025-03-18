@@ -127,8 +127,8 @@ public class ProfileServiceImpl implements ProfileService {
   }
 
   @Override
-  public Page<ProfileResponse> searchProfiles(String searchTerm, Pageable pageable) {
-    Page<Profile> profiles = profileRepository.searchProfiles(searchTerm, pageable);
+  public Page<ProfileResponse> searchProfiles(String q, Pageable pageable) {
+    Page<Profile> profiles = profileRepository.searchProfiles(q, pageable);
     return profiles.map(this::convertToProfileResponse);
   }
 

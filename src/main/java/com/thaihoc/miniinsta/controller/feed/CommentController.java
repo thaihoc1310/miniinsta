@@ -2,6 +2,7 @@ package com.thaihoc.miniinsta.controller.feed;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -15,63 +16,88 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(path = "api/v1/comments")
+@RequestMapping("/api/v1/comments")
 @RequiredArgsConstructor
 public class CommentController {
 
     private final CommentService commentService;
 
+    /**
+     * Tạo bình luận mới
+     */
     @PostMapping
     public ResponseEntity<CommentResponse> createComment(
             Authentication authentication,
             @Valid @RequestBody CreateCommentRequest request) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(commentService.createComment(userPrincipal, request));
+        CommentResponse comment = commentService.createComment(userPrincipal, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(comment);
     }
 
-    @PostMapping("/{commentId}/replies")
+    /**
+     * Trả lời một bình luận
+     */
+    @PostMapping("/{id}/replies")
     public ResponseEntity<CommentResponse> replyToComment(
             Authentication authentication,
-            @PathVariable int commentId,
+            @PathVariable int id,
             @Valid @RequestBody CreateCommentRequest request) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(commentService.replyToComment(userPrincipal, commentId, request));
+        CommentResponse comment = commentService.replyToComment(userPrincipal, id, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(comment);
     }
 
-    @DeleteMapping("/{commentId}")
+    /**
+     * Xóa một bình luận
+     */
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteComment(
             Authentication authentication,
-            @PathVariable int commentId) {
+            @PathVariable int id) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        commentService.deleteComment(userPrincipal, commentId);
-        return ResponseEntity.ok().build();
+        commentService.deleteComment(userPrincipal, id);
+        return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{commentId}/like")
-    public ResponseEntity<CommentResponse> likeComment(
+    /**
+     * Thích một bình luận
+     */
+    @PostMapping("/{id}/likes")
+    public ResponseEntity<Void> likeComment(
             Authentication authentication,
-            @PathVariable int commentId) {
+            @PathVariable int id) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(commentService.likeComment(userPrincipal, commentId));
+        commentService.likeComment(userPrincipal, id);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/{commentId}/like")
-    public ResponseEntity<CommentResponse> unlikeComment(
+    /**
+     * Bỏ thích một bình luận
+     */
+    @DeleteMapping("/{id}/likes")
+    public ResponseEntity<Void> unlikeComment(
             Authentication authentication,
-            @PathVariable int commentId) {
+            @PathVariable int id) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(commentService.unlikeComment(userPrincipal, commentId));
+        commentService.unlikeComment(userPrincipal, id);
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{commentId}/isLiked")
+    /**
+     * Kiểm tra người dùng đã thích bình luận chưa
+     */
+    @GetMapping("/{id}/likes/status")
     public ResponseEntity<Boolean> isCommentLiked(
             Authentication authentication,
-            @PathVariable int commentId) {
+            @PathVariable int id) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(commentService.isCommentLiked(userPrincipal, commentId));
+        return ResponseEntity.ok(commentService.isCommentLiked(userPrincipal, id));
     }
 
-    @GetMapping("/post/{postId}")
+    /**
+     * Lấy tất cả bình luận của một bài đăng
+     */
+    @GetMapping("/posts/{postId}")
     public ResponseEntity<Page<CommentResponse>> getPostComments(
             Authentication authentication,
             @PathVariable int postId,
@@ -83,19 +109,25 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getPostComments(userPrincipal, postId, pageable));
     }
 
-    @GetMapping("/{commentId}/replies")
+    /**
+     * Lấy các trả lời cho một bình luận
+     */
+    @GetMapping("/{id}/replies")
     public ResponseEntity<Page<CommentResponse>> getCommentReplies(
             Authentication authentication,
-            @PathVariable int commentId,
+            @PathVariable int id,
             Pageable pageable) {
         UserPrincipal userPrincipal = null;
         if (authentication != null && authentication.isAuthenticated()) {
             userPrincipal = (UserPrincipal) authentication.getPrincipal();
         }
-        return ResponseEntity.ok(commentService.getCommentReplies(userPrincipal, commentId, pageable));
+        return ResponseEntity.ok(commentService.getCommentReplies(userPrincipal, id, pageable));
     }
 
-    @GetMapping("/post/{postId}/top")
+    /**
+     * Lấy các bình luận hàng đầu của một bài đăng
+     */
+    @GetMapping("/posts/{postId}/top")
     public ResponseEntity<Page<CommentResponse>> getTopComments(
             Authentication authentication,
             @PathVariable int postId,
@@ -107,7 +139,10 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getTopComments(userPrincipal, postId, pageable));
     }
 
-    @GetMapping("/user/{profileId}")
+    /**
+     * Lấy tất cả bình luận của một người dùng
+     */
+    @GetMapping("/users/{profileId}")
     public ResponseEntity<Page<CommentResponse>> getUserComments(
             Authentication authentication,
             @PathVariable int profileId,
@@ -119,14 +154,17 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getUserComments(userPrincipal, profileId, pageable));
     }
 
-    @GetMapping("/{commentId}")
+    /**
+     * Lấy chi tiết một bình luận
+     */
+    @GetMapping("/{id}")
     public ResponseEntity<CommentResponse> getComment(
             Authentication authentication,
-            @PathVariable int commentId) {
+            @PathVariable int id) {
         UserPrincipal userPrincipal = null;
         if (authentication != null && authentication.isAuthenticated()) {
             userPrincipal = (UserPrincipal) authentication.getPrincipal();
         }
-        return ResponseEntity.ok(commentService.getComment(userPrincipal, commentId));
+        return ResponseEntity.ok(commentService.getComment(userPrincipal, id));
     }
 }

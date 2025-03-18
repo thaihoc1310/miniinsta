@@ -96,8 +96,8 @@ public class HashtagServiceImpl implements HashtagService {
     }
 
     @Override
-    public Page<HashtagResponse> searchHashtags(String searchTerm, Pageable pageable) {
-        Page<Hashtag> hashtags = hashtagRepository.searchHashtags(searchTerm, pageable);
+    public Page<HashtagResponse> searchHashtags(String q, Pageable pageable) {
+        Page<Hashtag> hashtags = hashtagRepository.searchHashtags(q, pageable);
         return hashtags.map(this::convertToHashtagResponse);
     }
 

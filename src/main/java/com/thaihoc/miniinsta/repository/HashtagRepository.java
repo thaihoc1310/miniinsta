@@ -15,16 +15,31 @@ import com.thaihoc.miniinsta.model.Hashtag;
 @Repository
 public interface HashtagRepository extends JpaRepository<Hashtag, Integer> {
 
+    /**
+     * Tìm hashtag theo tên chính xác
+     */
     Optional<Hashtag> findByName(String name);
 
+    /**
+     * Tìm hashtag theo tên một phần
+     */
     List<Hashtag> findByNameContaining(String partialName);
 
+    /**
+     * Lấy danh sách hashtag thịnh hành theo số lượng bài viết
+     */
     @Query("SELECT h FROM Hashtag h ORDER BY h.postCount DESC")
     Page<Hashtag> findTrendingHashtags(Pageable pageable);
 
-    @Query("SELECT h FROM Hashtag h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
-    Page<Hashtag> searchHashtags(@Param("searchTerm") String searchTerm, Pageable pageable);
+    /**
+     * Tìm kiếm hashtag theo từ khóa
+     */
+    @Query("SELECT h FROM Hashtag h WHERE LOWER(h.name) LIKE LOWER(CONCAT('%', :q, '%'))")
+    Page<Hashtag> searchHashtags(@Param("q") String q, Pageable pageable);
 
+    /**
+     * Lấy danh sách hashtag của một bài đăng
+     */
     @Query(value = "SELECT h.* FROM hashtag h " +
             "JOIN post_hashtags ph ON h.id = ph.hashtag_id " +
             "WHERE ph.post_id = :postId", nativeQuery = true)

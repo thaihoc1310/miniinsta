@@ -2,6 +2,7 @@ package com.thaihoc.miniinsta.controller.feed;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +16,15 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(path = "api/v1/hashtags")
+@RequestMapping("/api/v1/hashtags")
 @RequiredArgsConstructor
 public class HashtagController {
 
     private final HashtagService hashtagService;
 
+    /**
+     * Lấy thông tin hashtag theo tên
+     */
     @GetMapping("/{name}")
     public ResponseEntity<HashtagResponse> getHashtagByName(@PathVariable String name) {
         Hashtag hashtag = hashtagService.getHashtagByName(name);
@@ -32,6 +36,9 @@ public class HashtagController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Tạo mới hashtag
+     */
     @PostMapping
     public ResponseEntity<HashtagResponse> createHashtag(@Valid @RequestBody CreateHashtagRequest request) {
         Hashtag hashtag = hashtagService.createHashtagIfNotExists(request.getName());
@@ -40,16 +47,22 @@ public class HashtagController {
                 .name(hashtag.getName())
                 .postCount(hashtag.getPostCount())
                 .build();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/search")
+    /**
+     * Tìm kiếm hashtag theo từ khóa
+     */
+    @GetMapping
     public ResponseEntity<Page<HashtagResponse>> searchHashtags(
-            @RequestParam String searchTerm,
+            @RequestParam String q,
             Pageable pageable) {
-        return ResponseEntity.ok(hashtagService.searchHashtags(searchTerm, pageable));
+        return ResponseEntity.ok(hashtagService.searchHashtags(q, pageable));
     }
 
+    /**
+     * Lấy các hashtag thịnh hành
+     */
     @GetMapping("/trending")
     public ResponseEntity<Page<HashtagResponse>> getTrendingHashtags(Pageable pageable) {
         return ResponseEntity.ok(hashtagService.getTrendingHashtags(pageable));
@@ -73,10 +86,13 @@ public class HashtagController {
     // return ResponseEntity.ok().build();
     // }
 
-    @PostMapping("/update-count")
+    /**
+     * Cập nhật số lượng bài đăng cho tất cả hashtag (API dành cho Admin)
+     */
+    @PostMapping("/update-counts")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> updateHashtagPostCount() {
         hashtagService.updateHashtagPostCount();
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

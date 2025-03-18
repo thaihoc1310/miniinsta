@@ -12,48 +12,76 @@ import com.thaihoc.miniinsta.dto.profile.UpdateProfileRequest;
 import com.thaihoc.miniinsta.model.Profile;
 
 public interface ProfileService {
-  // Lấy profile của user hiện tại
+  /**
+   * Lấy profile của user hiện tại
+   */
   Profile getCurrentUserProfile(UserPrincipal userPrincipal);
 
-  // Lấy profile theo ID
+  /**
+   * Lấy profile theo ID
+   */
   Profile getProfileById(int id);
 
-  // Lấy profile theo username
+  /**
+   * Lấy profile theo username
+   */
   Profile getProfileByUsername(String username);
 
   // // Lấy profile theo user ID
   // Profile getProfileByUserId(UUID userId);
 
-  // Cập nhật thông tin profile
+  /**
+   * Cập nhật thông tin profile
+   */
   Profile updateProfile(UserPrincipal userPrincipal, UpdateProfileRequest request);
 
-  // Cập nhật ảnh profile
+  /**
+   * Cập nhật ảnh profile
+   */
   Profile updateProfileImage(UserPrincipal userPrincipal, UpdateProfileImageRequest request);
 
-  // Tìm kiếm profile theo từ khóa
-  Page<ProfileResponse> searchProfiles(String searchTerm, Pageable pageable);
+  /**
+   * Tìm kiếm profile theo từ khóa
+   */
+  Page<ProfileResponse> searchProfiles(String q, Pageable pageable);
 
-  // Đánh dấu profile là private/public
+  /**
+   * Đánh dấu profile là private/public
+   */
   Profile togglePrivateProfile(UserPrincipal userPrincipal);
 
-  // Tìm các profile phổ biến để gợi ý theo dõi
+  /**
+   * Tìm các profile phổ biến để gợi ý theo dõi
+   */
   List<ProfileResponse> getSuggestedProfiles(UserPrincipal userPrincipal, int limit);
 
-  // Kiểm tra nếu người dùng hiện tại đang theo dõi một profile
+  /**
+   * Kiểm tra nếu người dùng hiện tại đang theo dõi một profile
+   */
   boolean isFollowingProfile(UserPrincipal userPrincipal, int profileId);
 
-  // Lấy danh sách followers
+  /**
+   * Lấy danh sách followers
+   */
   Page<ProfileResponse> getFollowers(int profileId, Pageable pageable);
 
-  // Lấy danh sách đang theo dõi
+  /**
+   * Lấy danh sách đang theo dõi
+   */
   Page<ProfileResponse> getFollowing(int profileId, Pageable pageable);
 
-  // Theo dõi một profile
+  /**
+   * Theo dõi một profile
+   */
   void followProfile(UserPrincipal userPrincipal, int profileId);
 
-  // Bỏ theo dõi một profile
+  /**
+   * Bỏ theo dõi một profile
+   */
   void unfollowProfile(UserPrincipal userPrincipal, int profileId);
 
-  // Cập nhật profile của người khác (chỉ dành cho admin)
+  /**
+   * Cập nhật profile của người khác (chỉ dành cho admin)
+   */
   Profile updateProfileByAdmin(UserPrincipal userPrincipal, int profileId, UpdateProfileRequest request);
 }
