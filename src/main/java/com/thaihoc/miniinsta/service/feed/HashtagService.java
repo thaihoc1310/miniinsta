@@ -1,4 +1,4 @@
-package com.thaihoc.miniinsta.service.hashtag;
+package com.thaihoc.miniinsta.service.feed;
 
 import java.util.List;
 import java.util.Set;

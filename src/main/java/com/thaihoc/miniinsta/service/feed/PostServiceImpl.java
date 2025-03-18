@@ -33,7 +33,6 @@ import com.thaihoc.miniinsta.repository.FeedRepository;
 import com.thaihoc.miniinsta.repository.PostRepository;
 import com.thaihoc.miniinsta.repository.ProfileRepository;
 import com.thaihoc.miniinsta.service.FileService;
-import com.thaihoc.miniinsta.service.hashtag.HashtagService;
 import com.thaihoc.miniinsta.service.notification.NotificationService;
 import com.thaihoc.miniinsta.service.profile.ProfileService;
 

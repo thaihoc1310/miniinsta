@@ -15,10 +15,6 @@ public interface MessageService {
         // Gửi tin nhắn
         MessageResponse sendMessage(UserPrincipal userPrincipal, int recipientId, MessageRequest request);
 
-        // Gửi tin nhắn với hình ảnh
-        MessageResponse sendMessageWithImage(UserPrincipal userPrincipal, int recipientId,
-                        String content, String base64Image);
-
         // Lấy cuộc hội thoại với một người dùng
         Page<MessageResponse> getConversation(UserPrincipal userPrincipal, int otherProfileId, Pageable pageable);
 

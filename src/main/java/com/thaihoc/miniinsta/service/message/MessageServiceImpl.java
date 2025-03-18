@@ -56,27 +56,6 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    @Transactional
-    public MessageResponse sendMessageWithImage(UserPrincipal userPrincipal, int recipientId,
-            String content, String base64Image) {
-        Profile sender = profileService.getCurrentUserProfile(userPrincipal);
-        Profile recipient = profileService.getProfileById(recipientId);
-
-        String imageUrl = fileService.uploadImage(base64Image);
-
-        Message message = new Message();
-        message.setSender(sender);
-        message.setRecipient(recipient);
-        message.setContent(content);
-        message.setImageUrl(imageUrl);
-        message.setCreatedAt(LocalDateTime.now());
-        message.setRead(false);
-
-        Message savedMessage = messageRepository.save(message);
-        return convertToMessageResponse(savedMessage);
-    }
-
-    @Override
     public Page<MessageResponse> getConversation(UserPrincipal userPrincipal, int otherProfileId, Pageable pageable) {
         Profile currentProfile = profileService.getCurrentUserProfile(userPrincipal);
         Profile otherProfile = profileService.getProfileById(otherProfileId);
@@ -153,16 +132,12 @@ public class MessageServiceImpl implements MessageService {
     }
 
     // Helper methods
-
     private MessageResponse convertToMessageResponse(Message message) {
-        ProfileResponse senderProfile = convertToProfileResponse(message.getSender());
-        ProfileResponse recipientProfile = convertToProfileResponse(message.getRecipient());
-
         return MessageResponse.builder()
                 .id(message.getId())
                 .content(message.getContent())
-                .sender(senderProfile)
-                .recipient(recipientProfile)
+                .sender(convertToProfileResponse(message.getSender()))
+                .recipient(convertToProfileResponse(message.getRecipient()))
                 .createdAt(message.getCreatedAt())
                 .isRead(message.isRead())
                 .imageUrl(message.getImageUrl())
@@ -174,6 +149,7 @@ public class MessageServiceImpl implements MessageService {
                 .id(profile.getId())
                 .username(profile.getUsername())
                 .displayName(profile.getDisplayName())
+                .bio(profile.getBio())
                 .profilePictureUrl(profile.getProfilePictureUrl())
                 .isVerified(profile.isVerified())
                 .build();

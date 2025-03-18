@@ -16,6 +16,7 @@ import org.springframework.retry.support.RetryTemplate;
 @Configuration
 public class MessageQueueConfig {
   public static final String PRIVATE_CHAT_QUEUE = "privateChatQueue";
+  // public static final String CHAT_RETRY_QUEUE = "chatRetryQueue";
   public static final String CHAT_EXCHANGE = "chatExchange";
   public static final String AFTER_CREATE_POST_QUEUE = "after-create-post-queue";
 
@@ -52,13 +53,12 @@ public class MessageQueueConfig {
   }
 
   @Bean
-  Binding binding(@Qualifier(PRIVATE_CHAT_QUEUE) Queue queue, TopicExchange exchange) {
+  Binding privateBinding(@Qualifier(PRIVATE_CHAT_QUEUE) Queue queue, TopicExchange exchange) {
     return BindingBuilder.bind(queue).to(exchange).with("chat.private.#");
   }
 
   @Bean
   Queue afterCreatePostQueue() {
     return QueueBuilder.durable(AFTER_CREATE_POST_QUEUE).build();
-
   }
 }

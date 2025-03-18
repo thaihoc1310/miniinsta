@@ -19,7 +19,6 @@ import com.thaihoc.miniinsta.model.Post;
 import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.repository.FeedRepository;
 import com.thaihoc.miniinsta.repository.PostRepository;
-import com.thaihoc.miniinsta.service.hashtag.HashtagService;
 import com.thaihoc.miniinsta.service.profile.ProfileService;
 
 import lombok.extern.slf4j.Slf4j;
