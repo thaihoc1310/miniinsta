@@ -1,7 +1,6 @@
 package com.thaihoc.miniinsta.service.profile;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +21,8 @@ public interface ProfileService {
   // Lấy profile theo username
   Profile getProfileByUsername(String username);
 
-  // Lấy profile theo user ID
-  Profile getProfileByUserId(UUID userId);
+  // // Lấy profile theo user ID
+  // Profile getProfileByUserId(UUID userId);
 
   // Cập nhật thông tin profile
   Profile updateProfile(UserPrincipal userPrincipal, UpdateProfileRequest request);
@@ -54,4 +53,7 @@ public interface ProfileService {
 
   // Bỏ theo dõi một profile
   void unfollowProfile(UserPrincipal userPrincipal, int profileId);
+
+  // Cập nhật profile của người khác (chỉ dành cho admin)
+  Profile updateProfileByAdmin(UserPrincipal userPrincipal, int profileId, UpdateProfileRequest request);
 }

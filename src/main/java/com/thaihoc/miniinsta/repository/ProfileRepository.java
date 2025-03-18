@@ -2,7 +2,6 @@ package com.thaihoc.miniinsta.repository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +20,7 @@ public interface ProfileRepository extends JpaRepository<Profile, Integer> {
 
   Optional<Profile> findByUsername(String username);
 
-  Optional<Profile> findByUserId(UUID userId);
+  // Optional<Profile> findByUserId(UUID userId);
 
   @Query("SELECT p FROM Profile p WHERE " +
       "LOWER(p.username) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +

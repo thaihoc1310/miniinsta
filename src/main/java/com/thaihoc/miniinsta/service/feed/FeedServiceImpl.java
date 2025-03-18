@@ -59,11 +59,11 @@ public class FeedServiceImpl implements FeedService {
         List<Post> posts = postRepository.findByIdIn(postIds);
 
         // Sắp xếp theo thứ tự trong danh sách postIds
-        posts.sort((a, b) -> {
-            int indexA = postIds.indexOf(a.getId());
-            int indexB = postIds.indexOf(b.getId());
-            return Integer.compare(indexA, indexB);
-        });
+        // posts.sort((a, b) -> {
+        // int indexA = postIds.indexOf(a.getId());
+        // int indexB = postIds.indexOf(b.getId());
+        // return Integer.compare(indexA, indexB);
+        // });
 
         // Chuyển đổi thành PostResponse
         List<PostResponse> postResponses = posts.stream()
@@ -89,11 +89,11 @@ public class FeedServiceImpl implements FeedService {
         List<Post> posts = postRepository.findByIdIn(postIds);
 
         // Sắp xếp theo thứ tự trong danh sách postIds
-        posts.sort((a, b) -> {
-            int indexA = postIds.indexOf(a.getId());
-            int indexB = postIds.indexOf(b.getId());
-            return Integer.compare(indexA, indexB);
-        });
+        // posts.sort((a, b) -> {
+        // int indexA = postIds.indexOf(a.getId());
+        // int indexB = postIds.indexOf(b.getId());
+        // return Integer.compare(indexA, indexB);
+        // });
 
         // Chuyển đổi thành PostResponse
         List<PostResponse> postResponses = posts.stream()

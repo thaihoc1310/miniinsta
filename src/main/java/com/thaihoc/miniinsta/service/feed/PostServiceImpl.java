@@ -36,7 +36,6 @@ import com.thaihoc.miniinsta.service.FileService;
 import com.thaihoc.miniinsta.service.hashtag.HashtagService;
 import com.thaihoc.miniinsta.service.notification.NotificationService;
 import com.thaihoc.miniinsta.service.profile.ProfileService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -70,8 +69,8 @@ public class PostServiceImpl implements PostService {
   @Autowired
   private RabbitTemplate rabbitTemplate;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  // @Autowired
+  // private ObjectMapper objectMapper;
 
   @Override
   @Transactional

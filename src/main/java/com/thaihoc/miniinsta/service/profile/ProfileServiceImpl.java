@@ -1,7 +1,6 @@
 package com.thaihoc.miniinsta.service.profile;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,16 +64,43 @@ public class ProfileServiceImpl implements ProfileService {
         .orElseThrow(() -> new ProfileNotFoundException("Profile not found with username: " + username));
   }
 
-  @Override
-  public Profile getProfileByUserId(UUID userId) {
-    return profileRepository.findByUserId(userId)
-        .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user id: " + userId));
-  }
+  // @Override
+  // public Profile getProfileByUserId(UUID userId) {
+  // return profileRepository.findByUserId(userId)
+  // .orElseThrow(() -> new ProfileNotFoundException("Profile not found for user
+  // id: " + userId));
+  // }
 
   @Override
   @Transactional
   public Profile updateProfile(UserPrincipal userPrincipal, UpdateProfileRequest request) {
     Profile profile = getCurrentUserProfile(userPrincipal);
+
+    // Kiểm tra username đã tồn tại chưa
+    if (!profile.getUsername().equals(request.getUsername()) &&
+        profileRepository.findByUsername(request.getUsername()).isPresent()) {
+      throw new UsernameAlreadyExistsException("Username is already taken");
+    }
+
+    profile.setBio(request.getBio());
+    profile.setDisplayName(request.getDisplayName());
+    profile.setUsername(request.getUsername());
+    profile.setWebsite(request.getWebsite());
+    profile.setPhoneNumber(request.getPhoneNumber());
+
+    return profileRepository.save(profile);
+  }
+
+  @Override
+  @Transactional
+  public Profile updateProfileByAdmin(UserPrincipal userPrincipal, int profileId, UpdateProfileRequest request) {
+    // Kiểm tra quyền admin
+    if (!userPrincipal.getAuthorities().stream()
+        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+      throw new RuntimeException("You don't have permission to update other user's profile");
+    }
+
+    Profile profile = getProfileById(profileId);
 
     // Kiểm tra username đã tồn tại chưa
     if (!profile.getUsername().equals(request.getUsername()) &&
@@ -122,7 +148,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     // Loại bỏ những profile đã follow và chính profile người dùng
     return popularProfiles.stream()
-        .filter(p -> !Integer.valueOf(p.getId()).equals(currentProfile.getId()) &&
+        .filter(p -> p.getId() != currentProfile.getId() &&
             !isFollowingProfile(userPrincipal, p.getId()))
         .map(this::convertToProfileResponse)
         .limit(limit)
@@ -199,4 +225,5 @@ public class ProfileServiceImpl implements ProfileService {
         .postsCount(profile.getPostsCount())
         .build();
   }
+
 }

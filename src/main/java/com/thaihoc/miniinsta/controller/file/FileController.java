@@ -16,23 +16,37 @@ import com.thaihoc.miniinsta.dto.UploadImageResponse;
 import com.thaihoc.miniinsta.service.FileService;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@RequestMapping(path = "api/v1/file")
+@RequestMapping(path = "api/v1/files")
+@Slf4j
 public class FileController {
     @Autowired
-    FileService fileService;
+    private FileService fileService;
 
     @PostMapping("/upload")
-    public ResponseEntity<UploadImageResponse> postMethodName(@Valid @RequestBody UploadImageRequest request) {
-        String fileName = fileService.uploadImage(request.getBase64ImageString());
-        return ResponseEntity.status(HttpStatus.OK).body(UploadImageResponse.builder().url(fileName).build());
+    public ResponseEntity<UploadImageResponse> uploadImage(@Valid @RequestBody UploadImageRequest request) {
+        try {
+            String fileName = fileService.uploadImage(request.getBase64ImageString());
+            log.info("Successfully uploaded image with filename: {}", fileName);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(UploadImageResponse.builder().url(fileName).build());
+        } catch (Exception e) {
+            log.error("Error uploading image: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/download")
-    public ResponseEntity<DownloadImageResponse> getMethodName(@RequestParam("fileName") String fileName) {
-        String url = fileService.downloadImage(fileName);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(DownloadImageResponse.builder().url(url).build());
+    public ResponseEntity<DownloadImageResponse> downloadImage(@RequestParam("fileName") String fileName) {
+        try {
+            String url = fileService.downloadImage(fileName);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(DownloadImageResponse.builder().url(url).build());
+        } catch (Exception e) {
+            log.error("Error downloading image {}: {}", fileName, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

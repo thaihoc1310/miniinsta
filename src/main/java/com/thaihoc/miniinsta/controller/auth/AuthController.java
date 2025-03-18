@@ -9,28 +9,53 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.thaihoc.miniinsta.dto.UserPrincipal;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @Slf4j
 @RequestMapping(path = "api/v1/auth")
 public class AuthController {
-  @GetMapping("/inspect")
-  public ResponseEntity<UserPrincipal> inspect(Authentication authentication) {
+  @GetMapping("/me")
+  public ResponseEntity<UserPrincipal> getCurrentUser(Authentication authentication) {
+    if (authentication == null) {
+      return ResponseEntity.status(401).build();
+    }
     UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-    log.info(String.format("authentication %s", userPrincipal.getId()));
-    return ResponseEntity.ok().body((UserPrincipal) authentication.getPrincipal());
+    log.info("User authenticated: {}", userPrincipal.getUsername());
+    return ResponseEntity.ok(userPrincipal);
   }
 
-  @GetMapping("/check-has-admin-role")
+  @GetMapping("/roles")
+  public ResponseEntity<Map<String, Boolean>> getUserRoles(Authentication authentication) {
+    UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+    Map<String, Boolean> roles = new HashMap<>();
+
+    roles.put("isAdmin", userPrincipal.getAuthorities().stream()
+        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
+    roles.put("isUser", userPrincipal.getAuthorities().stream()
+        .anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
+
+    return ResponseEntity.ok(roles);
+  }
+
+  @GetMapping("/check-admin")
   @PreAuthorize("hasRole('ADMIN')")
-  public Object sayHello(Authentication authentication) {
-    return ResponseEntity.ok().body("has admin role");
+  public ResponseEntity<Map<String, String>> checkAdminRole() {
+    Map<String, String> response = new HashMap<>();
+    response.put("status", "success");
+    response.put("role", "ADMIN");
+    return ResponseEntity.ok(response);
   }
 
-  @GetMapping("/check-has-user-role")
-  @PreAuthorize("hasRole('ROLE_USER')")
-  public Object getPrincipal(Authentication authentication) {
-    return ResponseEntity.ok().body("has user role");
+  @GetMapping("/check-user")
+  @PreAuthorize("hasRole('USER')")
+  public ResponseEntity<Map<String, String>> checkUserRole() {
+    Map<String, String> response = new HashMap<>();
+    response.put("status", "success");
+    response.put("role", "USER");
+    return ResponseEntity.ok(response);
   }
 }

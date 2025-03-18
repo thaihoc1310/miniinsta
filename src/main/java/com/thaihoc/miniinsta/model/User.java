@@ -21,10 +21,7 @@ import java.util.UUID;
 @ToString
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "users", indexes = {
-        @Index(name = "idx_user_username", columnList = "username"),
-        @Index(name = "idx_user_provider_id", columnList = "provider, provider_id")
-})
+@Table(name = "users")
 @SQLRestriction("deleted = false")
 public class User extends BaseEntity {
 
