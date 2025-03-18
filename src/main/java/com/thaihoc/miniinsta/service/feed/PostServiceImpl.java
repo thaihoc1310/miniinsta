@@ -111,13 +111,7 @@ public class PostServiceImpl implements PostService {
     profile.setPostsCount(profile.getPostsCount() + 1);
     profileRepository.save(profile);
 
-    // Thêm bài đăng vào feed của người theo dõi
-    feedRepository.addPostToFeed(savedPost.getId(), profile.getId());
-    profile.getFollowers().forEach(follower -> {
-      feedRepository.addPostToFeed(savedPost.getId(), follower.getId());
-    });
-
-    // Thêm bài đăng vào explore nếu profile không private
+    // Chỉ giữ lại việc thêm vào explore nếu profile không private
     if (!profile.isPrivate()) {
       feedRepository.addPostToExplore(savedPost.getId());
     }
@@ -127,7 +121,8 @@ public class PostServiceImpl implements PostService {
       feedRepository.addPostToHashtagFeed(savedPost.getId(), hashtag.getName());
     }
 
-    // Gửi thông báo đến RabbitMQ để xử lý bất đồng bộ
+    // Gửi thông báo đến RabbitMQ để xử lý bất đồng bộ việc cập nhật feed của
+    // followers
     rabbitTemplate.convertAndSend(MessageQueueConfig.AFTER_CREATE_POST_QUEUE, savedPost.getId());
 
     return savedPost;
