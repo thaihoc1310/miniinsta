@@ -49,13 +49,13 @@ public class MessageController {
     /**
      * Lấy cuộc trò chuyện với một người dùng
      */
-    @GetMapping("/users/{profileId}")
+    @GetMapping("/users/{id}")
     public ResponseEntity<Page<MessageResponse>> getConversation(
             Authentication authentication,
-            @PathVariable int profileId,
+            @PathVariable int id,
             @PageableDefault(size = 20) Pageable pageable) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Page<MessageResponse> conversation = messageService.getConversation(userPrincipal, profileId, pageable);
+        Page<MessageResponse> conversation = messageService.getConversation(userPrincipal, id, pageable);
         return ResponseEntity.ok(conversation);
     }
 
@@ -108,15 +108,14 @@ public class MessageController {
     /**
      * Tìm kiếm tin nhắn trong cuộc trò chuyện
      */
-    @GetMapping("/users/{profileId}/search")
+    @GetMapping("/users/{id}/messages")
     public ResponseEntity<Page<MessageResponse>> searchMessages(
             Authentication authentication,
-            @PathVariable int profileId,
-            @RequestParam String q,
+            @PathVariable int id,
+            @RequestParam(required = false) String q,
             @PageableDefault(size = 20) Pageable pageable) {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Page<MessageResponse> messages = messageService.searchMessages(userPrincipal, profileId, q,
-                pageable);
+        Page<MessageResponse> messages = messageService.searchMessages(userPrincipal, id, q, pageable);
         return ResponseEntity.ok(messages);
     }
 
