@@ -1,7 +1,7 @@
 package com.thaihoc.miniinsta.service.feed;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.thaihoc.miniinsta.dto.UserPrincipal;
 import com.thaihoc.miniinsta.dto.feed.PostResponse;
-import com.thaihoc.miniinsta.exception.HashtagNotFoundException;
-import com.thaihoc.miniinsta.model.Hashtag;
 import com.thaihoc.miniinsta.model.Post;
 import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.repository.FeedRepository;
@@ -37,9 +35,6 @@ public class FeedServiceImpl implements FeedService {
     private FeedRepository feedRepository;
 
     @Autowired
-    private HashtagService hashtagService;
-
-    @Autowired
     private PostService postService;
 
     @Override
@@ -57,12 +52,12 @@ public class FeedServiceImpl implements FeedService {
         // Tìm các bài post từ ID
         List<Post> posts = postRepository.findByIdIn(postIds);
 
-        // Sắp xếp theo thứ tự trong danh sách postIds
-        // posts.sort((a, b) -> {
-        // int indexA = postIds.indexOf(a.getId());
-        // int indexB = postIds.indexOf(b.getId());
-        // return Integer.compare(indexA, indexB);
-        // });
+        // Tối ưu: giữ thứ tự đúng như trong Redis
+        posts.sort((a, b) -> {
+            int indexA = postIds.indexOf(a.getId());
+            int indexB = postIds.indexOf(b.getId());
+            return Integer.compare(indexA, indexB);
+        });
 
         // Chuyển đổi thành PostResponse
         List<PostResponse> postResponses = posts.stream()
@@ -87,12 +82,12 @@ public class FeedServiceImpl implements FeedService {
         // Tìm các bài post từ ID
         List<Post> posts = postRepository.findByIdIn(postIds);
 
-        // Sắp xếp theo thứ tự trong danh sách postIds
-        // posts.sort((a, b) -> {
-        // int indexA = postIds.indexOf(a.getId());
-        // int indexB = postIds.indexOf(b.getId());
-        // return Integer.compare(indexA, indexB);
-        // });
+        // Tối ưu: giữ thứ tự đúng như trong Redis
+        posts.sort((a, b) -> {
+            int indexA = postIds.indexOf(a.getId());
+            int indexB = postIds.indexOf(b.getId());
+            return Integer.compare(indexA, indexB);
+        });
 
         // Chuyển đổi thành PostResponse
         List<PostResponse> postResponses = posts.stream()
@@ -105,66 +100,14 @@ public class FeedServiceImpl implements FeedService {
     }
 
     @Override
-    public Page<PostResponse> getHashtagFeed(UserPrincipal userPrincipal, String hashtag, Pageable pageable) {
-        try {
-            // Kiểm tra hashtag có tồn tại không
-            hashtagService.getHashtagByName(hashtag);
-
-            // Sử dụng PostService để lấy bài đăng theo hashtag
-            return postService.getPostsByHashtag(userPrincipal, hashtag, pageable);
-        } catch (HashtagNotFoundException e) {
-            return Page.empty(pageable);
-        }
-    }
-
-    @Override
-    public Page<PostResponse> getLocationFeed(UserPrincipal userPrincipal, String location, Pageable pageable) {
-        // Sử dụng PostService để lấy bài đăng theo vị trí
-        return postService.getPostsByLocation(userPrincipal, location, pageable);
-    }
-
-    @Override
-    @Transactional
-    public void updateFeedsWithNewPost(int postId) {
-        try {
-            Post post = postRepository.findById(postId).orElse(null);
-            if (post == null) {
-                return;
-            }
-
-            // Thêm bài đăng vào feed của người tạo
-            feedRepository.addPostToFeed(postId, post.getCreatedBy().getId());
-
-            // Thêm bài đăng vào feed của người theo dõi
-            List<Integer> followerIds = post.getCreatedBy().getFollowers().stream()
-                    .map(Profile::getId)
-                    .collect(Collectors.toList());
-            feedRepository.addPostToMultipleFeeds(postId, followerIds);
-
-            // Thêm vào explore nếu profile không private
-            if (!post.getCreatedBy().isPrivate()) {
-                feedRepository.addPostToExplore(postId);
-            }
-
-            // Thêm vào feed theo hashtag
-            for (Hashtag hashtag : post.getHashtags()) {
-                feedRepository.addPostToHashtagFeed(postId, hashtag.getName());
-            }
-
-            log.info("Updated feeds with new post: {}", postId);
-        } catch (Exception e) {
-            log.error("Error updating feeds with new post {}: {}", postId, e.getMessage());
-        }
-    }
-
-    @Override
     @Transactional
     public void removePostFromFeeds(int postId) {
         try {
+            // Xóa post khỏi tất cả các feed
             feedRepository.removePostFromFeeds(postId);
-            log.info("Removed post from feeds: {}", postId);
+            log.info("Đã xóa bài đăng khỏi tất cả feed: {}", postId);
         } catch (Exception e) {
-            log.error("Error removing post {} from feeds: {}", postId, e.getMessage());
+            log.error("Lỗi khi xóa bài đăng {} khỏi feed: {}", postId, e.getMessage());
         }
     }
 
@@ -173,29 +116,44 @@ public class FeedServiceImpl implements FeedService {
     public void rebuildUserFeed(int profileId) {
         try {
             Profile profile = profileService.getProfileById(profileId);
+            log.info("Bắt đầu xây dựng lại feed cho người dùng ID: {}", profileId);
 
-            // Lấy danh sách người theo dõi
-            List<Profile> following = new ArrayList<>(profile.getFollowing());
+            // Lấy danh sách người mà user đang theo dõi
+            Set<Profile> following = profile.getFollowing();
 
-            // Lấy danh sách ID của người theo dõi
+            if (following == null || following.isEmpty()) {
+                log.info("Người dùng {} không theo dõi ai, không cần xây dựng lại feed", profileId);
+                return;
+            }
+
+            // Lấy danh sách ID của người đang theo dõi
             List<Integer> followingIds = following.stream()
                     .map(Profile::getId)
                     .collect(Collectors.toList());
 
-            // Lấy tất cả bài đăng của những người mà người dùng theo dõi
-            for (Integer followingId : followingIds) {
-                List<Post> posts = postRepository.findByCreatedBy(
-                        profileService.getProfileById(followingId),
-                        Pageable.ofSize(100)).getContent();
+            log.info("Người dùng {} đang theo dõi {} người dùng khác", profileId, followingIds.size());
 
+            // Xóa feed hiện tại trước khi xây dựng lại
+            feedRepository.clearUserFeed(profileId);
+            log.info("Đã xóa feed cũ của người dùng ID: {}", profileId);
+
+            // Lấy các bài post từ những người mà user đang theo dõi
+            for (Integer followingId : followingIds) {
+                List<Post> posts = postRepository.findByCreatedByIdOrderByCreatedAtDesc(followingId,
+                        Pageable.ofSize(100))
+                        .getContent();
+
+                log.info("Tìm thấy {} bài đăng từ người dùng ID {}", posts.size(), followingId);
+
+                // Thêm tất cả post vào feed của user theo thứ tự thời gian
                 for (Post post : posts) {
                     feedRepository.addPostToFeed(post.getId(), profileId);
                 }
             }
 
-            log.info("Rebuilt feed for user: {}", profileId);
+            log.info("Đã xây dựng lại feed thành công cho người dùng: {}", profileId);
         } catch (Exception e) {
-            log.error("Error rebuilding feed for user {}: {}", profileId, e.getMessage());
+            log.error("Lỗi khi xây dựng lại feed cho người dùng {}: {}", profileId, e.getMessage(), e);
         }
     }
 }

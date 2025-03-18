@@ -46,7 +46,7 @@ public interface PostService {
   Page<PostResponse> getLikedPosts(UserPrincipal userPrincipal, Pageable pageable);
 
   // Tìm kiếm bài đăng theo caption
-  Page<PostResponse> searchPosts(UserPrincipal userPrincipal, String searchTerm, Pageable pageable);
+  Page<PostResponse> searchPosts(UserPrincipal userPrincipal, String q, Pageable pageable);
 
   // Tìm kiếm bài đăng theo hashtag
   Page<PostResponse> getPostsByHashtag(UserPrincipal userPrincipal, String hashtag, Pageable pageable);

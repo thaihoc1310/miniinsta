@@ -14,12 +14,15 @@ import com.thaihoc.miniinsta.service.feed.FeedService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping(path = "api/v1/feed")
+@RequestMapping("/api/v1/feeds")
 @RequiredArgsConstructor
 public class FeedController {
 
     private final FeedService feedService;
 
+    /**
+     * Lấy feed chính của người dùng hiện tại (Home feed)
+     */
     @GetMapping
     public ResponseEntity<Page<PostResponse>> getFeed(
             Authentication authentication,
@@ -28,6 +31,9 @@ public class FeedController {
         return ResponseEntity.ok(feedService.getFeed(userPrincipal, pageable));
     }
 
+    /**
+     * Lấy feed khám phá (Explore feed)
+     */
     @GetMapping("/explore")
     public ResponseEntity<Page<PostResponse>> getExploreFeed(
             Authentication authentication,
@@ -36,25 +42,10 @@ public class FeedController {
         return ResponseEntity.ok(feedService.getExploreFeed(userPrincipal, pageable));
     }
 
-    @GetMapping("/hashtag/{hashtag}")
-    public ResponseEntity<Page<PostResponse>> getHashtagFeed(
-            Authentication authentication,
-            @PathVariable String hashtag,
-            Pageable pageable) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(feedService.getHashtagFeed(userPrincipal, hashtag, pageable));
-    }
-
-    @GetMapping("/location/{location}")
-    public ResponseEntity<Page<PostResponse>> getLocationFeed(
-            Authentication authentication,
-            @PathVariable String location,
-            Pageable pageable) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(feedService.getLocationFeed(userPrincipal, location, pageable));
-    }
-
-    @PostMapping("/rebuild/{profileId}")
+    /**
+     * Xây dựng lại feed cho người dùng (API dành cho Admin)
+     */
+    @PostMapping("/users/{profileId}/rebuild")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> rebuildUserFeed(@PathVariable int profileId) {
         feedService.rebuildUserFeed(profileId);

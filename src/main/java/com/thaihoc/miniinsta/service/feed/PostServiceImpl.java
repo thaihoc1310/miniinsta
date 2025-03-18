@@ -111,18 +111,21 @@ public class PostServiceImpl implements PostService {
     profile.setPostsCount(profile.getPostsCount() + 1);
     profileRepository.save(profile);
 
-    // Chỉ giữ lại việc thêm vào explore nếu profile không private
+    // Phân phối nội dung - chỉ xử lý hashtag và explore tại đây
+    // Phần feed sẽ được xử lý bất đồng bộ qua PushFeedConsumer
+
+    // Thêm vào explore nếu profile không private
     if (!profile.isPrivate()) {
       feedRepository.addPostToExplore(savedPost.getId());
     }
 
-    // Thêm vào feed theo hashtag
+    // Thêm vào feed theo hashtag - những người quan tâm đến hashtag vẫn sẽ thấy
     for (Hashtag hashtag : hashtags) {
       feedRepository.addPostToHashtagFeed(savedPost.getId(), hashtag.getName());
     }
 
-    // Gửi thông báo đến RabbitMQ để xử lý bất đồng bộ việc cập nhật feed của
-    // followers
+    // Gửi message đến RabbitMQ để xử lý bất đồng bộ việc cập nhật feed của
+    // người tạo và followers
     rabbitTemplate.convertAndSend(MessageQueueConfig.AFTER_CREATE_POST_QUEUE, savedPost.getId());
 
     return savedPost;
@@ -290,13 +293,13 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
-  public Page<PostResponse> searchPosts(UserPrincipal userPrincipal, String searchTerm, Pageable pageable) {
+  public Page<PostResponse> searchPosts(UserPrincipal userPrincipal, String q, Pageable pageable) {
     Profile currentProfile = null;
     if (userPrincipal != null) {
       currentProfile = profileService.getCurrentUserProfile(userPrincipal);
     }
 
-    Page<Post> posts = postRepository.searchPosts(searchTerm, pageable);
+    Page<Post> posts = postRepository.searchPosts(q, pageable);
     return mapToPostResponsePage(posts, currentProfile);
   }
 

@@ -41,6 +41,11 @@ public class FeedRepository {
         return redisTemplate.opsForList().range(feedKey, start, end);
     }
 
+    public void clearUserFeed(int profileId) {
+        String feedKey = FEED_KEY_PREFIX + profileId;
+        redisTemplate.delete(feedKey);
+    }
+
     public void addPostToExplore(int postId) {
         redisTemplate.opsForZSet().add(EXPLORE_KEY, postId, System.currentTimeMillis());
         // Giữ explore trong khoảng 5000 bài đăng
@@ -73,7 +78,8 @@ public class FeedRepository {
         // Xóa khỏi explore
         redisTemplate.opsForZSet().remove(EXPLORE_KEY, postId);
 
-        // Trong thực tế sẽ phức tạp hơn khi cần xóa khỏi feed của từng user
-        // và khỏi các hashtag feed
+        // TODO: Hiện thực việc xóa post khỏi feed của từng user và hashtag feeds
+        // Điều này đòi hỏi một công cụ tìm kiếm ngược (reverse lookup)
+        // hoặc lưu trữ thêm thông tin về vị trí của mỗi post
     }
 }

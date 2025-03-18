@@ -23,6 +23,9 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
 
   Page<Post> findByHashtags(Hashtag hashtag, Pageable pageable);
 
+  @Query("SELECT p FROM Post p WHERE p.createdBy.id = :createdById ORDER BY p.createdAt DESC")
+  Page<Post> findByCreatedByIdOrderByCreatedAtDesc(@Param("createdById") Integer createdById, Pageable pageable);
+
   @Query("SELECT p FROM Post p WHERE p.caption LIKE %:searchTerm%")
   Page<Post> searchPosts(@Param("searchTerm") String searchTerm, Pageable pageable);
 
