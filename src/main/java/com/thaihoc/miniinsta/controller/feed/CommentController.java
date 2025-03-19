@@ -13,14 +13,17 @@ import com.thaihoc.miniinsta.dto.feed.CreateCommentRequest;
 import com.thaihoc.miniinsta.service.feed.CommentService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/comments")
-@RequiredArgsConstructor
+
 public class CommentController {
 
     private final CommentService commentService;
+
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
 
     /**
      * Tạo bình luận mới

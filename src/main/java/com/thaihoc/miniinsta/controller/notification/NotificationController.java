@@ -13,14 +13,15 @@ import com.thaihoc.miniinsta.dto.notification.NotificationResponse;
 import com.thaihoc.miniinsta.model.enums.NotificationType;
 import com.thaihoc.miniinsta.service.notification.NotificationService;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequestMapping("/api/v1/notifications")
-@RequiredArgsConstructor
 public class NotificationController {
 
     private final NotificationService notificationService;
+
+    public NotificationController(NotificationService notificationService) {
+        this.notificationService = notificationService;
+    }
 
     /**
      * Lấy tất cả thông báo của người dùng hiện tại

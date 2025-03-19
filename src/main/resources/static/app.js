@@ -1,15 +1,19 @@
 const hostWithPort = window.location.host
 
-const stompClient = new StompJs.Client({    
+const stompClient = new StompJs.Client({
     brokerURL: `ws://${hostWithPort}/ws`
 });
 
 stompClient.onConnect = (frame) => {
     setConnected(true);
     console.log('Connected: ' + frame);
-    stompClient.subscribe('/user/queue/messages', (greeting) => {
-        console.log("got msg", JSON.parse(greeting.body));
-        appendNewMessage(JSON.parse(greeting.body).content);
+    stompClient.subscribe('/user/queue/messages', (message) => {
+        const messageData = JSON.parse(message.body);
+        console.log("Received message:", messageData);
+
+        // Check if message is from current user or another user
+        const isMine = messageData.sender === $("#userId").val();
+        appendNewMessage(messageData, isMine);
     });
 };
 
@@ -62,8 +66,16 @@ function sendName() {
     });
 }
 
-function appendNewMessage(message) {
-    $("#greetings").append("<tr><td>" + message + "</td></tr>");
+function appendNewMessage(messageData, isMine) {
+    const messageClass = isMine ? "my-message" : "their-message";
+    const sender = messageData.sender || "Unknown";
+    const content = messageData.content || "";
+
+    $("#greetings").append(
+        `<tr class="${messageClass}">
+            <td><strong>${sender}:</strong> ${content}</td>
+        </tr>`
+    );
 }
 
 $(function () {

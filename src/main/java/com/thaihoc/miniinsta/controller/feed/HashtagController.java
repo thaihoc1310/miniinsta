@@ -7,20 +7,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import com.thaihoc.miniinsta.dto.hashtag.CreateHashtagRequest;
-import com.thaihoc.miniinsta.dto.hashtag.HashtagResponse;
+import com.thaihoc.miniinsta.dto.feed.CreateHashtagRequest;
+import com.thaihoc.miniinsta.dto.feed.HashtagResponse;
 import com.thaihoc.miniinsta.model.Hashtag;
 import com.thaihoc.miniinsta.service.feed.HashtagService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/hashtags")
-@RequiredArgsConstructor
 public class HashtagController {
 
     private final HashtagService hashtagService;
+
+    public HashtagController(HashtagService hashtagService) {
+        this.hashtagService = hashtagService;
+    }
 
     /**
      * Lấy thông tin hashtag theo tên

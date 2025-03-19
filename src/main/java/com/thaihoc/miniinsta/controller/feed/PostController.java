@@ -17,14 +17,17 @@ import com.thaihoc.miniinsta.model.Post;
 import com.thaihoc.miniinsta.service.feed.PostService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/posts")
-@RequiredArgsConstructor
+
 public class PostController {
 
     private final PostService postService;
+
+    public PostController(PostService postService) {
+        this.postService = postService;
+    }
 
     /**
      * Tạo bài đăng mới

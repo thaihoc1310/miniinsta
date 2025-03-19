@@ -1,4 +1,4 @@
-package com.thaihoc.miniinsta.controller.message;
+package com.thaihoc.miniinsta.controller.chat;
 
 import java.util.List;
 
@@ -25,14 +25,16 @@ import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
 import com.thaihoc.miniinsta.service.message.MessageService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/messages")
-@RequiredArgsConstructor
 public class MessageController {
 
     private final MessageService messageService;
+
+    public MessageController(MessageService messageService) {
+        this.messageService = messageService;
+    }
 
     /**
      * Gửi tin nhắn đến một người dùng

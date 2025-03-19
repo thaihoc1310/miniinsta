@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 
@@ -24,7 +24,8 @@ public class ChatController {
     private RabbitTemplate rabbitTemplate;
 
     @MessageMapping("/chat")
-    public void sendMessage(@Payload SendMessageInput message, Authentication authentication) {
+    @SendToUser("/queue/messages")
+    public ChatMessage sendMessage(SendMessageInput message, Authentication authentication) {
         UserPrincipal currentUser = (UserPrincipal) authentication.getPrincipal(); // Get username from auth
         log.info("Received message from {}: {}", currentUser.getUsername(), message.getContent());
 
@@ -41,5 +42,6 @@ public class ChatController {
                 "chat.private." + message.getReceiver(), chatMessage);
 
         log.info("Message sent to exchange: {}", chatMessage);
+        return chatMessage;
     }
 }

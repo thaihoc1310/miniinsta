@@ -61,10 +61,13 @@ public class MessageListener {
       Message savedMessage = messageRepository.save(dbMessage);
       log.info("Message persisted to database with ID: {}", savedMessage.getId());
 
-      // After successful database save, send WebSocket message
+      // After successful database save, send WebSocket message to both users
       messagingTemplate.convertAndSendToUser(
           chatMessage.getReceiver(), "/queue/messages", chatMessage);
-      log.info("Listener sent message to Receiver = {}", chatMessage.getReceiver());
+      messagingTemplate.convertAndSendToUser(
+          chatMessage.getSender(), "/queue/messages", chatMessage);
+      log.info("Listener sent message to Receiver = {} and Sender = {}",
+          chatMessage.getReceiver(), chatMessage.getSender());
 
     } catch (Exception e) {
       log.error("Error processing message: {}", e.getMessage(), e);

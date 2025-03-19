@@ -14,12 +14,10 @@ import com.thaihoc.miniinsta.dto.UserPrincipal;
 import java.util.HashMap;
 import java.util.Map;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@RequiredArgsConstructor
 @Slf4j
 public class AuthController {
 

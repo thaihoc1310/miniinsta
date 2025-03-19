@@ -1,4 +1,4 @@
-package com.thaihoc.miniinsta.dto.hashtag;
+package com.thaihoc.miniinsta.dto.feed;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

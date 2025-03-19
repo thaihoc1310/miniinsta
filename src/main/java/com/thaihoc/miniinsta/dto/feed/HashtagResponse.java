@@ -1,4 +1,4 @@
-package com.thaihoc.miniinsta.dto.hashtag;
+package com.thaihoc.miniinsta.dto.feed;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

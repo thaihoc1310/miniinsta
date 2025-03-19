@@ -6,7 +6,7 @@ import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.thaihoc.miniinsta.dto.hashtag.HashtagResponse;
+import com.thaihoc.miniinsta.dto.feed.HashtagResponse;
 import com.thaihoc.miniinsta.model.Hashtag;
 import com.thaihoc.miniinsta.model.Post;
 

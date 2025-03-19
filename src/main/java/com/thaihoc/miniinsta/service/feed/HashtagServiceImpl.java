@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thaihoc.miniinsta.dto.hashtag.HashtagResponse;
+import com.thaihoc.miniinsta.dto.feed.HashtagResponse;
 import com.thaihoc.miniinsta.exception.HashtagNotFoundException;
 import com.thaihoc.miniinsta.model.Hashtag;
 import com.thaihoc.miniinsta.model.Post;

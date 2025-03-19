@@ -15,16 +15,18 @@ import com.thaihoc.miniinsta.dto.UploadImageResponse;
 import com.thaihoc.miniinsta.service.FileService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/v1/files")
-@RequiredArgsConstructor
 @Slf4j
 public class FileController {
 
     private final FileService fileService;
+
+    public FileController(FileService fileService) {
+        this.fileService = fileService;
+    }
 
     /**
      * Tải lên hình ảnh

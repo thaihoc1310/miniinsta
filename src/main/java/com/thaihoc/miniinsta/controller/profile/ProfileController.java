@@ -20,14 +20,17 @@ import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.service.profile.ProfileService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/v1/profiles")
-@RequiredArgsConstructor
+
 public class ProfileController {
 
     private final ProfileService profileService;
+
+    public ProfileController(ProfileService profileService) {
+        this.profileService = profileService;
+    }
 
     /**
      * Lấy thông tin profile của người dùng hiện tại

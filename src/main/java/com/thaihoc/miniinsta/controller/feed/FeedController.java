@@ -11,14 +11,16 @@ import com.thaihoc.miniinsta.dto.UserPrincipal;
 import com.thaihoc.miniinsta.dto.feed.PostResponse;
 import com.thaihoc.miniinsta.service.feed.FeedService;
 
-import lombok.RequiredArgsConstructor;
-
 @RestController
 @RequestMapping("/api/v1/feeds")
-@RequiredArgsConstructor
+
 public class FeedController {
 
     private final FeedService feedService;
+
+    public FeedController(FeedService feedService) {
+        this.feedService = feedService;
+    }
 
     /**
      * Lấy feed chính của người dùng hiện tại (Home feed)
