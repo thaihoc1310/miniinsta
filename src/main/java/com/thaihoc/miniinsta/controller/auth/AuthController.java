@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 
   /**
-   * Lấy thông tin người dùng hiện tại
+   * Get current user information
    */
   @GetMapping("/me")
   public ResponseEntity<UserPrincipal> getCurrentUser(Authentication authentication) {
@@ -35,9 +35,9 @@ public class AuthController {
   }
 
   /**
-   * Lấy thông tin về quyền của người dùng hiện tại
+   * Get information about current user's roles
    * 
-   * @param check Nếu được chỉ định, kiểm tra quyền cụ thể (admin, user)
+   * @param check If specified, check for specific roles (admin, user)
    */
   @GetMapping("/roles")
   public ResponseEntity<Map<String, Object>> getUserRoles(
@@ -46,7 +46,7 @@ public class AuthController {
     UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
     Map<String, Object> response = new HashMap<>();
 
-    // Kiểm tra role cụ thể nếu có tham số check
+    // Check specific role if check parameter is provided
     if (check != null) {
       boolean hasRole = false;
       if ("admin".equalsIgnoreCase(check)) {
@@ -62,7 +62,7 @@ public class AuthController {
       return ResponseEntity.ok(response);
     }
 
-    // Mặc định trả về tất cả role
+    // Default: return all roles
     Map<String, Boolean> roles = new HashMap<>();
     roles.put("isAdmin", userPrincipal.getAuthorities().stream()
         .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
@@ -74,7 +74,7 @@ public class AuthController {
   }
 
   /**
-   * API được bảo vệ chỉ dành cho Admin - để kiểm tra quyền Admin
+   * Protected API only for Admin - to verify Admin privileges
    */
   @GetMapping("/admin-only")
   @PreAuthorize("hasRole('ADMIN')")

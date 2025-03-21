@@ -41,7 +41,7 @@ public class FeedServiceImpl implements FeedService {
     public Page<PostResponse> getFeed(UserPrincipal userPrincipal, Pageable pageable) {
         Profile profile = profileService.getCurrentUserProfile(userPrincipal);
 
-        // Lấy danh sách ID của post từ feed đã tính toán sẵn
+        // Get list of post IDs from pre-calculated feed
         List<Integer> postIds = feedRepository.getFeed(profile.getId(),
                 pageable.getPageSize(), pageable.getPageNumber() + 1);
 
@@ -49,29 +49,29 @@ public class FeedServiceImpl implements FeedService {
             return Page.empty(pageable);
         }
 
-        // Tìm các bài post từ ID
+        // Find posts from IDs
         List<Post> posts = postRepository.findByIdIn(postIds);
 
-        // Tối ưu: giữ thứ tự đúng như trong Redis
+        // Optimize: maintain correct order as in Redis
         posts.sort((a, b) -> {
             int indexA = postIds.indexOf(a.getId());
             int indexB = postIds.indexOf(b.getId());
             return Integer.compare(indexA, indexB);
         });
 
-        // Chuyển đổi thành PostResponse
+        // Convert to PostResponse
         List<PostResponse> postResponses = posts.stream()
                 .map(post -> postService.getPost(userPrincipal, post.getId()))
                 .collect(Collectors.toList());
 
-        // Tạo Page từ danh sách PostResponse
+        // Create Page from PostResponse list
         long totalElements = feedRepository.getFeedSize(profile.getId());
         return new PageImpl<>(postResponses, pageable, totalElements);
     }
 
     @Override
     public Page<PostResponse> getExploreFeed(UserPrincipal userPrincipal, Pageable pageable) {
-        // Lấy danh sách ID của post từ explore feed
+        // Get list of post IDs from explore feed
         List<Integer> postIds = feedRepository.getExplore(
                 pageable.getPageSize(), pageable.getPageNumber() + 1);
 
@@ -79,23 +79,23 @@ public class FeedServiceImpl implements FeedService {
             return Page.empty(pageable);
         }
 
-        // Tìm các bài post từ ID
+        // Find posts from IDs
         List<Post> posts = postRepository.findByIdIn(postIds);
 
-        // Tối ưu: giữ thứ tự đúng như trong Redis
+        // Optimize: maintain correct order as in Redis
         posts.sort((a, b) -> {
             int indexA = postIds.indexOf(a.getId());
             int indexB = postIds.indexOf(b.getId());
             return Integer.compare(indexA, indexB);
         });
 
-        // Chuyển đổi thành PostResponse
+        // Convert to PostResponse
         List<PostResponse> postResponses = posts.stream()
                 .map(post -> postService.getPost(userPrincipal, post.getId()))
                 .collect(Collectors.toList());
 
-        // Sử dụng một số cố định cho tổng số phần tử trong explore feed
-        long totalElements = 5000; // Giới hạn của explore feed
+        // Use a fixed number for total elements in explore feed
+        long totalElements = 5000; // Limit of explore feed
         return new PageImpl<>(postResponses, pageable, totalElements);
     }
 
@@ -103,11 +103,11 @@ public class FeedServiceImpl implements FeedService {
     @Transactional
     public void removePostFromFeeds(int postId) {
         try {
-            // Xóa post khỏi tất cả các feed
+            // Remove post from all feeds
             feedRepository.removePostFromFeeds(postId);
-            log.info("Đã xóa bài đăng khỏi tất cả feed: {}", postId);
+            log.info("Post removed from all feeds: {}", postId);
         } catch (Exception e) {
-            log.error("Lỗi khi xóa bài đăng {} khỏi feed: {}", postId, e.getMessage());
+            log.error("Error removing post {} from feeds: {}", postId, e.getMessage());
         }
     }
 
@@ -116,44 +116,44 @@ public class FeedServiceImpl implements FeedService {
     public void rebuildUserFeed(int profileId) {
         try {
             Profile profile = profileService.getProfileById(profileId);
-            log.info("Bắt đầu xây dựng lại feed cho người dùng ID: {}", profileId);
+            log.info("Starting to rebuild feed for user ID: {}", profileId);
 
-            // Lấy danh sách người mà user đang theo dõi
+            // Get list of users that the current user is following
             Set<Profile> following = profile.getFollowing();
 
             if (following == null || following.isEmpty()) {
-                log.info("Người dùng {} không theo dõi ai, không cần xây dựng lại feed", profileId);
+                log.info("User {} is not following anyone, no need to rebuild feed", profileId);
                 return;
             }
 
-            // Lấy danh sách ID của người đang theo dõi
+            // Get list of IDs of users being followed
             List<Integer> followingIds = following.stream()
                     .map(Profile::getId)
                     .collect(Collectors.toList());
 
-            log.info("Người dùng {} đang theo dõi {} người dùng khác", profileId, followingIds.size());
+            log.info("User {} is following {} other users", profileId, followingIds.size());
 
-            // Xóa feed hiện tại trước khi xây dựng lại
+            // Clear current feed before rebuilding
             feedRepository.clearUserFeed(profileId);
-            log.info("Đã xóa feed cũ của người dùng ID: {}", profileId);
+            log.info("Cleared old feed for user ID: {}", profileId);
 
-            // Lấy các bài post từ những người mà user đang theo dõi
+            // Get posts from users that the current user is following
             for (Integer followingId : followingIds) {
                 List<Post> posts = postRepository.findByCreatedByIdOrderByCreatedAtDesc(followingId,
                         Pageable.ofSize(100))
                         .getContent();
 
-                log.info("Tìm thấy {} bài đăng từ người dùng ID {}", posts.size(), followingId);
+                log.info("Found {} posts from user ID {}", posts.size(), followingId);
 
-                // Thêm tất cả post vào feed của user theo thứ tự thời gian
+                // Add all posts to user's feed in chronological order
                 for (Post post : posts) {
                     feedRepository.addPostToFeed(post.getId(), profileId);
                 }
             }
 
-            log.info("Đã xây dựng lại feed thành công cho người dùng: {}", profileId);
+            log.info("Successfully rebuilt feed for user: {}", profileId);
         } catch (Exception e) {
-            log.error("Lỗi khi xây dựng lại feed cho người dùng {}: {}", profileId, e.getMessage(), e);
+            log.error("Error rebuilding feed for user {}: {}", profileId, e.getMessage(), e);
         }
     }
 }

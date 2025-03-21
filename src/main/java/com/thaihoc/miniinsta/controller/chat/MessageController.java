@@ -37,7 +37,7 @@ public class MessageController {
     }
 
     /**
-     * Gửi tin nhắn đến một người dùng
+     * Send message to a user
      */
     @PostMapping
     public ResponseEntity<MessageResponse> sendMessage(
@@ -49,7 +49,7 @@ public class MessageController {
     }
 
     /**
-     * Lấy cuộc trò chuyện với một người dùng
+     * Get conversation with a user
      */
     @GetMapping("/users/{id}")
     public ResponseEntity<Page<MessageResponse>> getConversation(
@@ -62,7 +62,7 @@ public class MessageController {
     }
 
     /**
-     * Lấy tin nhắn chưa đọc
+     * Get unread messages
      */
     @GetMapping("/unread")
     public ResponseEntity<List<MessageResponse>> getUnreadMessages(
@@ -73,7 +73,7 @@ public class MessageController {
     }
 
     /**
-     * Đánh dấu tin nhắn đã đọc
+     * Mark messages as read
      */
     @PatchMapping("/read")
     public ResponseEntity<Void> markMessagesAsRead(
@@ -85,7 +85,7 @@ public class MessageController {
     }
 
     /**
-     * Đếm số tin nhắn chưa đọc
+     * Count unread messages
      */
     @GetMapping("/unread/count")
     public ResponseEntity<Long> countUnreadMessages(
@@ -96,7 +96,7 @@ public class MessageController {
     }
 
     /**
-     * Lấy danh sách cuộc trò chuyện gần đây
+     * Get list of recent conversations
      */
     @GetMapping("/conversations")
     public ResponseEntity<Page<ProfileResponse>> getRecentConversations(
@@ -108,7 +108,7 @@ public class MessageController {
     }
 
     /**
-     * Tìm kiếm tin nhắn trong cuộc trò chuyện
+     * Search messages in a conversation
      */
     @GetMapping("/users/{id}/messages")
     public ResponseEntity<Page<MessageResponse>> searchMessages(
@@ -122,7 +122,7 @@ public class MessageController {
     }
 
     /**
-     * Xóa một tin nhắn
+     * Delete a message
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMessage(

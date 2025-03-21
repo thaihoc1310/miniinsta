@@ -33,7 +33,7 @@ public class HashtagServiceImpl implements HashtagService {
 
     @Override
     public Hashtag getHashtagByName(String name) {
-        // Chuẩn hóa tên hashtag (xóa # nếu có, lowercase)
+        // Normalize hashtag name (remove # if present, lowercase)
         String normalizedName = name.startsWith("#") ? name.substring(1) : name;
         normalizedName = normalizedName.toLowerCase();
 
@@ -44,7 +44,7 @@ public class HashtagServiceImpl implements HashtagService {
     @Override
     @Transactional
     public Hashtag createHashtagIfNotExists(String name) {
-        // Chuẩn hóa tên hashtag
+        // Normalize hashtag name
         String normalizedName = (name.startsWith("#") ? name.substring(1) : name).toLowerCase();
 
         return hashtagRepository.findByName(normalizedName)
@@ -70,7 +70,7 @@ public class HashtagServiceImpl implements HashtagService {
             hashtagNames.add(matcher.group(1).toLowerCase());
         }
 
-        // Tạo hashtag cho mỗi tên
+        // Create hashtag for each name
         return hashtagNames.stream()
                 .map(this::createHashtagIfNotExists)
                 .collect(Collectors.toSet());
@@ -79,16 +79,16 @@ public class HashtagServiceImpl implements HashtagService {
     @Override
     @Transactional
     public void linkPostWithHashtags(Post post, Set<Hashtag> hashtags) {
-        // Loại bỏ các hashtag hiện tại
+        // Remove existing hashtags
         post.getHashtags().clear();
 
-        // Thêm hashtag mới
+        // Add new hashtags
         post.getHashtags().addAll(hashtags);
 
-        // Cập nhật post
+        // Update post
         postRepository.save(post);
 
-        // Cập nhật postCount cho mỗi hashtag
+        // Update postCount for each hashtag
         hashtags.forEach(hashtag -> {
             hashtag.setPostCount(hashtag.getPostCount() + 1);
             hashtagRepository.save(hashtag);
@@ -152,7 +152,7 @@ public class HashtagServiceImpl implements HashtagService {
         }
     }
 
-    // Helper method để chuyển đổi từ Hashtag sang HashtagResponse
+    // Helper method to convert from Hashtag to HashtagResponse
     private HashtagResponse convertToHashtagResponse(Hashtag hashtag) {
         return HashtagResponse.builder()
                 .id(hashtag.getId())

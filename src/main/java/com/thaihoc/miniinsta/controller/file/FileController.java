@@ -29,7 +29,7 @@ public class FileController {
     }
 
     /**
-     * Tải lên hình ảnh
+     * Upload image
      */
     @PostMapping
     public ResponseEntity<UploadImageResponse> uploadImage(@Valid @RequestBody UploadImageRequest request) {
@@ -45,7 +45,7 @@ public class FileController {
     }
 
     /**
-     * Tải xuống hình ảnh
+     * Download image
      */
     @GetMapping
     public ResponseEntity<DownloadImageResponse> downloadImage(@RequestParam("name") String fileName) {

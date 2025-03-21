@@ -76,7 +76,7 @@ public class ProfileServiceImpl implements ProfileService {
   public Profile updateProfile(UserPrincipal userPrincipal, UpdateProfileRequest request) {
     Profile profile = getCurrentUserProfile(userPrincipal);
 
-    // Kiểm tra username đã tồn tại chưa
+    // Check if username already exists
     if (!profile.getUsername().equals(request.getUsername()) &&
         profileRepository.findByUsername(request.getUsername()).isPresent()) {
       throw new UsernameAlreadyExistsException("Username is already taken");
@@ -94,7 +94,7 @@ public class ProfileServiceImpl implements ProfileService {
   @Override
   @Transactional
   public Profile updateProfileByAdmin(UserPrincipal userPrincipal, int profileId, UpdateProfileRequest request) {
-    // Kiểm tra quyền admin
+    // Check admin permission
     if (!userPrincipal.getAuthorities().stream()
         .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
       throw new RuntimeException("You don't have permission to update other user's profile");
@@ -102,7 +102,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     Profile profile = getProfileById(profileId);
 
-    // Kiểm tra username đã tồn tại chưa
+    // Check if username already exists
     if (!profile.getUsername().equals(request.getUsername()) &&
         profileRepository.findByUsername(request.getUsername()).isPresent()) {
       throw new UsernameAlreadyExistsException("Username is already taken");
@@ -146,7 +146,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     List<Profile> popularProfiles = profileRepository.findPopularProfiles(limit);
 
-    // Loại bỏ những profile đã follow và chính profile người dùng
+    // Remove profiles that are already followed and the user's own profile
     return popularProfiles.stream()
         .filter(p -> p.getId() != currentProfile.getId() &&
             !isFollowingProfile(userPrincipal, p.getId()))
@@ -209,7 +209,7 @@ public class ProfileServiceImpl implements ProfileService {
     }
   }
 
-  // Helper method để chuyển đổi Profile thành ProfileResponse
+  // Helper method to convert Profile to ProfileResponse
   private ProfileResponse convertToProfileResponse(Profile profile) {
     return ProfileResponse.builder()
         .id(profile.getId())

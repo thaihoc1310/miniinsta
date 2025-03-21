@@ -33,7 +33,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Transactional
     public void createNotification(Profile recipient, Profile sender, String content,
             NotificationType type, Integer relatedPostId, Integer relatedCommentId) {
-        // Không gửi thông báo cho chính mình
+        // Don't send notifications to yourself
         if (recipient.getId() == sender.getId()) {
             return;
         }
@@ -76,7 +76,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new NotificationNotFoundException("Notification not found"));
 
-        // Kiểm tra nếu thông báo thuộc về người dùng hiện tại
+        // Check if notification belongs to current user
         if (notification.getRecipient().getId() != profile.getId()) {
             throw new RuntimeException("You don't have permission to mark this notification as read");
         }
@@ -113,7 +113,7 @@ public class NotificationServiceImpl implements NotificationService {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new NotificationNotFoundException("Notification not found"));
 
-        // Chỉ cho phép xóa thông báo của chính mình
+        // Only allow deleting your own notifications
         if (notification.getRecipient().getId() != profile.getId()) {
             throw new RuntimeException("You don't have permission to delete this notification");
         }
@@ -121,7 +121,7 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.delete(notification);
     }
 
-    // Helper method để chuyển đổi Notification sang NotificationResponse
+    // Helper method to convert Notification to NotificationResponse
     private NotificationResponse convertToNotificationResponse(Notification notification) {
         ProfileResponse senderProfile = ProfileResponse.builder()
                 .id(notification.getSender().getId())

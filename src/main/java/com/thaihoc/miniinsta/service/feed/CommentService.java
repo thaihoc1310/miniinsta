@@ -8,13 +8,13 @@ import com.thaihoc.miniinsta.dto.feed.CommentResponse;
 import com.thaihoc.miniinsta.dto.feed.CreateCommentRequest;
 
 public interface CommentService {
-  // Tạo comment mới
+  // Create new comment
   CommentResponse createComment(UserPrincipal userPrincipal, CreateCommentRequest request);
 
-  // Tạo reply cho comment
+  // Create reply to comment
   CommentResponse replyToComment(UserPrincipal userPrincipal, int parentCommentId, CreateCommentRequest request);
 
-  // Xóa comment
+  // Delete comment
   void deleteComment(UserPrincipal userPrincipal, int commentId);
 
   // Like comment
@@ -23,21 +23,21 @@ public interface CommentService {
   // Unlike comment
   CommentResponse unlikeComment(UserPrincipal userPrincipal, int commentId);
 
-  // Kiểm tra người dùng đã like comment hay chưa
+  // Check if user has liked the comment
   boolean isCommentLiked(UserPrincipal userPrincipal, int commentId);
 
-  // Lấy tất cả comment của bài viết
+  // Get all comments of a post
   Page<CommentResponse> getPostComments(UserPrincipal userPrincipal, int postId, Pageable pageable);
 
-  // Lấy replies của một comment
+  // Get replies to a comment
   Page<CommentResponse> getCommentReplies(UserPrincipal userPrincipal, int commentId, Pageable pageable);
 
-  // Lấy top comments của bài viết (sắp xếp theo lượt like)
+  // Get top comments of a post (sorted by likes)
   Page<CommentResponse> getTopComments(UserPrincipal userPrincipal, int postId, Pageable pageable);
 
-  // Lấy comments của một người dùng
+  // Get comments from a user
   Page<CommentResponse> getUserComments(UserPrincipal userPrincipal, int profileId, Pageable pageable);
 
-  // Lấy comment theo ID
+  // Get comment by ID
   CommentResponse getComment(UserPrincipal userPrincipal, int commentId);
 }

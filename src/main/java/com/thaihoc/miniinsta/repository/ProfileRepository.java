@@ -23,7 +23,7 @@ public interface ProfileRepository extends JpaRepository<Profile, Integer> {
   // Optional<Profile> findByUserId(UUID userId);
 
   /**
-   * Tìm kiếm profile theo username hoặc displayName
+   * Search profile by username or displayName
    */
   @Query("SELECT p FROM Profile p WHERE " +
       "LOWER(p.username) LIKE LOWER(CONCAT('%', :q, '%')) OR " +
@@ -31,25 +31,25 @@ public interface ProfileRepository extends JpaRepository<Profile, Integer> {
   Page<Profile> searchProfiles(@Param("q") String q, Pageable pageable);
 
   /**
-   * Lấy danh sách người đang theo dõi
+   * Get list of profiles being followed
    */
   @Query("SELECT p FROM Profile p JOIN p.followers f WHERE f.id = :profileId")
   Page<Profile> findFollowingProfiles(@Param("profileId") Integer profileId, Pageable pageable);
 
   /**
-   * Lấy danh sách người theo dõi
+   * Get list of followers
    */
   @Query("SELECT p FROM Profile p JOIN p.following f WHERE f.id = :profileId")
   Page<Profile> findFollowerProfiles(@Param("profileId") Integer profileId, Pageable pageable);
 
   /**
-   * Kiểm tra xem profile có đang theo dõi profile khác không
+   * Check if a profile is following another profile
    */
   @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END FROM Profile p JOIN p.followers f WHERE p.id = :profileId AND f.id = :followerId")
   boolean isFollowing(@Param("profileId") Integer profileId, @Param("followerId") Integer followerId);
 
   /**
-   * Lấy danh sách profile phổ biến dựa trên số lượng bài đăng
+   * Get list of popular profiles based on number of posts
    */
   @Query(value = "SELECT p.* FROM profile p " +
       "LEFT JOIN post ps ON p.id = ps.profile_id " +

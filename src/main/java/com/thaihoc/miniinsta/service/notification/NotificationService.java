@@ -12,29 +12,29 @@ import com.thaihoc.miniinsta.model.enums.NotificationType;
 
 public interface NotificationService {
 
-        // Tạo thông báo mới
+        // Create new notification
         void createNotification(Profile recipient, Profile sender, String content,
                         NotificationType type, Integer relatedPostId, Integer relatedCommentId);
 
-        // Lấy tất cả thông báo của người dùng hiện tại
+        // Get all notifications of current user
         Page<NotificationResponse> getUserNotifications(UserPrincipal userPrincipal, Pageable pageable);
 
-        // Lấy thông báo chưa đọc của người dùng hiện tại
+        // Get unread notifications of current user
         List<NotificationResponse> getUnreadNotifications(UserPrincipal userPrincipal);
 
-        // Đánh dấu thông báo đã đọc
+        // Mark notification as read
         void markNotificationAsRead(UserPrincipal userPrincipal, int notificationId);
 
-        // Đánh dấu tất cả thông báo đã đọc
+        // Mark all notifications as read
         void markAllNotificationsAsRead(UserPrincipal userPrincipal);
 
-        // Đếm số thông báo chưa đọc
+        // Count unread notifications
         long countUnreadNotifications(UserPrincipal userPrincipal);
 
-        // Lấy thông báo theo loại
+        // Get notifications by type
         Page<NotificationResponse> getNotificationsByType(UserPrincipal userPrincipal,
                         NotificationType type, Pageable pageable);
 
-        // Xóa thông báo
+        // Delete notification
         void deleteNotification(UserPrincipal userPrincipal, int notificationId);
 }

@@ -23,7 +23,7 @@ public class FeedController {
     }
 
     /**
-     * Lấy feed chính của người dùng hiện tại (Home feed)
+     * Get the main feed of the current user (Home feed)
      */
     @GetMapping
     public ResponseEntity<Page<PostResponse>> getFeed(
@@ -34,7 +34,7 @@ public class FeedController {
     }
 
     /**
-     * Lấy feed khám phá (Explore feed)
+     * Get explore feed
      */
     @GetMapping("/explore")
     public ResponseEntity<Page<PostResponse>> getExploreFeed(
@@ -45,7 +45,7 @@ public class FeedController {
     }
 
     /**
-     * Xây dựng lại feed cho người dùng (API dành cho Admin)
+     * Rebuild feed for a user (Admin API)
      */
     @PostMapping("/users/{profileId}/rebuild")
     @PreAuthorize("hasRole('ADMIN')")

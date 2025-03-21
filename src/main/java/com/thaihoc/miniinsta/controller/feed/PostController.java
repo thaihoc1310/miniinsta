@@ -30,7 +30,7 @@ public class PostController {
     }
 
     /**
-     * Tạo bài đăng mới
+     * Create new post
      */
     @PostMapping
     public ResponseEntity<PostResponse> createPost(
@@ -43,7 +43,7 @@ public class PostController {
     }
 
     /**
-     * Cập nhật bài đăng
+     * Update post
      */
     @PutMapping("/{id}")
     public ResponseEntity<PostResponse> updatePost(
@@ -56,7 +56,7 @@ public class PostController {
     }
 
     /**
-     * Lấy chi tiết bài đăng theo ID
+     * Get post details by ID
      */
     @GetMapping("/{id}")
     public ResponseEntity<PostResponse> getPost(
@@ -70,7 +70,7 @@ public class PostController {
     }
 
     /**
-     * Xóa bài đăng
+     * Delete post
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(
@@ -82,7 +82,7 @@ public class PostController {
     }
 
     /**
-     * Thích bài đăng
+     * Like post
      */
     @PostMapping("/{id}/likes")
     public ResponseEntity<Void> likePost(
@@ -94,7 +94,7 @@ public class PostController {
     }
 
     /**
-     * Bỏ thích bài đăng
+     * Unlike post
      */
     @DeleteMapping("/{id}/likes")
     public ResponseEntity<Void> unlikePost(
@@ -106,7 +106,7 @@ public class PostController {
     }
 
     /**
-     * Kiểm tra bài đăng đã được thích chưa
+     * Check if post is liked
      */
     @GetMapping("/{id}/likes/status")
     public ResponseEntity<Boolean> isPostLiked(
@@ -117,7 +117,7 @@ public class PostController {
     }
 
     /**
-     * Lấy bài đăng của người dùng theo ID
+     * Get posts by user ID
      */
     @GetMapping("/users/{profileId}")
     public ResponseEntity<Page<PostResponse>> getUserPosts(
@@ -132,7 +132,7 @@ public class PostController {
     }
 
     /**
-     * Lấy bài đăng của người dùng hiện tại
+     * Get current user's posts
      */
     @GetMapping("/users/me")
     public ResponseEntity<Page<PostResponse>> getCurrentUserPosts(
@@ -143,7 +143,7 @@ public class PostController {
     }
 
     /**
-     * Lấy danh sách bài đăng đã thích của người dùng hiện tại
+     * Get posts liked by current user
      */
     @GetMapping("/users/me/likes")
     public ResponseEntity<Page<PostResponse>> getLikedPosts(
@@ -154,7 +154,7 @@ public class PostController {
     }
 
     /**
-     * Tìm kiếm bài đăng
+     * Search posts
      */
     @GetMapping
     public ResponseEntity<Page<PostResponse>> searchPosts(
@@ -169,7 +169,7 @@ public class PostController {
     }
 
     /**
-     * Lấy bài đăng theo hashtag
+     * Get posts by hashtag
      */
     @GetMapping("/hashtags/{hashtag}")
     public ResponseEntity<Page<PostResponse>> getPostsByHashtag(
@@ -184,7 +184,7 @@ public class PostController {
     }
 
     /**
-     * Lấy bài đăng theo vị trí
+     * Get posts by location
      */
     @GetMapping("/locations/{location}")
     public ResponseEntity<Page<PostResponse>> getPostsByLocation(
@@ -199,7 +199,7 @@ public class PostController {
     }
 
     /**
-     * Lấy bài đăng phổ biến
+     * Get popular posts
      */
     @GetMapping("/popular")
     public ResponseEntity<Page<PostResponse>> getPopularPosts(
@@ -213,7 +213,7 @@ public class PostController {
     }
 
     /**
-     * Lấy danh sách người dùng đã thích bài đăng
+     * Get list of users who liked the post
      */
     @GetMapping("/{id}/likes")
     public ResponseEntity<List<Integer>> getPostLikers(

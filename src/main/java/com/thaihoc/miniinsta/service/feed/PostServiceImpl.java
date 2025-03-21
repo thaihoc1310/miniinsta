@@ -84,48 +84,48 @@ public class PostServiceImpl implements PostService {
     post.setImageUrl(url);
     post.setLocation(request.getLocation());
 
-    // Xử lý hashtags
+    // Process hashtags
     Set<Hashtag> hashtags = new HashSet<>();
 
-    // Trích xuất hashtags từ caption
+    // Extract hashtags from caption
     if (request.getCaption() != null && !request.getCaption().isEmpty()) {
       hashtags.addAll(hashtagService.extractHashtagsFromText(request.getCaption()));
     }
 
-    // Thêm các hashtags được cung cấp trực tiếp
+    // Add directly provided hashtags
     if (request.getHashtags() != null && !request.getHashtags().isEmpty()) {
       for (String tag : request.getHashtags()) {
         hashtags.add(hashtagService.createHashtagIfNotExists(tag));
       }
     }
 
-    // Lưu post trước để có ID
+    // Save post first to get ID
     Post savedPost = postRepository.save(post);
 
-    // Liên kết hashtags với post
+    // Link hashtags with post
     if (!hashtags.isEmpty()) {
       hashtagService.linkPostWithHashtags(savedPost, hashtags);
     }
 
-    // Cập nhật số bài viết của profile
+    // Update profile's post count
     profile.setPostsCount(profile.getPostsCount() + 1);
     profileRepository.save(profile);
 
-    // Phân phối nội dung - chỉ xử lý hashtag và explore tại đây
-    // Phần feed sẽ được xử lý bất đồng bộ qua PushFeedConsumer
+    // Content distribution - only process hashtag and explore here
+    // Feed part will be processed asynchronously via PushFeedConsumer
 
-    // Thêm vào explore nếu profile không private
+    // Add to explore if profile is not private
     if (!profile.isPrivate()) {
       feedRepository.addPostToExplore(savedPost.getId());
     }
 
-    // Thêm vào feed theo hashtag - những người quan tâm đến hashtag vẫn sẽ thấy
+    // Add to hashtag feed - people interested in hashtags will still see it
     for (Hashtag hashtag : hashtags) {
       feedRepository.addPostToHashtagFeed(savedPost.getId(), hashtag.getName());
     }
 
-    // Gửi message đến RabbitMQ để xử lý bất đồng bộ việc cập nhật feed của
-    // người tạo và followers
+    // Send message to RabbitMQ to process asynchronous feed updates for
+    // creator and followers
     rabbitTemplate.convertAndSend(MessageQueueConfig.AFTER_CREATE_POST_QUEUE, savedPost.getId());
 
     return savedPost;
@@ -145,22 +145,22 @@ public class PostServiceImpl implements PostService {
     post.setCaption(request.getCaption());
     post.setLocation(request.getLocation());
 
-    // Xử lý hashtags mới
+    // Process new hashtags
     Set<Hashtag> hashtags = new HashSet<>();
 
-    // Trích xuất hashtags từ caption
+    // Extract hashtags from caption
     if (request.getCaption() != null && !request.getCaption().isEmpty()) {
       hashtags.addAll(hashtagService.extractHashtagsFromText(request.getCaption()));
     }
 
-    // Thêm các hashtags được cung cấp trực tiếp
+    // Add directly provided hashtags
     if (request.getHashtags() != null && !request.getHashtags().isEmpty()) {
       for (String tag : request.getHashtags()) {
         hashtags.add(hashtagService.createHashtagIfNotExists(tag));
       }
     }
 
-    // Cập nhật liên kết hashtags với post
+    // Update hashtag links with post
     hashtagService.linkPostWithHashtags(post, hashtags);
 
     return postRepository.save(post);
@@ -174,7 +174,7 @@ public class PostServiceImpl implements PostService {
     Profile currentProfile = profileService.getCurrentUserProfile(userPrincipal);
     boolean isLiked = isPostLiked(userPrincipal, postId);
 
-    // Lấy top comments
+    // Get top comments
     List<Comment> comments = commentRepository.findTop5ByPostOrderByLikeCountDesc(post);
 
     return buildPostResponse(post, currentProfile, isLiked, comments);
@@ -185,7 +185,7 @@ public class PostServiceImpl implements PostService {
     Post post = postRepository.findById(postId)
         .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
 
-    // Lấy top comments
+    // Get top comments
     List<Comment> comments = commentRepository.findTop5ByPostOrderByLikeCountDesc(post);
 
     return buildPostResponse(post, null, false, comments);
@@ -202,14 +202,14 @@ public class PostServiceImpl implements PostService {
       throw new NoPermissionException("You do not have permission to delete this post");
     }
 
-    // Cập nhật số bài viết của profile
+    // Update profile's post count
     profile.setPostsCount(Math.max(0, profile.getPostsCount() - 1));
     profileRepository.save(profile);
 
-    // Xóa bài đăng khỏi tất cả feed
+    // Remove post from all feeds
     feedRepository.removePostFromFeeds(postId);
 
-    // Xóa post (và các liên kết với hashtag, like, comments theo cascade)
+    // Delete post (and related hashtag links, likes, comments via cascade)
     postRepository.delete(post);
   }
 
@@ -224,7 +224,7 @@ public class PostServiceImpl implements PostService {
       post.setLikeCount(post.getLikeCount() + 1);
       postRepository.save(post);
 
-      // Thông báo cho chủ bài viết
+      // Notify post owner
       notificationService.createNotification(
           post.getCreatedBy(),
           profile,
@@ -346,8 +346,6 @@ public class PostServiceImpl implements PostService {
         .collect(Collectors.toList());
   }
 
-  // Helper methods
-
   private Post getPostEntity(int postId) {
     return postRepository.findById(postId)
         .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
@@ -426,7 +424,7 @@ public class PostServiceImpl implements PostService {
         .likeCount(comment.getLikeCount())
         .likedByCurrentUser(isLiked)
         .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
-        .replies(Collections.emptyList()) // Không load replies ở đây để tránh quá nhiều dữ liệu
+        .replies(Collections.emptyList()) // Don't load replies here to avoid too much data
         .build();
   }
 }

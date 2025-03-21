@@ -12,51 +12,51 @@ import com.thaihoc.miniinsta.dto.feed.UpdatePostRequest;
 import com.thaihoc.miniinsta.model.Post;
 
 public interface PostService {
-  // Tạo bài đăng mới
+  // Create new post
   Post createPost(UserPrincipal userPrincipal, CreatePostRequest request);
 
-  // Cập nhật bài đăng
+  // Update post
   Post updatePost(UserPrincipal userPrincipal, int postId, UpdatePostRequest request);
 
-  // Lấy bài đăng theo ID
+  // Get post by ID
   PostResponse getPost(UserPrincipal userPrincipal, int postId);
 
-  // Lấy bài đăng theo ID (cho người dùng không đăng nhập)
+  // Get post by ID (for non-logged-in users)
   PostResponse getPost(int postId);
 
-  // Xóa bài đăng
+  // Delete post
   void deletePost(UserPrincipal userPrincipal, int postId);
 
-  // Thích bài đăng
+  // Like post
   Post likePost(UserPrincipal userPrincipal, int postId);
 
-  // Bỏ thích bài đăng
+  // Unlike post
   Post unlikePost(UserPrincipal userPrincipal, int postId);
 
-  // Kiểm tra người dùng đã thích bài đăng chưa
+  // Check if user has liked the post
   boolean isPostLiked(UserPrincipal userPrincipal, int postId);
 
-  // Lấy bài đăng của một người dùng (theo profile ID)
+  // Get posts by a user (by profile ID)
   Page<PostResponse> getUserPosts(UserPrincipal currentUser, int profileId, Pageable pageable);
 
-  // Lấy bài đăng của người dùng hiện tại
+  // Get current user's posts
   Page<PostResponse> getCurrentUserPosts(UserPrincipal userPrincipal, Pageable pageable);
 
-  // Lấy bài đăng được người dùng hiện tại thích
+  // Get posts liked by current user
   Page<PostResponse> getLikedPosts(UserPrincipal userPrincipal, Pageable pageable);
 
-  // Tìm kiếm bài đăng theo caption
+  // Search posts by caption
   Page<PostResponse> searchPosts(UserPrincipal userPrincipal, String q, Pageable pageable);
 
-  // Tìm kiếm bài đăng theo hashtag
+  // Search posts by hashtag
   Page<PostResponse> getPostsByHashtag(UserPrincipal userPrincipal, String hashtag, Pageable pageable);
 
-  // Tìm kiếm bài đăng theo vị trí
+  // Search posts by location
   Page<PostResponse> getPostsByLocation(UserPrincipal userPrincipal, String location, Pageable pageable);
 
-  // Lấy bài đăng phổ biến (explore)
+  // Get popular posts (explore)
   Page<PostResponse> getPopularPosts(UserPrincipal userPrincipal, Pageable pageable);
 
-  // Lấy những người thích một bài đăng
+  // Get users who liked a post
   List<Integer> getPostLikers(int postId, int limit);
 }

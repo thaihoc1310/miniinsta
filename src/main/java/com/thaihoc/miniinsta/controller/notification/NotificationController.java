@@ -24,7 +24,7 @@ public class NotificationController {
     }
 
     /**
-     * Lấy tất cả thông báo của người dùng hiện tại
+     * Get all notifications of the current user
      */
     @GetMapping
     public ResponseEntity<Page<NotificationResponse>> getUserNotifications(
@@ -35,7 +35,7 @@ public class NotificationController {
     }
 
     /**
-     * Lấy danh sách thông báo chưa đọc
+     * Get unread notifications
      */
     @GetMapping("/unread")
     public ResponseEntity<List<NotificationResponse>> getUnreadNotifications(
@@ -45,7 +45,7 @@ public class NotificationController {
     }
 
     /**
-     * Đếm số thông báo chưa đọc
+     * Count unread notifications
      */
     @GetMapping("/unread/count")
     public ResponseEntity<Long> countUnreadNotifications(
@@ -55,7 +55,7 @@ public class NotificationController {
     }
 
     /**
-     * Lấy thông báo theo loại
+     * Get notifications by type
      */
     @GetMapping("/types/{type}")
     public ResponseEntity<Page<NotificationResponse>> getNotificationsByType(
@@ -67,7 +67,7 @@ public class NotificationController {
     }
 
     /**
-     * Đánh dấu thông báo đã đọc
+     * Mark notification as read
      */
     @PatchMapping("/{id}/read")
     public ResponseEntity<Void> markNotificationAsRead(
@@ -79,7 +79,7 @@ public class NotificationController {
     }
 
     /**
-     * Đánh dấu tất cả thông báo đã đọc
+     * Mark all notifications as read
      */
     @PatchMapping("/read-all")
     public ResponseEntity<Void> markAllNotificationsAsRead(
@@ -90,7 +90,7 @@ public class NotificationController {
     }
 
     /**
-     * Xóa một thông báo
+     * Delete a notification
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotification(

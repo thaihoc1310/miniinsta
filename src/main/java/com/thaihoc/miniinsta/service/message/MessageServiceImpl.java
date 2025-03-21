@@ -62,7 +62,7 @@ public class MessageServiceImpl implements MessageService {
 
         Page<Message> conversation = messageRepository.findConversation(currentProfile, otherProfile, pageable);
 
-        // Đánh dấu tin nhắn đã đọc
+        // Mark messages as read
         List<Integer> unreadMessageIds = conversation.getContent().stream()
                 .filter(m -> !m.isRead() && m.getRecipient().getId() == currentProfile.getId())
                 .map(Message::getId)
@@ -88,7 +88,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     @Transactional
     public void markMessagesAsRead(UserPrincipal userPrincipal, List<Integer> messageIds) {
-        // Không cần lấy profile vì messageRepository.markAsRead đã xử lý
+        // No need to get profile as messageRepository.markAsRead handles it
         messageRepository.markAsRead(messageIds);
     }
 
@@ -123,7 +123,7 @@ public class MessageServiceImpl implements MessageService {
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new MessageNotFoundException("Message not found with id: " + messageId));
 
-        // Chỉ cho phép người gửi xóa tin nhắn
+        // Only allow sender to delete message
         if (message.getSender().getId() != profile.getId()) {
             throw new RuntimeException("You don't have permission to delete this message");
         }

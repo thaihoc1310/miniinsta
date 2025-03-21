@@ -26,7 +26,7 @@ public class CommentController {
     }
 
     /**
-     * Tạo bình luận mới
+     * Create new comment
      */
     @PostMapping
     public ResponseEntity<CommentResponse> createComment(
@@ -38,7 +38,7 @@ public class CommentController {
     }
 
     /**
-     * Trả lời một bình luận
+     * Reply to a comment
      */
     @PostMapping("/{id}/replies")
     public ResponseEntity<CommentResponse> replyToComment(
@@ -51,7 +51,7 @@ public class CommentController {
     }
 
     /**
-     * Xóa một bình luận
+     * Delete a comment
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteComment(
@@ -63,7 +63,7 @@ public class CommentController {
     }
 
     /**
-     * Thích một bình luận
+     * Like a comment
      */
     @PostMapping("/{id}/likes")
     public ResponseEntity<Void> likeComment(
@@ -75,7 +75,7 @@ public class CommentController {
     }
 
     /**
-     * Bỏ thích một bình luận
+     * Unlike a comment
      */
     @DeleteMapping("/{id}/likes")
     public ResponseEntity<Void> unlikeComment(
@@ -87,7 +87,7 @@ public class CommentController {
     }
 
     /**
-     * Kiểm tra người dùng đã thích bình luận chưa
+     * Check if user has liked the comment
      */
     @GetMapping("/{id}/likes/status")
     public ResponseEntity<Boolean> isCommentLiked(
@@ -98,7 +98,7 @@ public class CommentController {
     }
 
     /**
-     * Lấy tất cả bình luận của một bài đăng
+     * Get all comments of a post
      */
     @GetMapping("/posts/{postId}")
     public ResponseEntity<Page<CommentResponse>> getPostComments(
@@ -113,7 +113,7 @@ public class CommentController {
     }
 
     /**
-     * Lấy các trả lời cho một bình luận
+     * Get replies for a comment
      */
     @GetMapping("/{id}/replies")
     public ResponseEntity<Page<CommentResponse>> getCommentReplies(
@@ -128,7 +128,7 @@ public class CommentController {
     }
 
     /**
-     * Lấy các bình luận hàng đầu của một bài đăng
+     * Get top comments of a post
      */
     @GetMapping("/posts/{postId}/top")
     public ResponseEntity<Page<CommentResponse>> getTopComments(
@@ -143,7 +143,7 @@ public class CommentController {
     }
 
     /**
-     * Lấy tất cả bình luận của một người dùng
+     * Get all comments of a user
      */
     @GetMapping("/users/{profileId}")
     public ResponseEntity<Page<CommentResponse>> getUserComments(
@@ -158,7 +158,7 @@ public class CommentController {
     }
 
     /**
-     * Lấy chi tiết một bình luận
+     * Get comment details
      */
     @GetMapping("/{id}")
     public ResponseEntity<CommentResponse> getComment(

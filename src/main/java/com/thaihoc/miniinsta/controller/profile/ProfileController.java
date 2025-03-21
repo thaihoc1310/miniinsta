@@ -33,7 +33,7 @@ public class ProfileController {
     }
 
     /**
-     * Lấy thông tin profile của người dùng hiện tại
+     * Get current user's profile information
      */
     @GetMapping("/me")
     public ResponseEntity<GetProfileResponse> getCurrentUserProfile(Authentication authentication) {
@@ -48,7 +48,7 @@ public class ProfileController {
     }
 
     /**
-     * Lấy thông tin profile theo ID
+     * Get profile information by ID
      */
     @GetMapping("/{id}")
     public ResponseEntity<GetProfileResponse> getProfileById(@PathVariable int id) {
@@ -62,7 +62,7 @@ public class ProfileController {
     }
 
     /**
-     * Lấy thông tin profile theo username
+     * Get profile information by username
      */
     @GetMapping("/username/{username}")
     public ResponseEntity<GetProfileResponse> getProfileByUsername(@PathVariable String username) {
@@ -76,7 +76,7 @@ public class ProfileController {
     }
 
     /**
-     * Cập nhật thông tin profile của người dùng hiện tại
+     * Update current user's profile information
      */
     @PutMapping("/me")
     public ResponseEntity<UpdateProfileResponse> updateProfile(Authentication authentication,
@@ -87,7 +87,7 @@ public class ProfileController {
     }
 
     /**
-     * Cập nhật ảnh đại diện của người dùng hiện tại
+     * Update current user's profile picture
      */
     @PutMapping("/me/image")
     public ResponseEntity<UpdateProfileResponse> updateProfileImage(Authentication authentication,
@@ -98,7 +98,7 @@ public class ProfileController {
     }
 
     /**
-     * Tìm kiếm profile theo tên hoặc username
+     * Search profiles by name or username
      */
     @GetMapping
     public ResponseEntity<Page<ProfileResponse>> searchProfiles(@RequestParam String q,
@@ -107,7 +107,7 @@ public class ProfileController {
     }
 
     /**
-     * Bật/tắt chế độ riêng tư cho profile
+     * Toggle private/public mode for profile
      */
     @PutMapping("/me/privacy")
     public ResponseEntity<Profile> togglePrivateProfile(Authentication authentication) {
@@ -116,7 +116,7 @@ public class ProfileController {
     }
 
     /**
-     * Lấy danh sách profile gợi ý theo dõi
+     * Get list of suggested profiles to follow
      */
     @GetMapping("/suggested")
     public ResponseEntity<List<ProfileResponse>> getSuggestedProfiles(Authentication authentication,
@@ -126,7 +126,7 @@ public class ProfileController {
     }
 
     /**
-     * Lấy danh sách người theo dõi của một profile
+     * Get list of followers for a profile
      */
     @GetMapping("/{id}/followers")
     public ResponseEntity<Page<ProfileResponse>> getFollowers(@PathVariable int id, Pageable pageable) {
@@ -134,7 +134,7 @@ public class ProfileController {
     }
 
     /**
-     * Lấy danh sách người đang theo dõi của một profile
+     * Get list of profiles being followed by a profile
      */
     @GetMapping("/{id}/following")
     public ResponseEntity<Page<ProfileResponse>> getFollowing(@PathVariable int id, Pageable pageable) {
@@ -142,7 +142,7 @@ public class ProfileController {
     }
 
     /**
-     * Theo dõi một người dùng
+     * Follow a user
      */
     @PostMapping("/{id}/followers")
     public ResponseEntity<Void> followProfile(Authentication authentication, @PathVariable int id) {
@@ -152,7 +152,7 @@ public class ProfileController {
     }
 
     /**
-     * Hủy theo dõi một người dùng
+     * Unfollow a user
      */
     @DeleteMapping("/{id}/followers")
     public ResponseEntity<Void> unfollowProfile(Authentication authentication, @PathVariable int id) {
@@ -162,7 +162,7 @@ public class ProfileController {
     }
 
     /**
-     * Cập nhật thông tin profile (quyền Admin)
+     * Update profile information (Admin permission)
      */
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")

@@ -24,7 +24,7 @@ public class FeedRepository {
     public void addPostToFeed(int postId, int profileId) {
         String feedKey = FEED_KEY_PREFIX + profileId;
         redisTemplate.opsForList().leftPush(feedKey, postId);
-        // Giữ feed trong khoảng 1000 bài đăng
+        // Keep feed limited to around 1000 posts
         redisTemplate.opsForList().trim(feedKey, 0, 999);
     }
 
@@ -48,9 +48,9 @@ public class FeedRepository {
 
     public void addPostToExplore(int postId) {
         redisTemplate.opsForZSet().add(EXPLORE_KEY, postId, System.currentTimeMillis());
-        // Giữ explore trong khoảng 5000 bài đăng
+        // Keep explore limited to around 5000 posts
         if (redisTemplate.opsForZSet().size(EXPLORE_KEY) > 5000) {
-            redisTemplate.opsForZSet().removeRange(EXPLORE_KEY, 0, 99); // Xóa 100 bài cũ nhất
+            redisTemplate.opsForZSet().removeRange(EXPLORE_KEY, 0, 99); // Remove 100 oldest posts
         }
     }
 
@@ -73,13 +73,13 @@ public class FeedRepository {
     }
 
     public void removePostFromFeeds(int postId) {
-        // Xóa khỏi tất cả các feed khi post bị xóa
-        // Đây là một cách đơn giản, trong thực tế có thể cần phức tạp hơn
-        // Xóa khỏi explore
+        // Remove from all feeds when a post is deleted
+        // This is a simple approach, in practice it may need to be more complex
+        // Remove from explore
         redisTemplate.opsForZSet().remove(EXPLORE_KEY, postId);
 
-        // TODO: Hiện thực việc xóa post khỏi feed của từng user và hashtag feeds
-        // Điều này đòi hỏi một công cụ tìm kiếm ngược (reverse lookup)
-        // hoặc lưu trữ thêm thông tin về vị trí của mỗi post
+        // TODO: Implement removal of posts from each user's feed and hashtag feeds
+        // This requires a reverse lookup mechanism
+        // or storing additional information about the position of each post
     }
 }

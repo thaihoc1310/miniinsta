@@ -12,28 +12,28 @@ import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
 
 public interface MessageService {
 
-        // Gửi tin nhắn
+        // Send message
         MessageResponse sendMessage(UserPrincipal userPrincipal, int recipientId, MessageRequest request);
 
-        // Lấy cuộc hội thoại với một người dùng
+        // Get conversation with a user
         Page<MessageResponse> getConversation(UserPrincipal userPrincipal, int otherProfileId, Pageable pageable);
 
-        // Lấy tất cả tin nhắn chưa đọc
+        // Get all unread messages
         List<MessageResponse> getUnreadMessages(UserPrincipal userPrincipal);
 
-        // Đánh dấu tin nhắn đã đọc
+        // Mark messages as read
         void markMessagesAsRead(UserPrincipal userPrincipal, List<Integer> messageIds);
 
-        // Đếm số tin nhắn chưa đọc
+        // Count unread messages
         long countUnreadMessages(UserPrincipal userPrincipal);
 
-        // Lấy danh sách người dùng đã nhắn tin gần đây
+        // Get list of users with recent conversations
         Page<ProfileResponse> getRecentConversations(UserPrincipal userPrincipal, Pageable pageable);
 
-        // Tìm kiếm trong cuộc hội thoại
+        // Search in conversation
         Page<MessageResponse> searchMessages(UserPrincipal userPrincipal, int otherProfileId,
                         String q, Pageable pageable);
 
-        // Xóa tin nhắn
+        // Delete message
         void deleteMessage(UserPrincipal userPrincipal, int messageId);
 }

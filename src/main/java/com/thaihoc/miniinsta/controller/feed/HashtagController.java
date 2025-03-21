@@ -25,7 +25,7 @@ public class HashtagController {
     }
 
     /**
-     * Lấy thông tin hashtag theo tên
+     * Get hashtag information by name
      */
     @GetMapping("/{name}")
     public ResponseEntity<HashtagResponse> getHashtagByName(@PathVariable String name) {
@@ -39,7 +39,7 @@ public class HashtagController {
     }
 
     /**
-     * Tạo mới hashtag
+     * Create new hashtag
      */
     @PostMapping
     public ResponseEntity<HashtagResponse> createHashtag(@Valid @RequestBody CreateHashtagRequest request) {
@@ -53,7 +53,7 @@ public class HashtagController {
     }
 
     /**
-     * Tìm kiếm hashtag theo từ khóa
+     * Search hashtags by keyword
      */
     @GetMapping
     public ResponseEntity<Page<HashtagResponse>> searchHashtags(
@@ -63,7 +63,7 @@ public class HashtagController {
     }
 
     /**
-     * Lấy các hashtag thịnh hành
+     * Get trending hashtags
      */
     @GetMapping("/trending")
     public ResponseEntity<Page<HashtagResponse>> getTrendingHashtags(Pageable pageable) {
@@ -89,7 +89,7 @@ public class HashtagController {
     // }
 
     /**
-     * Cập nhật số lượng bài đăng cho tất cả hashtag (API dành cho Admin)
+     * Update post count for all hashtags (Admin API)
      */
     @PostMapping("/update-counts")
     @PreAuthorize("hasRole('ADMIN')")

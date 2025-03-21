@@ -57,12 +57,12 @@ public class CommentServiceImpl implements CommentService {
 
     Comment savedComment = commentRepository.save(comment);
 
-    // Thêm comment vào post và cập nhật count
+    // Add comment to post and update count
     post.getComments().add(savedComment);
     post.setCommentCount(post.getCommentCount() + 1);
     postRepository.save(post);
 
-    // Gửi thông báo cho người tạo bài viết
+    // Send notification to post creator
     if (post.getCreatedBy().getId() != profile.getId()) {
       notificationService.createNotification(
           post.getCreatedBy(),
@@ -95,12 +95,12 @@ public class CommentServiceImpl implements CommentService {
 
     Comment savedReply = commentRepository.save(reply);
 
-    // Thêm comment vào post và cập nhật count
+    // Add comment to post and update count
     post.getComments().add(savedReply);
     post.setCommentCount(post.getCommentCount() + 1);
     postRepository.save(post);
 
-    // Gửi thông báo cho người comment gốc
+    // Send notification to original commenter
     if (parentComment.getCreatedBy().getId() != profile.getId()) {
       notificationService.createNotification(
           parentComment.getCreatedBy(),
@@ -121,7 +121,7 @@ public class CommentServiceImpl implements CommentService {
     Comment comment = commentRepository.findById(commentId)
         .orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + commentId));
 
-    // Chỉ chủ sở hữu comment hoặc chủ bài viết mới có thể xóa
+    // Only comment owner or post owner can delete
     if (comment.getCreatedBy().getId() != profile.getId() &&
         comment.getPost().getCreatedBy().getId() != profile.getId()) {
       throw new NoPermissionException("You don't have permission to delete this comment");
@@ -147,7 +147,7 @@ public class CommentServiceImpl implements CommentService {
       comment.setLikeCount(comment.getLikeCount() + 1);
       Comment savedComment = commentRepository.save(comment);
 
-      // Gửi thông báo cho người viết comment
+      // Send notification to comment writer
       if (comment.getCreatedBy().getId() != profile.getId()) {
         notificationService.createNotification(
             comment.getCreatedBy(),
@@ -199,7 +199,7 @@ public class CommentServiceImpl implements CommentService {
 
     final Profile profile = currentProfile;
 
-    // Chỉ lấy top-level comments (không phải replies)
+    // Only get top-level comments (not replies)
     Page<Comment> comments = commentRepository.findByPostAndParentCommentIsNull(post, pageable);
 
     return comments.map(comment -> {
@@ -302,7 +302,7 @@ public class CommentServiceImpl implements CommentService {
         .likeCount(comment.getLikeCount())
         .likedByCurrentUser(isLiked)
         .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
-        .replies(Collections.emptyList()) // Không load replies ở đây để tránh quá nhiều dữ liệu
+        .replies(Collections.emptyList()) // Don't load replies here to avoid too much data
         .build();
   }
 
@@ -316,7 +316,7 @@ public class CommentServiceImpl implements CommentService {
         .isVerified(comment.getCreatedBy().isVerified())
         .build();
 
-    // Lấy top 3 replies
+    // Get top 3 replies
     List<Comment> replies = commentRepository.findByParentComment(comment, Pageable.ofSize(3)).getContent();
     List<CommentResponse> replyResponses = new ArrayList<>();
 

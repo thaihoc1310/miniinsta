@@ -36,7 +36,7 @@ public class PushFeedConsumer {
         log.info("[PushFeed] Bắt đầu phân phối bài đăng {} đến feed người dùng", postId);
 
         try {
-            // Lấy post từ repository
+            // Get post from repository
             Post post = postRepository.findById(postId).orElse(null);
 
             if (post == null) {
@@ -44,19 +44,19 @@ public class PushFeedConsumer {
                 return;
             }
 
-            // Thêm post vào feed của người tạo
+            // Add post to creator's feed
             Profile creator = post.getCreatedBy();
             if (creator != null) {
                 feedRepository.addPostToFeed(postId, creator.getId());
                 log.info("[PushFeed] Đã thêm bài đăng {} vào feed của người tạo (ID: {})", postId, creator.getId());
 
-                // Lấy danh sách người theo dõi và thêm post vào feed của họ
+                // Get followers list and add post to their feeds
                 Set<Profile> followers = creator.getFollowers();
                 if (followers != null && !followers.isEmpty()) {
                     log.info("[PushFeed] Tìm thấy {} người theo dõi cho người dùng ID {}", followers.size(),
                             creator.getId());
 
-                    // Tối ưu: thêm post vào nhiều feed cùng một lúc
+                    // Optimize: add post to multiple feeds at once
                     List<Integer> followerIds = followers.stream()
                             .map(Profile::getId)
                             .collect(Collectors.toList());
@@ -72,8 +72,8 @@ public class PushFeedConsumer {
             }
         } catch (Exception e) {
             log.error("[PushFeed] Lỗi khi phân phối bài đăng {}: {}", postId, e.getMessage(), e);
-            // Thông báo cho RabbitMQ rằng chúng ta không thể xử lý message này và
-            // không muốn nó được gửi lại (nếu bị lỗi nghiêm trọng)
+            // Notify RabbitMQ that we cannot process this message and
+            // don't want it to be requeued (if there's a serious error)
             throw new AmqpRejectAndDontRequeueException("Lỗi khi phân phối feed", e);
         }
     }

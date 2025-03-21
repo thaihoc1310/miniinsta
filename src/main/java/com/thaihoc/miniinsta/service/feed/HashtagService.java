@@ -13,52 +13,52 @@ import com.thaihoc.miniinsta.model.Post;
 public interface HashtagService {
 
     /**
-     * Lấy hashtag theo name
+     * Get hashtag by name
      */
     Hashtag getHashtagByName(String name);
 
     /**
-     * Tạo hashtag mới (nếu chưa tồn tại)
+     * Create new hashtag (if it doesn't exist)
      */
     Hashtag createHashtagIfNotExists(String name);
 
     /**
-     * Xử lý các hashtag từ caption
+     * Process hashtags from text
      */
     Set<Hashtag> extractHashtagsFromText(String text);
 
     /**
-     * Liên kết post với các hashtag
+     * Link post with hashtags
      */
     void linkPostWithHashtags(Post post, Set<Hashtag> hashtags);
 
     /**
-     * Tìm kiếm hashtag theo từ khóa
+     * Search hashtags by keyword
      */
     Page<HashtagResponse> searchHashtags(String q, Pageable pageable);
 
     /**
-     * Lấy danh sách hashtag phổ biến
+     * Get list of trending hashtags
      */
     Page<HashtagResponse> getTrendingHashtags(Pageable pageable);
 
     /**
-     * Lấy các post theo hashtag
+     * Get posts by hashtag
      */
     List<Post> getPostsByHashtag(String hashtagName, int limit);
 
     /**
-     * Lấy danh sách các hashtag của một post
+     * Get list of hashtags for a post
      */
     List<HashtagResponse> getHashtagsByPost(int postId);
 
     /**
-     * Gỡ bỏ hashtag khỏi post
+     * Remove hashtag from post
      */
     void removeHashtagFromPost(int postId, String hashtagName);
 
     /**
-     * Cập nhật postCount của hashtag
+     * Update hashtag post count
      */
     void updateHashtagPostCount();
 }
