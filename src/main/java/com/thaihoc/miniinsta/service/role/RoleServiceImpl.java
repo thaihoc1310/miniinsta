@@ -1,6 +1,7 @@
 package com.thaihoc.miniinsta.service.role;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -30,10 +31,10 @@ public class RoleServiceImpl implements RoleService {
             throw new IdInvalidException("Role name already exists");
 
         }
-        List<Long> permissionIds = role.getPermissions().stream().map(permission -> {
+        Set<Long> permissionIds = role.getPermissions().stream().map(permission -> {
             return permission.getId();
-        }).toList();
-        List<Permission> permissions = this.permissionService.getPermissionsByIds(permissionIds);
+        }).collect(Collectors.toSet());
+        Set<Permission> permissions = this.permissionService.getPermissionsByIds(permissionIds);
         role.setPermissions(permissions);
         return this.roleRepository.save(role);
     }
@@ -53,10 +54,10 @@ public class RoleServiceImpl implements RoleService {
         roleInDB.setName(role.getName());
         roleInDB.setDescription(role.getDescription());
         roleInDB.setActive(role.isActive());
-        List<Long> permissionIds = role.getPermissions().stream().map(permission -> {
+        Set<Long> permissionIds = role.getPermissions().stream().map(permission -> {
             return permission.getId();
-        }).toList();
-        List<Permission> permissions = this.permissionService.getPermissionsByIds(permissionIds);
+        }).collect(Collectors.toSet());
+        Set<Permission> permissions = this.permissionService.getPermissionsByIds(permissionIds);
         roleInDB.setPermissions(permissions);
         return this.roleRepository.save(roleInDB);
     }

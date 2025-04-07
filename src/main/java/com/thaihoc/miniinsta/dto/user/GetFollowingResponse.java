@@ -1,4 +1,4 @@
-package com.thaihoc.miniinsta.dto.profile;
+package com.thaihoc.miniinsta.dto.user;
 
 import java.util.List;
 
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class GetFollowerResponse {
-  private List<Profile> followers;
+public class GetFollowingResponse {
+  private List<Profile> followings;
   private int totalPage;
 }

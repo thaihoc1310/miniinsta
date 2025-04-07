@@ -1,4 +1,4 @@
-package com.thaihoc.miniinsta.service.profile;
+package com.thaihoc.miniinsta.service.user;
 
 import java.util.List;
 
@@ -6,9 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import com.thaihoc.miniinsta.dto.UserPrincipal;
-import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
-import com.thaihoc.miniinsta.dto.profile.UpdateProfileImageRequest;
-import com.thaihoc.miniinsta.dto.profile.UpdateProfileRequest;
+import com.thaihoc.miniinsta.dto.user.ProfileResponse;
+import com.thaihoc.miniinsta.dto.user.UpdateProfileImageRequest;
+import com.thaihoc.miniinsta.dto.user.UpdateProfileRequest;
 import com.thaihoc.miniinsta.model.Profile;
 
 public interface ProfileService {

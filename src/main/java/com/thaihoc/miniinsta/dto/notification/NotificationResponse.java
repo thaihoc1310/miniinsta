@@ -2,7 +2,7 @@ package com.thaihoc.miniinsta.dto.notification;
 
 import java.time.LocalDateTime;
 
-import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
+import com.thaihoc.miniinsta.dto.user.ProfileResponse;
 import com.thaihoc.miniinsta.model.enums.NotificationType;
 
 import lombok.AllArgsConstructor;

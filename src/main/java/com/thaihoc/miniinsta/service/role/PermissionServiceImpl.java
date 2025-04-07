@@ -1,6 +1,7 @@
 package com.thaihoc.miniinsta.service.role;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ public class PermissionServiceImpl implements PermissionService {
         this.permissionRepository = permissionRepository;
     }
 
+    @Override
     public boolean isPermissionExist(Permission permission) {
         return this.permissionRepository.existsByModuleAndApiPathAndMethod(permission.getModule(),
                 permission.getApiPath(),
@@ -36,6 +38,7 @@ public class PermissionServiceImpl implements PermissionService {
         return this.permissionRepository.save(permission);
     }
 
+    @Override
     public Permission handleUpdatePermission(Permission permission) throws IdInvalidException {
         Permission permissionInDB = this.getPermissionById(permission.getId());
         if (permissionInDB == null) {
@@ -54,10 +57,12 @@ public class PermissionServiceImpl implements PermissionService {
         return this.permissionRepository.save(permissionInDB);
     }
 
+    @Override
     public Permission getPermissionById(Long id) {
         return this.permissionRepository.findById(id).orElse(null);
     }
 
+    @Override
     public ResultPaginationDTO handleGetAllPermissions(Specification<Permission> spec, Pageable pageable) {
         Page<Permission> pagePermission = this.permissionRepository.findAll(spec, pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
@@ -74,10 +79,12 @@ public class PermissionServiceImpl implements PermissionService {
         return rs;
     }
 
-    public List<Permission> getPermissionsByIds(List<Long> permissionIds) {
-        return this.permissionRepository.findAllById(permissionIds);
+    @Override
+    public Set<Permission> getPermissionsByIds(Set<Long> permissionIds) {
+        return this.permissionRepository.findAllById(permissionIds).stream().collect(Collectors.toSet());
     }
 
+    @Override
     public void handleDeletePermission(Long id) {
         Permission permission = this.getPermissionById(id);
         List<Role> roles = permission.getRoles();
@@ -86,4 +93,10 @@ public class PermissionServiceImpl implements PermissionService {
         });
         this.permissionRepository.deleteById(id);
     }
+
+    @Override
+    public Permission getPermissionByName(String name) {
+        return this.permissionRepository.findByName(name);
+    }
+
 }

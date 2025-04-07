@@ -13,13 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.thaihoc.miniinsta.dto.UserPrincipal;
 import com.thaihoc.miniinsta.dto.message.MessageRequest;
 import com.thaihoc.miniinsta.dto.message.MessageResponse;
-import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
+import com.thaihoc.miniinsta.dto.user.ProfileResponse;
 import com.thaihoc.miniinsta.exception.MessageNotFoundException;
 import com.thaihoc.miniinsta.model.Message;
 import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.repository.MessageRepository;
 import com.thaihoc.miniinsta.service.FileService;
-import com.thaihoc.miniinsta.service.profile.ProfileService;
+import com.thaihoc.miniinsta.service.user.ProfileService;
 
 @Service
 public class MessageServiceImpl implements MessageService {

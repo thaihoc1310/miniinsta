@@ -1,4 +1,4 @@
-package com.thaihoc.miniinsta.dto.profile;
+package com.thaihoc.miniinsta.dto.user;
 
 import org.hibernate.validator.constraints.Length;
 import lombok.AllArgsConstructor;

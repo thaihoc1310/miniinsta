@@ -6,7 +6,6 @@ import com.thaihoc.miniinsta.model.enums.GenderEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -64,8 +63,6 @@ public class User extends BaseEntity {
     private String provider;
 
     private String providerId;
-
-    private boolean enabled = true;
 
     @ManyToOne /* eager by default */
     @JoinColumn(name = "role_id")

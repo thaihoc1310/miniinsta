@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import com.thaihoc.miniinsta.dto.UserPrincipal;
 import com.thaihoc.miniinsta.dto.message.MessageRequest;
 import com.thaihoc.miniinsta.dto.message.MessageResponse;
-import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
+import com.thaihoc.miniinsta.dto.user.ProfileResponse;
 
 public interface MessageService {
 

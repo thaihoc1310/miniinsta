@@ -1,4 +1,4 @@
-package com.thaihoc.miniinsta.dto.profile;
+package com.thaihoc.miniinsta.dto.user;
 
 import lombok.Builder;
 import lombok.Data;
@@ -7,5 +7,5 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @Builder
-public class FollowUserResponse {
+public class UnFollowUserResponse {
 }

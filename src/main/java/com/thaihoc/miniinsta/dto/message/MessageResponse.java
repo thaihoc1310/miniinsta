@@ -2,7 +2,7 @@ package com.thaihoc.miniinsta.dto.message;
 
 import java.time.LocalDateTime;
 
-import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
+import com.thaihoc.miniinsta.dto.user.ProfileResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

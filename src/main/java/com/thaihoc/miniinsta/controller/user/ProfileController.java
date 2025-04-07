@@ -1,4 +1,4 @@
-package com.thaihoc.miniinsta.controller.profile;
+package com.thaihoc.miniinsta.controller.user;
 
 import java.util.List;
 
@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.persistence.OptimisticLockException;
 
 import com.thaihoc.miniinsta.dto.UserPrincipal;
-import com.thaihoc.miniinsta.dto.profile.GetProfileResponse;
-import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
-import com.thaihoc.miniinsta.dto.profile.UpdateProfileImageRequest;
-import com.thaihoc.miniinsta.dto.profile.UpdateProfileRequest;
-import com.thaihoc.miniinsta.dto.profile.UpdateProfileResponse;
+import com.thaihoc.miniinsta.dto.user.GetProfileResponse;
+import com.thaihoc.miniinsta.dto.user.ProfileResponse;
+import com.thaihoc.miniinsta.dto.user.UpdateProfileImageRequest;
+import com.thaihoc.miniinsta.dto.user.UpdateProfileRequest;
+import com.thaihoc.miniinsta.dto.user.UpdateProfileResponse;
 import com.thaihoc.miniinsta.model.Profile;
-import com.thaihoc.miniinsta.service.profile.ProfileService;
+import com.thaihoc.miniinsta.service.user.ProfileService;
 
 import jakarta.validation.Valid;
 

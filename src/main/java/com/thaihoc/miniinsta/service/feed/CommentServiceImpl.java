@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.thaihoc.miniinsta.dto.UserPrincipal;
 import com.thaihoc.miniinsta.dto.feed.CommentResponse;
 import com.thaihoc.miniinsta.dto.feed.CreateCommentRequest;
-import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
+import com.thaihoc.miniinsta.dto.user.ProfileResponse;
 import com.thaihoc.miniinsta.exception.CommentNotFoundException;
 import com.thaihoc.miniinsta.exception.NoPermissionException;
 import com.thaihoc.miniinsta.exception.PostNotFoundException;
@@ -26,7 +26,7 @@ import com.thaihoc.miniinsta.model.enums.NotificationType;
 import com.thaihoc.miniinsta.repository.CommentRepository;
 import com.thaihoc.miniinsta.repository.PostRepository;
 import com.thaihoc.miniinsta.service.notification.NotificationService;
-import com.thaihoc.miniinsta.service.profile.ProfileService;
+import com.thaihoc.miniinsta.service.user.ProfileService;
 
 @Service
 public class CommentServiceImpl implements CommentService {

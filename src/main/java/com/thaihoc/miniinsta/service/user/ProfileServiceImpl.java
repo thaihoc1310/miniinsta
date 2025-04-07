@@ -1,4 +1,4 @@
-package com.thaihoc.miniinsta.service.profile;
+package com.thaihoc.miniinsta.service.user;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.thaihoc.miniinsta.dto.UserPrincipal;
-import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
-import com.thaihoc.miniinsta.dto.profile.UpdateProfileImageRequest;
-import com.thaihoc.miniinsta.dto.profile.UpdateProfileRequest;
+import com.thaihoc.miniinsta.dto.user.ProfileResponse;
+import com.thaihoc.miniinsta.dto.user.UpdateProfileImageRequest;
+import com.thaihoc.miniinsta.dto.user.UpdateProfileRequest;
 import com.thaihoc.miniinsta.exception.ProfileNotFoundException;
 import com.thaihoc.miniinsta.exception.UserNotFoundException;
 import com.thaihoc.miniinsta.exception.UsernameAlreadyExistsException;

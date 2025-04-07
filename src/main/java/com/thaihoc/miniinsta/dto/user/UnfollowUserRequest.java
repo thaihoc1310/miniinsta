@@ -1,6 +1,4 @@
-package com.thaihoc.miniinsta.dto.profile;
-
-import com.thaihoc.miniinsta.model.Profile;
+package com.thaihoc.miniinsta.dto.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class UpdateProfileResponse {
-  private Profile profile;
+public class UnfollowUserRequest {
+  private int profileId;
 }

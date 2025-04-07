@@ -21,7 +21,7 @@ import com.thaihoc.miniinsta.dto.feed.CommentResponse;
 import com.thaihoc.miniinsta.dto.feed.CreatePostRequest;
 import com.thaihoc.miniinsta.dto.feed.PostResponse;
 import com.thaihoc.miniinsta.dto.feed.UpdatePostRequest;
-import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
+import com.thaihoc.miniinsta.dto.user.ProfileResponse;
 import com.thaihoc.miniinsta.exception.NoPermissionException;
 import com.thaihoc.miniinsta.exception.PostNotFoundException;
 import com.thaihoc.miniinsta.model.Comment;
@@ -34,7 +34,7 @@ import com.thaihoc.miniinsta.repository.PostRepository;
 import com.thaihoc.miniinsta.repository.ProfileRepository;
 import com.thaihoc.miniinsta.service.FileService;
 import com.thaihoc.miniinsta.service.notification.NotificationService;
-import com.thaihoc.miniinsta.service.profile.ProfileService;
+import com.thaihoc.miniinsta.service.user.ProfileService;
 
 import lombok.extern.slf4j.Slf4j;
 

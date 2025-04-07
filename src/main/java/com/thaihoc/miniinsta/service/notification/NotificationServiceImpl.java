@@ -12,13 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.thaihoc.miniinsta.dto.UserPrincipal;
 import com.thaihoc.miniinsta.dto.notification.NotificationResponse;
-import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
+import com.thaihoc.miniinsta.dto.user.ProfileResponse;
 import com.thaihoc.miniinsta.exception.NotificationNotFoundException;
 import com.thaihoc.miniinsta.model.Notification;
 import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.model.enums.NotificationType;
 import com.thaihoc.miniinsta.repository.NotificationRepository;
-import com.thaihoc.miniinsta.service.profile.ProfileService;
+import com.thaihoc.miniinsta.service.user.ProfileService;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {

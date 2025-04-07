@@ -9,4 +9,6 @@ import com.thaihoc.miniinsta.model.Permission;
 @Repository
 public interface PermissionRepository extends JpaRepository<Permission, Long>, JpaSpecificationExecutor<Permission> {
     boolean existsByModuleAndApiPathAndMethod(String module, String apiPath, String method);
+
+    Permission findByName(String name);
 }

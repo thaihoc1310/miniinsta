@@ -3,7 +3,7 @@ package com.thaihoc.miniinsta.dto.feed;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.thaihoc.miniinsta.dto.profile.ProfileResponse;
+import com.thaihoc.miniinsta.dto.user.ProfileResponse;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
