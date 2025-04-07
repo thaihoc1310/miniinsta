@@ -84,4 +84,19 @@ public interface ProfileService {
    * Update profile of another user (admin only)
    */
   Profile updateProfileByAdmin(UserPrincipal userPrincipal, int profileId, UpdateProfileRequest request);
+
+  /**
+   * Soft delete a profile
+   */
+  void softDeleteProfile(UserPrincipal userPrincipal, int profileId);
+
+  /**
+   * Restore a soft-deleted profile
+   */
+  void restoreProfile(UserPrincipal userPrincipal, int profileId);
+
+  /**
+   * Get profile by ID including deleted ones (admin only)
+   */
+  Profile getProfileByIdIncludingDeleted(UserPrincipal userPrincipal, int profileId);
 }

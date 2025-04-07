@@ -209,6 +209,45 @@ public class ProfileServiceImpl implements ProfileService {
     }
   }
 
+  @Override
+  @Transactional
+  public void softDeleteProfile(UserPrincipal userPrincipal, int profileId) {
+    Profile profile = getProfileById(profileId);
+
+    // Only allow self-delete or admin
+    if (profile.getUser().getId() != userPrincipal.getId() &&
+        !userPrincipal.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+      throw new RuntimeException("You don't have permission to delete this profile");
+    }
+
+    profile.setDeleted(true);
+    profileRepository.save(profile);
+  }
+
+  @Override
+  @Transactional
+  public void restoreProfile(UserPrincipal userPrincipal, int profileId) {
+    // Only admin can restore profiles
+    if (!userPrincipal.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+      throw new RuntimeException("Only administrators can restore profiles");
+    }
+
+    Profile profile = getProfileByIdIncludingDeleted(userPrincipal, profileId);
+    profile.setDeleted(false);
+    profileRepository.save(profile);
+  }
+
+  @Override
+  public Profile getProfileByIdIncludingDeleted(UserPrincipal userPrincipal, int profileId) {
+    // Only admin can view deleted profiles
+    if (!userPrincipal.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+      throw new RuntimeException("Only administrators can view deleted profiles");
+    }
+
+    return profileRepository.findByIdIncludingDeleted(profileId)
+        .orElseThrow(() -> new ProfileNotFoundException("Profile not found with id: " + profileId));
+  }
+
   // Helper method to convert Profile to ProfileResponse
   private ProfileResponse convertToProfileResponse(Profile profile) {
     return ProfileResponse.builder()

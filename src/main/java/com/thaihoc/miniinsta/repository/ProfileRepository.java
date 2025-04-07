@@ -3,6 +3,7 @@ package com.thaihoc.miniinsta.repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -56,4 +57,11 @@ public interface ProfileRepository extends JpaRepository<Profile, Integer> {
       "GROUP BY p.id " +
       "ORDER BY COUNT(ps.id) DESC", nativeQuery = true)
   List<Profile> findPopularProfiles(@Param("limit") int limit);
+
+  /**
+   * Find profile by ID including deleted ones
+   */
+  @Query("SELECT p FROM Profile p WHERE p.id = :id")
+  @SQLRestriction("") // Override the default deleted=false restriction
+  Optional<Profile> findByIdIncludingDeleted(@Param("id") Integer id);
 }

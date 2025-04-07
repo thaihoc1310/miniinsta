@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import jakarta.persistence.OptimisticLockException;
 
 import com.thaihoc.miniinsta.dto.UserPrincipal;
 import com.thaihoc.miniinsta.dto.profile.GetProfileResponse;
@@ -23,7 +24,6 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/profiles")
-
 public class ProfileController {
 
     private final ProfileService profileService;
@@ -171,5 +171,44 @@ public class ProfileController {
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
         Profile profile = profileService.updateProfileByAdmin(userPrincipal, id, request);
         return ResponseEntity.ok(UpdateProfileResponse.builder().profile(profile).build());
+    }
+
+    /**
+     * Soft delete a profile
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProfile(Authentication authentication, @PathVariable int id) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        profileService.softDeleteProfile(userPrincipal, id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Restore a soft-deleted profile (admin only)
+     */
+    @PostMapping("/{id}/restore")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> restoreProfile(Authentication authentication, @PathVariable int id) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        profileService.restoreProfile(userPrincipal, id);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * Get profile by ID including deleted ones (admin only)
+     */
+    @GetMapping("/{id}/including-deleted")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<GetProfileResponse> getProfileByIdIncludingDeleted(
+            Authentication authentication,
+            @PathVariable int id) {
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        Profile profile = profileService.getProfileByIdIncludingDeleted(userPrincipal, id);
+        return ResponseEntity.ok(GetProfileResponse.builder()
+                .profile(profile)
+                .numberOfPost(profile.getPostsCount())
+                .numberOfFollower(profile.getFollowersCount())
+                .numberOfFollowing(profile.getFollowingCount())
+                .build());
     }
 }

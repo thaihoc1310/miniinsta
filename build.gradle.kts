@@ -36,6 +36,7 @@ dependencies {
 	implementation("org.springframework.security:spring-security-oauth2-client")
     implementation("org.springframework.security:spring-security-oauth2-jose")
 	implementation("io.minio:minio:8.5.7")
+	implementation("com.turkraft.springfilter:jpa:3.1.7")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")
 	implementation("io.projectreactor.netty:reactor-netty")
 	compileOnly("org.projectlombok:lombok")

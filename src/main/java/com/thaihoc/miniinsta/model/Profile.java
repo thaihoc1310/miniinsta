@@ -25,9 +25,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(name = "profile")
+@SQLRestriction("deleted = false")
 @Getter
 @Setter
 @ToString
@@ -46,8 +48,8 @@ public class Profile extends BaseEntity {
   @JsonIgnore
   private User user;
 
-  @Column(name = "username", unique = true)
-  private String username;
+  // @Column(name = "username", unique = true)
+  // private String username;
 
   @Column(name = "display_name")
   private String displayName;
@@ -61,8 +63,8 @@ public class Profile extends BaseEntity {
   @Column(name = "website")
   private String website;
 
-  @Column(name = "phone_number")
-  private String phoneNumber;
+  // @Column(name = "phone_number")
+  // private String phoneNumber;
 
   @Column(name = "is_private")
   private boolean isPrivate;

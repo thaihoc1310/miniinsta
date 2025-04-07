@@ -1,6 +1,8 @@
 package com.thaihoc.miniinsta.model;
 
 import com.thaihoc.miniinsta.model.base.BaseEntity;
+import com.thaihoc.miniinsta.model.enums.GenderEnum;
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +15,7 @@ import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLRestriction;
 
-import java.util.Set;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
@@ -29,9 +31,10 @@ public class User extends BaseEntity {
     @JdbcTypeCode(java.sql.Types.VARCHAR)
     private UUID id;
 
-    @OneToMany
-    private Set<Authority> authorities;
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String refreshToken;
 
+    @NotBlank(message = "Password is required")
     private String password;
 
     @NotBlank(message = "Name is required")
@@ -41,11 +44,9 @@ public class User extends BaseEntity {
 
     private String picture;
 
+    private String phoneNumber;
+
     @NotBlank(message = "Username is required")
-    // @Size(min = 3, max = 50, message = "Username must be between 3 and 50
-    // characters")
-    // @Pattern(regexp = "^[a-zA-Z0-9._-]+$", message = "Username can only contain
-    // letters, numbers, dots, underscores and hyphens")
     @Column(unique = true, nullable = false)
     private String username;
 
@@ -53,12 +54,22 @@ public class User extends BaseEntity {
     @Column(unique = true)
     private String email;
 
+    private String address;
+
+    @Enumerated(EnumType.STRING)
+    private GenderEnum gender;
+
+    private LocalDate dateOfBirth;
+
     private String provider;
 
-    @Column(name = "provider_id")
     private String providerId;
 
     private boolean enabled = true;
+
+    @ManyToOne /* eager by default */
+    @JoinColumn(name = "role_id")
+    private Role role;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Profile profile;
