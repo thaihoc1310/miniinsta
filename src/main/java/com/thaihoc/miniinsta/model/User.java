@@ -1,15 +1,17 @@
 package com.thaihoc.miniinsta.model;
 
 import com.thaihoc.miniinsta.model.base.BaseEntity;
-import com.thaihoc.miniinsta.model.enums.GenderEnum;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLRestriction;
@@ -24,6 +26,9 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 @SQLRestriction("deleted = false")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class User extends BaseEntity {
 
     @Id
@@ -54,9 +59,6 @@ public class User extends BaseEntity {
     private String email;
 
     private String address;
-
-    @Enumerated(EnumType.STRING)
-    private GenderEnum gender;
 
     private LocalDate dateOfBirth;
 

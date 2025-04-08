@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.model.Role;
-import com.thaihoc.miniinsta.model.enums.GenderEnum;
 
 import lombok.*;
 
@@ -21,7 +20,6 @@ public class UserResponse {
     private String email;
     private String phoneNumber;
     private String address;
-    private GenderEnum gender;
     private LocalDate dateOfBirth;
     private String provider;
     private String providerId;

@@ -5,34 +5,18 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thaihoc.miniinsta.model.base.BaseEntity;
+import com.thaihoc.miniinsta.model.enums.GenderEnum;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.EqualsAndHashCode;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
-@Table(name = "profile")
+@Table(name = "profiles")
 @SQLRestriction("deleted = false")
 @Getter
 @Setter
-@ToString
+// @ToString
 @EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
@@ -40,7 +24,6 @@ import org.hibernate.annotations.SQLRestriction;
 public class Profile extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
   private int id;
 
   @OneToOne
@@ -51,26 +34,26 @@ public class Profile extends BaseEntity {
   // @Column(name = "username", unique = true)
   // private String username;
 
-  @Column(name = "display_name")
   private String displayName;
 
-  @Column(name = "bio", length = 150)
+  @Column(columnDefinition = "MEDIUMTEXT")
   private String bio;
 
-  @Column(name = "profile_picture_url")
+  @Column(name = "profile_picture_url", length = 1000)
   private String profilePictureUrl;
 
-  @Column(name = "website")
-  private String website;
+  @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<Website> websites;
 
   // @Column(name = "phone_number")
   // private String phoneNumber;
 
-  @Column(name = "is_private")
   private boolean isPrivate;
 
-  @Column(name = "is_verified")
-  private boolean isVerified;
+  @Enumerated(EnumType.STRING)
+  private GenderEnum gender;
+
+  // private boolean isVerified;
 
   @JsonIgnore
   @OneToMany(mappedBy = "createdBy")
@@ -86,12 +69,9 @@ public class Profile extends BaseEntity {
   @JsonIgnore
   private Set<Profile> following;
 
-  @Column(name = "followers_count")
   private int followersCount;
 
-  @Column(name = "following_count")
   private int followingCount;
 
-  @Column(name = "posts_count")
   private int postsCount;
 }

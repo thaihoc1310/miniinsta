@@ -83,9 +83,6 @@ public class UserServiceImpl implements UserService {
             if (user.getName() != null) {
                 userUpdate.setName(user.getName());
             }
-            if (user.getGender() != null) {
-                userUpdate.setGender(user.getGender());
-            }
             if (user.getDateOfBirth() != null) {
                 userUpdate.setDateOfBirth(user.getDateOfBirth());
             }
@@ -155,7 +152,6 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .address(user.getAddress())
-                .gender(user.getGender())
                 .dateOfBirth(user.getDateOfBirth())
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
