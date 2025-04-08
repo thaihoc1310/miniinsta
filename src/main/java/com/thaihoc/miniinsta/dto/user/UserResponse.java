@@ -16,10 +16,8 @@ import lombok.*;
 public class UserResponse {
     private UUID id;
     private String name;
-    private String username;
     private String email;
     private String phoneNumber;
-    private String address;
     private LocalDate dateOfBirth;
     private String provider;
     private String providerId;

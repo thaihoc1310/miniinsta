@@ -8,9 +8,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@Builder
 @AllArgsConstructor
-public class FollowUserRequest {
-  @Positive
-  private int profileId;
+@Builder
+public class FollowProfileRequest {
+    @Positive
+    private long profileId;
+    @Positive
+    private long followerId;
 }

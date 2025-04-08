@@ -14,7 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -25,7 +24,6 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "users")
-@SQLRestriction("deleted = false")
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -50,15 +48,9 @@ public class User extends BaseEntity {
 
     private String phoneNumber;
 
-    @NotBlank(message = "Username is required")
-    @Column(unique = true, nullable = false)
-    private String username;
-
     @Email(message = "Email should be valid")
     @Column(unique = true)
     private String email;
-
-    private String address;
 
     private LocalDate dateOfBirth;
 

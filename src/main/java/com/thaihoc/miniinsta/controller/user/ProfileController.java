@@ -1,24 +1,18 @@
 package com.thaihoc.miniinsta.controller.user;
 
-import java.util.List;
-
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import jakarta.persistence.OptimisticLockException;
 
-import com.thaihoc.miniinsta.dto.UserPrincipal;
-import com.thaihoc.miniinsta.dto.user.GetProfileResponse;
-import com.thaihoc.miniinsta.dto.user.ProfileResponse;
-import com.thaihoc.miniinsta.dto.user.UpdateProfileImageRequest;
-import com.thaihoc.miniinsta.dto.user.UpdateProfileRequest;
-import com.thaihoc.miniinsta.dto.user.UpdateProfileResponse;
+import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.dto.user.FollowProfileRequest;
+import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.service.user.ProfileService;
+import com.thaihoc.miniinsta.util.annotation.ApiMessage;
+import com.turkraft.springfilter.boot.Filter;
 
 import jakarta.validation.Valid;
 
@@ -32,183 +26,78 @@ public class ProfileController {
         this.profileService = profileService;
     }
 
-    /**
-     * Get current user's profile information
-     */
     @GetMapping("/me")
-    public ResponseEntity<GetProfileResponse> getCurrentUserProfile(Authentication authentication) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Profile profile = profileService.getCurrentUserProfile(userPrincipal);
-        return ResponseEntity.ok(GetProfileResponse.builder()
-                .profile(profile)
-                .numberOfPost(profile.getPostsCount())
-                .numberOfFollower(profile.getFollowersCount())
-                .numberOfFollowing(profile.getFollowingCount())
-                .build());
+    @ApiMessage("Get current user's profile")
+    public ResponseEntity<Profile> getCurrentUserProfile() throws IdInvalidException {
+        Profile profile = profileService.handleGetCurrentUserProfile();
+        return ResponseEntity.ok(profile);
     }
 
-    /**
-     * Get profile information by ID
-     */
     @GetMapping("/{id}")
-    public ResponseEntity<GetProfileResponse> getProfileById(@PathVariable int id) {
+    @ApiMessage("Get a profile by id")
+    public ResponseEntity<Profile> getProfileById(@PathVariable int id) throws IdInvalidException {
         Profile profile = profileService.getProfileById(id);
-        return ResponseEntity.ok(GetProfileResponse.builder()
-                .profile(profile)
-                .numberOfPost(profile.getPostsCount())
-                .numberOfFollower(profile.getFollowersCount())
-                .numberOfFollowing(profile.getFollowingCount())
-                .build());
+        return ResponseEntity.ok(profile);
     }
 
-    /**
-     * Get profile information by username
-     */
     @GetMapping("/username/{username}")
-    public ResponseEntity<GetProfileResponse> getProfileByUsername(@PathVariable String username) {
+    @ApiMessage("Get a profile by username")
+    public ResponseEntity<Profile> getProfileByUsername(@PathVariable String username) throws IdInvalidException {
         Profile profile = profileService.getProfileByUsername(username);
-        return ResponseEntity.ok(GetProfileResponse.builder()
-                .profile(profile)
-                .numberOfPost(profile.getPostsCount())
-                .numberOfFollower(profile.getFollowersCount())
-                .numberOfFollowing(profile.getFollowingCount())
-                .build());
+        return ResponseEntity.ok(profile);
     }
 
-    /**
-     * Update current user's profile information
-     */
-    @PutMapping("/me")
-    public ResponseEntity<UpdateProfileResponse> updateProfile(Authentication authentication,
-            @Valid @RequestBody UpdateProfileRequest request) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Profile profile = profileService.updateProfile(userPrincipal, request);
-        return ResponseEntity.ok(UpdateProfileResponse.builder().profile(profile).build());
+    @PatchMapping
+    @ApiMessage("Update a profile")
+    public ResponseEntity<Profile> updateProfile(@Valid @RequestBody Profile profile) throws IdInvalidException {
+        Profile updatedProfile = profileService.handleUpdateProfile(profile);
+        return ResponseEntity.ok(updatedProfile);
     }
 
-    /**
-     * Update current user's profile picture
-     */
-    @PutMapping("/me/image")
-    public ResponseEntity<UpdateProfileResponse> updateProfileImage(Authentication authentication,
-            @Valid @RequestBody UpdateProfileImageRequest request) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Profile profile = profileService.updateProfileImage(userPrincipal, request);
-        return ResponseEntity.ok(UpdateProfileResponse.builder().profile(profile).build());
-    }
-
-    /**
-     * Search profiles by name or username
-     */
-    @GetMapping
-    public ResponseEntity<Page<ProfileResponse>> searchProfiles(@RequestParam String q,
+    @GetMapping("")
+    @ApiMessage("Get all profiles")
+    public ResponseEntity<ResultPaginationDTO> getAllProfiles(@Filter Specification<Profile> spec,
             Pageable pageable) {
-        return ResponseEntity.ok(profileService.searchProfiles(q, pageable));
+        return ResponseEntity.ok(profileService.handleGetAllProfiles(spec, pageable));
     }
 
-    /**
-     * Toggle private/public mode for profile
-     */
-    @PutMapping("/me/privacy")
-    public ResponseEntity<Profile> togglePrivateProfile(Authentication authentication) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(profileService.togglePrivateProfile(userPrincipal));
-    }
+    // /**
+    // * Get list of suggested profiles to follow
+    // */
+    // @GetMapping("/suggested")
+    // public ResponseEntity<List<ProfileResponse>>
+    // getSuggestedProfiles(Authentication authentication,
+    // @RequestParam(defaultValue = "5") int limit) {
+    // UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+    // return ResponseEntity.ok(profileService.getSuggestedProfiles(userPrincipal,
+    // limit));
+    // }
 
-    /**
-     * Get list of suggested profiles to follow
-     */
-    @GetMapping("/suggested")
-    public ResponseEntity<List<ProfileResponse>> getSuggestedProfiles(Authentication authentication,
-            @RequestParam(defaultValue = "5") int limit) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(profileService.getSuggestedProfiles(userPrincipal, limit));
-    }
-
-    /**
-     * Get list of followers for a profile
-     */
     @GetMapping("/{id}/followers")
-    public ResponseEntity<Page<ProfileResponse>> getFollowers(@PathVariable int id, Pageable pageable) {
-        return ResponseEntity.ok(profileService.getFollowers(id, pageable));
+    @ApiMessage("Get followers of a profile")
+    public ResponseEntity<ResultPaginationDTO> getFollowers(@PathVariable int id, Pageable pageable,
+            @RequestParam(defaultValue = "") String q) {
+        return ResponseEntity.ok(profileService.handleGetFollowers(id, pageable, q));
     }
 
-    /**
-     * Get list of profiles being followed by a profile
-     */
     @GetMapping("/{id}/following")
-    public ResponseEntity<Page<ProfileResponse>> getFollowing(@PathVariable int id, Pageable pageable) {
-        return ResponseEntity.ok(profileService.getFollowing(id, pageable));
+    @ApiMessage("Get following of a profile")
+    public ResponseEntity<ResultPaginationDTO> getFollowing(@PathVariable int id, Pageable pageable,
+            @RequestParam(defaultValue = "") String q) {
+        return ResponseEntity.ok(profileService.handleGetFollowing(id, pageable, q));
     }
 
-    /**
-     * Follow a user
-     */
-    @PostMapping("/{id}/followers")
-    public ResponseEntity<Void> followProfile(Authentication authentication, @PathVariable int id) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        profileService.followProfile(userPrincipal, id);
+    @PostMapping("/followers")
+    @ApiMessage("Follow a profile")
+    public ResponseEntity<Void> followProfile(@RequestBody FollowProfileRequest request) throws IdInvalidException {
+        profileService.followProfile(request.getProfileId(), request.getFollowerId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    /**
-     * Unfollow a user
-     */
-    @DeleteMapping("/{id}/followers")
-    public ResponseEntity<Void> unfollowProfile(Authentication authentication, @PathVariable int id) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        profileService.unfollowProfile(userPrincipal, id);
+    @DeleteMapping("/followers")
+    @ApiMessage("Unfollow a profile")
+    public ResponseEntity<Void> unfollowProfile(@RequestBody FollowProfileRequest request) throws IdInvalidException {
+        profileService.unfollowProfile(request.getProfileId(), request.getFollowerId());
         return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Update profile information (Admin permission)
-     */
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UpdateProfileResponse> updateProfileByAdmin(Authentication authentication,
-            @PathVariable int id, @Valid @RequestBody UpdateProfileRequest request) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Profile profile = profileService.updateProfileByAdmin(userPrincipal, id, request);
-        return ResponseEntity.ok(UpdateProfileResponse.builder().profile(profile).build());
-    }
-
-    /**
-     * Soft delete a profile
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProfile(Authentication authentication, @PathVariable int id) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        profileService.softDeleteProfile(userPrincipal, id);
-        return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Restore a soft-deleted profile (admin only)
-     */
-    @PostMapping("/{id}/restore")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> restoreProfile(Authentication authentication, @PathVariable int id) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        profileService.restoreProfile(userPrincipal, id);
-        return ResponseEntity.ok().build();
-    }
-
-    /**
-     * Get profile by ID including deleted ones (admin only)
-     */
-    @GetMapping("/{id}/including-deleted")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<GetProfileResponse> getProfileByIdIncludingDeleted(
-            Authentication authentication,
-            @PathVariable int id) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Profile profile = profileService.getProfileByIdIncludingDeleted(userPrincipal, id);
-        return ResponseEntity.ok(GetProfileResponse.builder()
-                .profile(profile)
-                .numberOfPost(profile.getPostsCount())
-                .numberOfFollower(profile.getFollowersCount())
-                .numberOfFollowing(profile.getFollowingCount())
-                .build());
     }
 }

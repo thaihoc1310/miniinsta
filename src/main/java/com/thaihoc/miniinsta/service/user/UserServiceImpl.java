@@ -11,13 +11,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.dto.user.CreateUserRequest;
+import com.thaihoc.miniinsta.dto.user.UpdateUserRequest;
 import com.thaihoc.miniinsta.dto.user.UserResponse;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
+import com.thaihoc.miniinsta.exception.PermissionDeniedException;
 import com.thaihoc.miniinsta.model.Permission;
+import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.model.Role;
 import com.thaihoc.miniinsta.model.User;
 import com.thaihoc.miniinsta.repository.UserRepository;
 import com.thaihoc.miniinsta.service.role.RoleService;
+import com.thaihoc.miniinsta.util.SecurityUtil;
 import com.thaihoc.miniinsta.service.role.PermissionService;
 
 @Service
@@ -26,24 +31,20 @@ public class UserServiceImpl implements UserService {
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
     private final PermissionService permissionService;
+    private final ProfileService profileService;
 
     public UserServiceImpl(UserRepository userRepository, RoleService roleService, PasswordEncoder passwordEncoder,
-            PermissionService permissionService) {
+            PermissionService permissionService, ProfileService profileService) {
         this.userRepository = userRepository;
         this.roleService = roleService;
         this.passwordEncoder = passwordEncoder;
         this.permissionService = permissionService;
+        this.profileService = profileService;
     }
 
     @Override
     public User getUserById(UUID id) throws IdInvalidException {
         Optional<User> user = userRepository.findById(id);
-        return this.getUserFromOptional(user);
-    }
-
-    @Override
-    public User getUserByUsername(String username) throws IdInvalidException {
-        Optional<User> user = userRepository.findByUsername(username);
         return this.getUserFromOptional(user);
     }
 
@@ -55,9 +56,6 @@ public class UserServiceImpl implements UserService {
 
     private User getUserFromOptional(Optional<User> user) throws IdInvalidException {
         if (user.isPresent()) {
-            if (user.get().isDeleted()) {
-                throw new IdInvalidException("User not found");
-            }
             return user.get();
         }
         throw new IdInvalidException("User not found");
@@ -71,32 +69,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse handleUpdateUser(User user) throws IdInvalidException {
-        User userUpdate = this.getUserById(user.getId());
+    public UserResponse handleUpdateUser(UpdateUserRequest request) throws IdInvalidException {
+        User userUpdate = this.getUserById(request.getId());
         if (userUpdate != null) {
             // check role
-            Role curRole = user.getRole();
+            Role curRole = userUpdate.getRole();
             if (curRole != null) {
                 Role dbRole = this.roleService.getRoleById(curRole.getId());
                 userUpdate.setRole(dbRole);
             }
-            if (user.getName() != null) {
-                userUpdate.setName(user.getName());
+            if (request.getName() != null && !userUpdate.getName().equals(request.getName())) {
+                userUpdate.setName(request.getName());
             }
-            if (user.getDateOfBirth() != null) {
-                userUpdate.setDateOfBirth(user.getDateOfBirth());
+            if (request.getDateOfBirth() != null && !userUpdate.getDateOfBirth().equals(request.getDateOfBirth())) {
+                userUpdate.setDateOfBirth(request.getDateOfBirth());
             }
-            if (user.getPhoneNumber() != null) {
-                userUpdate.setPhoneNumber(user.getPhoneNumber());
+            if (request.getPhoneNumber() != null && !userUpdate.getPhoneNumber().equals(request.getPhoneNumber())) {
+                userUpdate.setPhoneNumber(request.getPhoneNumber());
             }
-            if (user.getAddress() != null) {
-                userUpdate.setAddress(user.getAddress());
+            if (request.getProvider() != null && !userUpdate.getProvider().equals(request.getProvider())) {
+                userUpdate.setProvider(request.getProvider());
             }
-            if (user.getProvider() != null) {
-                userUpdate.setProvider(user.getProvider());
-            }
-            if (user.getProviderId() != null) {
-                userUpdate.setProviderId(user.getProviderId());
+            if (request.getProviderId() != null) {
+                userUpdate.setProviderId(request.getProviderId());
             }
             User updatedUser = this.userRepository.save(userUpdate);
             return this.convertToUserResponse(updatedUser);
@@ -105,18 +100,23 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse handleCreateUser(User user) throws IdInvalidException {
-        if (this.existsByUsername(user.getUsername())) {
-            throw new IdInvalidException("Username already exists");
-        }
-        if (this.existsByEmail(user.getEmail())) {
+    public UserResponse handleCreateUser(CreateUserRequest request) throws IdInvalidException {
+        if (this.existsByEmail(request.getEmail())) {
             throw new IdInvalidException("Email already exists");
         }
-        if (user.getRole() != null) {
-            Role role = this.roleService.getRoleById(user.getRole().getId());
-            user.setRole(role);
+        if (this.profileService.existsByUsername(request.getUsername())) {
+            throw new IdInvalidException("Username already exists");
         }
-        user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setPassword(this.passwordEncoder.encode(request.getPassword()));
+        user.setName(request.getName());
+        user.setDateOfBirth(request.getDateOfBirth());
+        Profile profile = new Profile();
+        profile.setUsername(request.getUsername());
+        profile.setDisplayName(request.getName());
+        profile.setUser(user);
+        user.setProfile(profile);
         User createdUser = this.userRepository.save(user);
         return this.convertToUserResponse(createdUser);
     }
@@ -148,10 +148,8 @@ public class UserServiceImpl implements UserService {
         return UserResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
-                .username(user.getUsername())
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
-                .address(user.getAddress())
                 .dateOfBirth(user.getDateOfBirth())
                 .provider(user.getProvider())
                 .providerId(user.getProviderId())
@@ -166,49 +164,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
-    }
-
-    @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
-    public void handleHardDeleteUserById(UUID id) throws IdInvalidException {
-        this.userRepository.deleteById(id);
-    }
-
-    public void handleSoftDeleteUserById(UUID id) throws IdInvalidException {
-        User user = this.getUserById(id);
-        user.setDeleted(true);
-        this.userRepository.save(user);
-    }
-
     @Override
-    public void handleDeleteUserById(UUID id, boolean permanent) throws IdInvalidException {
-        if (permanent) {
-            User user = this.getUserById(id);
-            Role role = user.getRole();
-            if (role != null) {
-                Permission permission = permissionService.getPermissionByName("user:soft-delete");
-                if (permission != null && role.getPermissions().contains(permission)) {
-                    this.handleHardDeleteUserById(id);
-                }
-                this.handleSoftDeleteUserById(id);
-            } else {
-                this.handleSoftDeleteUserById(id);
-            }
-        } else {
-            this.handleSoftDeleteUserById(id);
+    public void handleDeleteUserById(UUID id) throws IdInvalidException {
+        User user = this.getUserById(id);
+        if (user.getEmail().equals(
+                SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : null)) {
+            this.userRepository.deleteById(id);
+            return;
         }
+        Role role = user.getRole();
+        if (role != null && role.isActive()) {
+            Permission permission = permissionService.getPermissionByName("user:hard-delete");
+            if (permission != null && role.getPermissions().contains(permission)) {
+                this.userRepository.deleteById(id);
+                return;
+            }
+        }
+        throw new PermissionDeniedException("You don't have permission");
     }
 
     @Override
-    public void handleRestoreUserById(UUID id) throws IdInvalidException {
-        User user = this.getUserById(id);
-        user.setDeleted(false);
-        this.userRepository.save(user);
+    public User handleGetUserByRefreshTokenAndEmail(String token, String email) throws IdInvalidException {
+        return this.getUserFromOptional(userRepository.findByRefreshTokenAndEmail(token, email));
     }
-
 }

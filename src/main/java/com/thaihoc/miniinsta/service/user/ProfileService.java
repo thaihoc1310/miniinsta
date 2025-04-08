@@ -1,102 +1,104 @@
 package com.thaihoc.miniinsta.service.user;
 
-import java.util.List;
-
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
-import com.thaihoc.miniinsta.dto.UserPrincipal;
-import com.thaihoc.miniinsta.dto.user.ProfileResponse;
-import com.thaihoc.miniinsta.dto.user.UpdateProfileImageRequest;
-import com.thaihoc.miniinsta.dto.user.UpdateProfileRequest;
+import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Profile;
 
 public interface ProfileService {
   /**
    * Get profile of current user
+   * 
+   * @throws IdInvalidException
    */
-  Profile getCurrentUserProfile(UserPrincipal userPrincipal);
+  Profile handleGetCurrentUserProfile() throws IdInvalidException;
 
   /**
    * Get profile by ID
    */
-  Profile getProfileById(int id);
+  Profile getProfileById(long id) throws IdInvalidException;
 
   /**
    * Get profile by username
    */
-  Profile getProfileByUsername(String username);
+  Profile getProfileByUsername(String username) throws IdInvalidException;
 
   // // Get profile by user ID
   // Profile getProfileByUserId(UUID userId);
 
   /**
    * Update profile information
+   * 
+   * @throws IdInvalidException
    */
-  Profile updateProfile(UserPrincipal userPrincipal, UpdateProfileRequest request);
+  Profile handleUpdateProfile(Profile profile) throws IdInvalidException;
 
   /**
    * Update profile image
    */
-  Profile updateProfileImage(UserPrincipal userPrincipal, UpdateProfileImageRequest request);
+  // Profile updateProfileImage(UpdateProfileImageRequest request);
 
   /**
-   * Search profile by keyword
+   * Get all profiles
    */
-  Page<ProfileResponse> searchProfiles(String q, Pageable pageable);
+  ResultPaginationDTO handleGetAllProfiles(Specification<Profile> spec, Pageable pageable);
 
   /**
    * Mark profile as private/public
    */
-  Profile togglePrivateProfile(UserPrincipal userPrincipal);
+  // Profile togglePrivateProfile(UserPrincipal userPrincipal);
 
   /**
    * Find popular profiles to suggest following
    */
-  List<ProfileResponse> getSuggestedProfiles(UserPrincipal userPrincipal, int limit);
+  // List<ProfileResponse> handleGetSuggestedProfiles(UserPrincipal userPrincipal,
+  // long limit);
 
   /**
    * Check if current user is following a profile
+   * 
+   * @throws IdInvalidException
    */
-  boolean isFollowingProfile(UserPrincipal userPrincipal, int profileId);
+  boolean isFollowingProfile(long profileId) throws IdInvalidException;
 
   /**
    * Get followers list
    */
-  Page<ProfileResponse> getFollowers(int profileId, Pageable pageable);
+  ResultPaginationDTO handleGetFollowers(long profileId, Pageable pageable, String q);
 
   /**
    * Get following list
    */
-  Page<ProfileResponse> getFollowing(int profileId, Pageable pageable);
+  ResultPaginationDTO handleGetFollowing(long profileId, Pageable pageable, String q);
 
   /**
    * Follow a profile
+   * 
+   * @throws IdInvalidException
    */
-  void followProfile(UserPrincipal userPrincipal, int profileId);
+  void followProfile(long profileId, long followerId) throws IdInvalidException;
 
   /**
    * Unfollow a profile
+   * 
+   * @throws IdInvalidException
    */
-  void unfollowProfile(UserPrincipal userPrincipal, int profileId);
+  void unfollowProfile(long profileId, long followerId) throws IdInvalidException;
 
-  /**
-   * Update profile of another user (admin only)
-   */
-  Profile updateProfileByAdmin(UserPrincipal userPrincipal, int profileId, UpdateProfileRequest request);
+  // /**
+  // * Soft delete a profile
+  // */
+  // void softDeleteProfile(UserPrincipal userPrincipal, long profileId);
 
-  /**
-   * Soft delete a profile
-   */
-  void softDeleteProfile(UserPrincipal userPrincipal, int profileId);
+  // /**
+  // * Restore a soft-deleted profile
+  // */
+  // void restoreProfile(UserPrincipal userPrincipal, long profileId);
 
-  /**
-   * Restore a soft-deleted profile
-   */
-  void restoreProfile(UserPrincipal userPrincipal, int profileId);
+  boolean existsByUsername(String username);
 
-  /**
-   * Get profile by ID including deleted ones (admin only)
-   */
-  Profile getProfileByIdIncludingDeleted(UserPrincipal userPrincipal, int profileId);
+  boolean existsById(long id);
+
 }

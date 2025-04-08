@@ -41,6 +41,6 @@ public abstract class BaseEntity {
     @Column(name = "version")
     private Integer version = 0;
 
-    @Column(name = "deleted", nullable = false)
-    private boolean deleted = false;
+    // @Column(name = "deleted", nullable = false)
+    // private boolean deleted = false;
 }

@@ -12,10 +12,11 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.dto.user.CreateUserRequest;
+import com.thaihoc.miniinsta.dto.user.UpdateUserRequest;
 import com.thaihoc.miniinsta.dto.user.UserResponse;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.User;
@@ -38,8 +39,9 @@ public class UserController {
 
     @PostMapping
     @ApiMessage("Create a user")
-    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody User user) throws IdInvalidException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.handleCreateUser(user));
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request)
+            throws IdInvalidException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.handleCreateUser(request));
     }
 
     @GetMapping("/{id}")
@@ -56,18 +58,17 @@ public class UserController {
         return ResponseEntity.ok(this.userService.handleGetAllUsers(spec, pageable));
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("")
     @ApiMessage("Update a user by id")
-    public ResponseEntity<UserResponse> updateUserById(@PathVariable UUID id, @RequestBody User user)
+    public ResponseEntity<UserResponse> updateUserById(@RequestBody UpdateUserRequest request)
             throws IdInvalidException {
-        return ResponseEntity.ok(this.userService.handleUpdateUser(user));
+        return ResponseEntity.ok(this.userService.handleUpdateUser(request));
     }
 
     @DeleteMapping("/{id}")
     @ApiMessage("Delete a user by id")
-    public ResponseEntity<Void> deleteUserById(@PathVariable UUID id,
-            @RequestParam(defaultValue = "false") boolean permanent) throws IdInvalidException {
-        this.userService.handleDeleteUserById(id, permanent);
+    public ResponseEntity<Void> deleteUserById(@PathVariable UUID id) throws IdInvalidException {
+        this.userService.handleDeleteUserById(id);
         return ResponseEntity.noContent().build();
     }
 }
