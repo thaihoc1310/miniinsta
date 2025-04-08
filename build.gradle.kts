@@ -35,6 +35,7 @@ dependencies {
 	implementation("org.springframework.session:spring-session-data-redis")
 	implementation("org.springframework.security:spring-security-oauth2-client")
     implementation("org.springframework.security:spring-security-oauth2-jose")
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 	implementation("io.minio:minio:8.5.7")
 	implementation("com.turkraft.springfilter:jpa:3.1.7")
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5")

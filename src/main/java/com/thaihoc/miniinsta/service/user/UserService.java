@@ -17,7 +17,7 @@ public interface UserService {
 
     User getUserById(UUID id) throws IdInvalidException;
 
-    User getUserByEmail(String email) throws IdInvalidException;
+    User getUserByEmail(String email);
 
     UserResponse handleUpdateUser(UpdateUserRequest request) throws IdInvalidException;
 

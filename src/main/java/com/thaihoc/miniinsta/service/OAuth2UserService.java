@@ -40,7 +40,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                 .picture(oAuth2User.getAttributes().get("picture").toString())
                 .build();
 
-        Optional<User> userOptional = userRepository.findByUsername(userInfoDto.getEmail());
+        Optional<User> userOptional = userRepository.findByEmail(userInfoDto.getEmail());
         User user = userOptional
                 .map(existingUser -> updateExistingUser(existingUser, userInfoDto))
                 .orElseGet(() -> registerNewUser(oAuth2UserRequest, userInfoDto));
@@ -52,7 +52,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         user.setProvider(oAuth2UserRequest.getClientRegistration().getRegistrationId());
         user.setProviderId(userInfoDto.getId());
         user.setName(userInfoDto.getName());
-        user.setUsername(userInfoDto.getEmail());
+        user.setEmail(userInfoDto.getEmail());
         user.setPicture(userInfoDto.getPicture());
         user.setId(UUID.randomUUID());
         return userRepository.save(user);

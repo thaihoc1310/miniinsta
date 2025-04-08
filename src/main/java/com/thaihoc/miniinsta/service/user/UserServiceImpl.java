@@ -49,9 +49,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByEmail(String email) throws IdInvalidException {
-        Optional<User> user = userRepository.findByEmail(email);
-        return this.getUserFromOptional(user);
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(null);
     }
 
     private User getUserFromOptional(Optional<User> user) throws IdInvalidException {
