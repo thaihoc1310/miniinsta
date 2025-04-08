@@ -34,6 +34,14 @@ spring:
                             - email
                             - profile
 
+# JWT Configuration
+thaihoc:
+    jwt:
+        base64secret: YdxXwszT0vC2pT7i9NZcZyzwU9hbGQPp06+MDjxCeVVF1KLVlP9FfFZ/oju804SYOhcmgD/FncBWVK/9trTb7Q==
+        # expiration: 1 day (seconds)
+        access-token-validity-in-seconds: 86400
+        refresh-token-validity-in-seconds: 8640000
+
 springdoc:
     api-docs:
         path: /api-docs

@@ -13,7 +13,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -31,11 +30,11 @@ public abstract class BaseEntity {
 
     @CreatedBy
     @Column(name = "created_by_id", updatable = false)
-    private UUID createdById;
+    private String createdById;
 
     @LastModifiedBy
     @Column(name = "updated_by_id")
-    private UUID updatedById;
+    private String updatedById;
 
     @Version
     @Column(name = "version")
