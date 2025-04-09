@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateCommentRequest {
   @Positive
-  int postId;
+  private long profileId;
   @Length(min = 1, max = 2000)
   private String comment;
 }

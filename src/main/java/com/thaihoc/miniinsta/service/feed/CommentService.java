@@ -1,43 +1,27 @@
 package com.thaihoc.miniinsta.service.feed;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import com.thaihoc.miniinsta.dto.UserPrincipal;
-import com.thaihoc.miniinsta.dto.feed.CommentResponse;
+import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.feed.CreateCommentRequest;
+import com.thaihoc.miniinsta.exception.IdInvalidException;
+import com.thaihoc.miniinsta.model.Comment;
 
 public interface CommentService {
-  // Create new comment
-  CommentResponse createComment(UserPrincipal userPrincipal, CreateCommentRequest request);
+  Comment createComment(long postId, CreateCommentRequest request) throws IdInvalidException;
 
-  // Create reply to comment
-  CommentResponse replyToComment(UserPrincipal userPrincipal, int parentCommentId, CreateCommentRequest request);
+  Comment replyToComment(long commentId, CreateCommentRequest request) throws IdInvalidException;
 
-  // Delete comment
-  void deleteComment(UserPrincipal userPrincipal, int commentId);
+  void deleteComment(long postId, long commentId) throws IdInvalidException;
 
-  // Like comment
-  CommentResponse likeComment(UserPrincipal userPrincipal, int commentId);
+  void deleteReply(long commentId, long replyId) throws IdInvalidException;
 
-  // Unlike comment
-  CommentResponse unlikeComment(UserPrincipal userPrincipal, int commentId);
+  void likeComment(long commentId, long likerId) throws IdInvalidException;
 
-  // Check if user has liked the comment
-  boolean isCommentLiked(UserPrincipal userPrincipal, int commentId);
+  void unlikeComment(long commentId, long likerId) throws IdInvalidException;
 
-  // Get all comments of a post
-  Page<CommentResponse> getPostComments(UserPrincipal userPrincipal, int postId, Pageable pageable);
+  ResultPaginationDTO getAllComments(long postId, Pageable pageable) throws IdInvalidException;
 
-  // Get replies to a comment
-  Page<CommentResponse> getCommentReplies(UserPrincipal userPrincipal, int commentId, Pageable pageable);
+  ResultPaginationDTO getAllCommentReplies(long commentId, Pageable pageable) throws IdInvalidException;
 
-  // Get top comments of a post (sorted by likes)
-  Page<CommentResponse> getTopComments(UserPrincipal userPrincipal, int postId, Pageable pageable);
-
-  // Get comments from a user
-  Page<CommentResponse> getUserComments(UserPrincipal userPrincipal, int profileId, Pageable pageable);
-
-  // Get comment by ID
-  CommentResponse getComment(UserPrincipal userPrincipal, int commentId);
 }

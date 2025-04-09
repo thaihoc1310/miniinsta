@@ -70,7 +70,6 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>, JpaSpec
         @Query("SELECT p FROM Profile p WHERE p.id = :id")
         Optional<Profile> findByIdIncludingDeleted(@Param("id") long id);
 
-        @Query("SELECT p FROM Profile p JOIN p.likedPosts lp WHERE lp.id = :postId AND p.id = :profileId")
-        Page<Profile> findPostLikers(@Param("profileId") long profileId, @Param("postId") long postId,
-                        Pageable pageable);
+        @Query("SELECT p FROM Profile p JOIN p.likedPosts lp WHERE lp.id = :postId")
+        Page<Profile> findPostLikers(@Param("postId") long postId, Pageable pageable);
 }

@@ -19,9 +19,9 @@ public interface PostService {
 
   void deletePostById(long profileId, long postId) throws IdInvalidException;
 
-  void likePost(long profileId, long postId, long likerId) throws IdInvalidException;
+  void likePost(long postId, long likerId) throws IdInvalidException;
 
-  void unlikePost(long profileId, long postId, long likerId) throws IdInvalidException;
+  void unlikePost(long postId, long likerId) throws IdInvalidException;
 
   ResultPaginationDTO getAllPosts(Specification<Post> spec, Pageable pageable);
 
@@ -30,5 +30,9 @@ public interface PostService {
   ResultPaginationDTO getLikedPostsByProfileId(long profileId, Pageable pageable);
 
   ResultPaginationDTO getPostsByHashtag(String hashtag, Pageable pageable);
+
+  void savePost(Post post);
+
+  Post handleGetPostById(long postId) throws IdInvalidException;
 
 }

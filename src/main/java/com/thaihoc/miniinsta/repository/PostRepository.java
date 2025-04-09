@@ -1,6 +1,5 @@
 package com.thaihoc.miniinsta.repository;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -17,7 +16,6 @@ import com.thaihoc.miniinsta.model.Profile;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificationExecutor<Post> {
-  List<Post> findByIdIn(List<Long> ids);
 
   Optional<Post> findByIdAndAuthor(Long id, Profile author);
 
@@ -25,12 +23,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
   Page<Post> findByHashtag(@Param("hashtag") Hashtag hashtag, Pageable pageable);
 
   Page<Post> findByAuthor(Profile author, Pageable pageable);
-
-  @Query("SELECT p FROM Post p WHERE p.createdBy.id = :createdById ORDER BY p.createdAt DESC")
-  Page<Post> findByCreatedByIdOrderByCreatedAtDesc(@Param("createdById") Long createdById, Pageable pageable);
-
-  @Query("SELECT p FROM Post p WHERE p.caption LIKE %:searchTerm%")
-  Page<Post> searchPosts(@Param("searchTerm") String searchTerm, Pageable pageable);
 
   @Query("SELECT p FROM Post p JOIN p.userLikes u WHERE u.id = :profileId")
   Page<Post> findLikedPosts(@Param("profileId") Long profileId, Pageable pageable);
@@ -41,6 +33,4 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
   @Query("SELECT p FROM Post p WHERE SIZE(p.userLikes) > 0 ORDER BY SIZE(p.userLikes) DESC")
   Page<Post> findPopularPosts(Pageable pageable);
 
-  @Query("SELECT p FROM Post p WHERE p.location LIKE %:location%")
-  Page<Post> findPostsByLocation(@Param("location") String location, Pageable pageable);
 }

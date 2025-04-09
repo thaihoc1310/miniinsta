@@ -1,347 +1,188 @@
 package com.thaihoc.miniinsta.service.feed;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.thaihoc.miniinsta.dto.UserPrincipal;
+import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.feed.CommentResponse;
 import com.thaihoc.miniinsta.dto.feed.CreateCommentRequest;
-import com.thaihoc.miniinsta.dto.user.ProfileResponse;
-import com.thaihoc.miniinsta.exception.CommentNotFoundException;
-import com.thaihoc.miniinsta.exception.NoPermissionException;
-import com.thaihoc.miniinsta.exception.PostNotFoundException;
+import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Comment;
 import com.thaihoc.miniinsta.model.Post;
 import com.thaihoc.miniinsta.model.Profile;
-import com.thaihoc.miniinsta.model.enums.NotificationType;
 import com.thaihoc.miniinsta.repository.CommentRepository;
-import com.thaihoc.miniinsta.repository.PostRepository;
-import com.thaihoc.miniinsta.service.notification.NotificationService;
 import com.thaihoc.miniinsta.service.user.ProfileService;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 @Service
 public class CommentServiceImpl implements CommentService {
-  @Autowired
-  private ProfileService profileService;
 
-  @Autowired
-  private PostRepository postRepository;
+  private final CommentRepository commentRepository;
+  private final PostService postService;
+  private final ProfileService profileService;
 
-  @Autowired
-  private CommentRepository commentRepository;
+  public CommentServiceImpl(CommentRepository commentRepository,
+      PostService postService,
+      ProfileService profileService) {
+    this.commentRepository = commentRepository;
+    this.postService = postService;
+    this.profileService = profileService;
+  }
 
-  @Autowired
-  private NotificationService notificationService;
+  private Comment handleGetCommentById(long commentId) throws IdInvalidException {
+    return commentRepository.findById(commentId)
+        .orElseThrow(() -> new IdInvalidException("Comment not found"));
+  }
 
-  @Override
-  @Transactional
-  public CommentResponse createComment(UserPrincipal userPrincipal, CreateCommentRequest request) {
-    Profile profile = profileService.getCurrentUserProfile(userPrincipal);
-    Post post = postRepository.findById(request.getPostId())
-        .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + request.getPostId()));
+  private CommentResponse convertToCommentResponse(Comment comment) {
+    Profile currentUser = profileService.handleGetCurrentUserProfile();
+    boolean likedByCurrentUser = currentUser == null ? false
+        : commentRepository.isCommentLikedByProfile(comment.getId(), currentUser.getId()) > 0;
 
-    Comment comment = new Comment();
-    comment.setComment(request.getComment());
-    comment.setCreatedAt(LocalDateTime.now());
-    comment.setCreatedBy(profile);
-    comment.setPost(post);
-
-    Comment savedComment = commentRepository.save(comment);
-
-    // Add comment to post and update count
-    post.getComments().add(savedComment);
-    post.setCommentCount(post.getCommentCount() + 1);
-    postRepository.save(post);
-
-    // Send notification to post creator
-    if (post.getCreatedBy().getId() != profile.getId()) {
-      notificationService.createNotification(
-          post.getCreatedBy(),
-          profile,
-          profile.getUsername() + " commented on your post: " + truncateComment(request.getComment()),
-          NotificationType.COMMENT,
-          post.getId(),
-          savedComment.getId());
-    }
-
-    return convertToCommentResponse(savedComment, profile);
+    return CommentResponse.builder()
+        .comment(comment)
+        .likedByCurrentUser(likedByCurrentUser)
+        .build();
   }
 
   @Override
   @Transactional
-  public CommentResponse replyToComment(UserPrincipal userPrincipal, int parentCommentId,
-      CreateCommentRequest request) {
-    Profile profile = profileService.getCurrentUserProfile(userPrincipal);
-    Comment parentComment = commentRepository.findById(parentCommentId)
-        .orElseThrow(() -> new CommentNotFoundException("Parent comment not found with id: " + parentCommentId));
+  public Comment createComment(long postId, CreateCommentRequest request) throws IdInvalidException {
+    Post post = postService.handleGetPostById(postId);
 
+    Profile profile = profileService.getProfileById(request.getProfileId());
+
+    Comment comment = Comment.builder()
+        .author(profile)
+        .post(post)
+        .comment(request.getComment())
+        .likes(new HashSet<>())
+        .likeCount(0)
+        .replies(new ArrayList<>())
+        .build();
+
+    post.setCommentCount(post.getCommentCount() + 1);
+    postService.savePost(post);
+
+    return commentRepository.save(comment);
+  }
+
+  @Override
+  @Transactional
+  public Comment replyToComment(long commentId, CreateCommentRequest request) throws IdInvalidException {
+    Comment parentComment = handleGetCommentById(commentId);
+    Profile profile = profileService.getProfileById(request.getProfileId());
+
+    Comment reply = Comment.builder()
+        .author(profile)
+        .post(parentComment.getPost())
+        .parentComment(parentComment)
+        .comment(request.getComment())
+        .likes(new HashSet<>())
+        .likeCount(0)
+        .replies(new ArrayList<>())
+        .build();
+
+    // Update post's comment count
     Post post = parentComment.getPost();
-
-    Comment reply = new Comment();
-    reply.setComment(request.getComment());
-    reply.setCreatedAt(LocalDateTime.now());
-    reply.setCreatedBy(profile);
-    reply.setPost(post);
-    reply.setParentComment(parentComment);
-
-    Comment savedReply = commentRepository.save(reply);
-
-    // Add comment to post and update count
-    post.getComments().add(savedReply);
     post.setCommentCount(post.getCommentCount() + 1);
-    postRepository.save(post);
+    postService.savePost(post);
 
-    // Send notification to original commenter
-    if (parentComment.getCreatedBy().getId() != profile.getId()) {
-      notificationService.createNotification(
-          parentComment.getCreatedBy(),
-          profile,
-          profile.getUsername() + " replied to your comment: " + truncateComment(request.getComment()),
-          NotificationType.COMMENT,
-          post.getId(),
-          savedReply.getId());
-    }
-
-    return convertToCommentResponse(savedReply, profile);
+    return commentRepository.save(reply);
   }
 
   @Override
   @Transactional
-  public void deleteComment(UserPrincipal userPrincipal, int commentId) {
-    Profile profile = profileService.getCurrentUserProfile(userPrincipal);
-    Comment comment = commentRepository.findById(commentId)
-        .orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + commentId));
+  public void deleteComment(long postId, long commentId) throws IdInvalidException {
+    Comment comment = handleGetCommentById(commentId);
 
-    // Only comment owner or post owner can delete
-    if (comment.getCreatedBy().getId() != profile.getId() &&
-        comment.getPost().getCreatedBy().getId() != profile.getId()) {
-      throw new NoPermissionException("You don't have permission to delete this comment");
+    if (comment.getPost().getId() != postId) {
+      throw new IdInvalidException("Comment does not belong to the specified post");
     }
 
     Post post = comment.getPost();
-    post.getComments().remove(comment);
-    post.setCommentCount(Math.max(0, post.getCommentCount() - 1));
-    postRepository.save(post);
+    int totalComments = 1 + comment.getReplies().size();
+    post.setCommentCount(Math.max(0, post.getCommentCount() - totalComments));
+    postService.savePost(post);
 
     commentRepository.delete(comment);
   }
 
   @Override
   @Transactional
-  public CommentResponse likeComment(UserPrincipal userPrincipal, int commentId) {
-    Profile profile = profileService.getCurrentUserProfile(userPrincipal);
-    Comment comment = commentRepository.findById(commentId)
-        .orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + commentId));
+  public void deleteReply(long commentId, long replyId) throws IdInvalidException {
+    Comment reply = handleGetCommentById(replyId);
 
-    if (!comment.getLikes().contains(profile)) {
-      comment.getLikes().add(profile);
-      comment.setLikeCount(comment.getLikeCount() + 1);
-      Comment savedComment = commentRepository.save(comment);
-
-      // Send notification to comment writer
-      if (comment.getCreatedBy().getId() != profile.getId()) {
-        notificationService.createNotification(
-            comment.getCreatedBy(),
-            profile,
-            profile.getUsername() + " liked your comment: " + truncateComment(comment.getComment()),
-            NotificationType.COMMENT_LIKE,
-            comment.getPost().getId(),
-            comment.getId());
-      }
-
-      return convertToCommentResponse(savedComment, profile);
+    // Verify this is actually a reply to the specified comment
+    if (reply.getParentComment() == null || reply.getParentComment().getId() != commentId) {
+      throw new IdInvalidException("Reply does not belong to the specified comment");
     }
 
-    return convertToCommentResponse(comment, profile);
+    // Update post's comment count
+    Post post = reply.getPost();
+    post.setCommentCount(Math.max(0, post.getCommentCount() - 1));
+    postService.savePost(post);
+
+    commentRepository.delete(reply);
   }
 
   @Override
   @Transactional
-  public CommentResponse unlikeComment(UserPrincipal userPrincipal, int commentId) {
-    Profile profile = profileService.getCurrentUserProfile(userPrincipal);
-    Comment comment = commentRepository.findById(commentId)
-        .orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + commentId));
+  public void likeComment(long commentId, long likerId) throws IdInvalidException {
+    Comment comment = handleGetCommentById(commentId);
+    Profile liker = profileService.getProfileById(likerId);
 
-    if (comment.getLikes().contains(profile)) {
-      comment.getLikes().remove(profile);
+    if (commentRepository.isCommentLikedByProfile(commentId, likerId) == 0) {
+      comment.getLikes().add(liker);
+      comment.setLikeCount(comment.getLikeCount() + 1);
+      commentRepository.save(comment);
+    }
+  }
+
+  @Override
+  @Transactional
+  public void unlikeComment(long commentId, long likerId) throws IdInvalidException {
+    Comment comment = handleGetCommentById(commentId);
+    Profile liker = profileService.getProfileById(likerId);
+
+    if (commentRepository.isCommentLikedByProfile(commentId, likerId) > 0) {
+      comment.getLikes().remove(liker);
       comment.setLikeCount(Math.max(0, comment.getLikeCount() - 1));
-      Comment savedComment = commentRepository.save(comment);
-      return convertToCommentResponse(savedComment, profile);
+      commentRepository.save(comment);
     }
-
-    return convertToCommentResponse(comment, profile);
   }
 
   @Override
-  public boolean isCommentLiked(UserPrincipal userPrincipal, int commentId) {
-    Profile profile = profileService.getCurrentUserProfile(userPrincipal);
-    return commentRepository.isCommentLikedByProfile(commentId, profile.getId()) > 0;
+  public ResultPaginationDTO getAllComments(long postId, Pageable pageable) throws IdInvalidException {
+    Post post = postService.handleGetPostById(postId);
+    Page<Comment> comments = commentRepository.findByPost(post, pageable);
+    return createPaginationResult(comments, pageable);
   }
 
   @Override
-  public Page<CommentResponse> getPostComments(UserPrincipal userPrincipal, int postId, Pageable pageable) {
-    Post post = postRepository.findById(postId)
-        .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + postId));
-
-    Profile currentProfile = null;
-    if (userPrincipal != null) {
-      currentProfile = profileService.getCurrentUserProfile(userPrincipal);
-    }
-
-    final Profile profile = currentProfile;
-
-    // Only get top-level comments (not replies)
-    Page<Comment> comments = commentRepository.findByPostAndParentCommentIsNull(post, pageable);
-
-    return comments.map(comment -> {
-      boolean isLiked = profile != null && comment.getLikes().contains(profile);
-      return convertToCommentResponseWithReplies(comment, profile, isLiked);
-    });
+  public ResultPaginationDTO getAllCommentReplies(long commentId, Pageable pageable) throws IdInvalidException {
+    Comment comment = handleGetCommentById(commentId);
+    Page<Comment> replies = commentRepository.findByParentComment(comment, pageable);
+    return createPaginationResult(replies, pageable);
   }
 
-  @Override
-  public Page<CommentResponse> getCommentReplies(UserPrincipal userPrincipal, int commentId, Pageable pageable) {
-    Comment parentComment = commentRepository.findById(commentId)
-        .orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + commentId));
-
-    Profile currentProfile = null;
-    if (userPrincipal != null) {
-      currentProfile = profileService.getCurrentUserProfile(userPrincipal);
-    }
-
-    final Profile profile = currentProfile;
-
-    Page<Comment> replies = commentRepository.findByParentComment(parentComment, pageable);
-
-    return replies.map(reply -> {
-      boolean isLiked = profile != null && reply.getLikes().contains(profile);
-      return convertToCommentResponse(reply, profile, isLiked);
-    });
-  }
-
-  @Override
-  public Page<CommentResponse> getTopComments(UserPrincipal userPrincipal, int postId, Pageable pageable) {
-    Profile currentProfile = null;
-    if (userPrincipal != null) {
-      currentProfile = profileService.getCurrentUserProfile(userPrincipal);
-    }
-
-    final Profile profile = currentProfile;
-
-    Page<Comment> topComments = commentRepository.findMostLikedComments(postId, pageable);
-
-    return topComments.map(comment -> {
-      boolean isLiked = profile != null && comment.getLikes().contains(profile);
-      return convertToCommentResponse(comment, profile, isLiked);
-    });
-  }
-
-  @Override
-  public Page<CommentResponse> getUserComments(UserPrincipal userPrincipal, int profileId, Pageable pageable) {
-    Profile targetProfile = profileService.getProfileById(profileId);
-
-    Profile currentProfile = null;
-    if (userPrincipal != null) {
-      currentProfile = profileService.getCurrentUserProfile(userPrincipal);
-    }
-
-    final Profile profile = currentProfile;
-
-    Page<Comment> userComments = commentRepository.findByCreatedBy(targetProfile, pageable);
-
-    return userComments.map(comment -> {
-      boolean isLiked = profile != null && comment.getLikes().contains(profile);
-      return convertToCommentResponse(comment, profile, isLiked);
-    });
-  }
-
-  @Override
-  public CommentResponse getComment(UserPrincipal userPrincipal, int commentId) {
-    Comment comment = commentRepository.findById(commentId)
-        .orElseThrow(() -> new CommentNotFoundException("Comment not found with id: " + commentId));
-
-    Profile currentProfile = null;
-    if (userPrincipal != null) {
-      currentProfile = profileService.getCurrentUserProfile(userPrincipal);
-    }
-
-    boolean isLiked = currentProfile != null && comment.getLikes().contains(currentProfile);
-    return convertToCommentResponseWithReplies(comment, currentProfile, isLiked);
-  }
-
-  // Helper methods
-
-  private CommentResponse convertToCommentResponse(Comment comment, Profile currentProfile) {
-    boolean isLiked = currentProfile != null && comment.getLikes().contains(currentProfile);
-    return convertToCommentResponse(comment, currentProfile, isLiked);
-  }
-
-  private CommentResponse convertToCommentResponse(Comment comment, Profile currentProfile, boolean isLiked) {
-    ProfileResponse profileResponse = ProfileResponse.builder()
-        .id(comment.getCreatedBy().getId())
-        .username(comment.getCreatedBy().getUsername())
-        .displayName(comment.getCreatedBy().getDisplayName())
-        .profilePictureUrl(comment.getCreatedBy().getProfilePictureUrl())
-        .isVerified(comment.getCreatedBy().isVerified())
-        .build();
-
-    return CommentResponse.builder()
-        .id(comment.getId())
-        .comment(comment.getComment())
-        .createdAt(comment.getCreatedAt())
-        .createdBy(profileResponse)
-        .likeCount(comment.getLikeCount())
-        .likedByCurrentUser(isLiked)
-        .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
-        .replies(Collections.emptyList()) // Don't load replies here to avoid too much data
-        .build();
-  }
-
-  private CommentResponse convertToCommentResponseWithReplies(Comment comment, Profile currentProfile,
-      boolean isLiked) {
-    ProfileResponse profileResponse = ProfileResponse.builder()
-        .id(comment.getCreatedBy().getId())
-        .username(comment.getCreatedBy().getUsername())
-        .displayName(comment.getCreatedBy().getDisplayName())
-        .profilePictureUrl(comment.getCreatedBy().getProfilePictureUrl())
-        .isVerified(comment.getCreatedBy().isVerified())
-        .build();
-
-    // Get top 3 replies
-    List<Comment> replies = commentRepository.findByParentComment(comment, Pageable.ofSize(3)).getContent();
-    List<CommentResponse> replyResponses = new ArrayList<>();
-
-    if (!replies.isEmpty()) {
-      replyResponses = replies.stream()
-          .map(reply -> convertToCommentResponse(reply, currentProfile))
-          .collect(Collectors.toList());
-    }
-
-    return CommentResponse.builder()
-        .id(comment.getId())
-        .comment(comment.getComment())
-        .createdAt(comment.getCreatedAt())
-        .createdBy(profileResponse)
-        .likeCount(comment.getLikeCount())
-        .likedByCurrentUser(isLiked)
-        .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
-        .replies(replyResponses)
-        .build();
-  }
-
-  private String truncateComment(String comment) {
-    if (comment.length() <= 30) {
-      return comment;
-    }
-    return comment.substring(0, 27) + "...";
+  private ResultPaginationDTO createPaginationResult(Page<Comment> page, Pageable pageable) {
+    ResultPaginationDTO rs = new ResultPaginationDTO();
+    ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
+    mt.setPage(pageable.getPageNumber() + 1);
+    mt.setPageSize(pageable.getPageSize());
+    mt.setPages(page.getTotalPages());
+    mt.setTotal(page.getTotalElements());
+    rs.setMeta(mt);
+    List<CommentResponse> comments = page.getContent().stream()
+        .map(this::convertToCommentResponse)
+        .toList();
+    rs.setResult(comments);
+    return rs;
   }
 }

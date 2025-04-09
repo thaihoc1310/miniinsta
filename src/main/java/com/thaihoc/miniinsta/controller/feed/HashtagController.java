@@ -62,14 +62,6 @@ public class HashtagController {
         return ResponseEntity.ok(hashtagService.searchHashtags(q, pageable));
     }
 
-    /**
-     * Get trending hashtags
-     */
-    @GetMapping("/trending")
-    public ResponseEntity<Page<HashtagResponse>> getTrendingHashtags(Pageable pageable) {
-        return ResponseEntity.ok(hashtagService.getTrendingHashtags(pageable));
-    }
-
     // @GetMapping("/{name}/posts")
     // public ResponseEntity<List<Post>> getPostsByHashtag(
     // @PathVariable String name,
@@ -87,14 +79,4 @@ public class HashtagController {
     // hashtagService.removeHashtagFromPost(postId, hashtagName);
     // return ResponseEntity.ok().build();
     // }
-
-    /**
-     * Update post count for all hashtags (Admin API)
-     */
-    @PostMapping("/update-counts")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> updateHashtagPostCount() {
-        hashtagService.updateHashtagPostCount();
-        return ResponseEntity.noContent().build();
-    }
 }

@@ -46,6 +46,12 @@ public class PostServiceImpl implements PostService {
         .orElseThrow(() -> new IdInvalidException("Post not found"));
   }
 
+  @Override
+  public Post handleGetPostById(long postId) throws IdInvalidException {
+    return postRepository.findById(postId)
+        .orElseThrow(() -> new IdInvalidException("Post not found"));
+  }
+
   private PostResponse convertToPostResponse(Post post) throws IdInvalidException {
     Profile profile = profileService.handleGetCurrentUserProfile();
     boolean likedByCurrentUser = profile == null ? false
@@ -137,10 +143,10 @@ public class PostServiceImpl implements PostService {
 
   @Override
   @Transactional
-  public void likePost(long profileId, long postId, long likerId) throws IdInvalidException {
+  public void likePost(long postId, long likerId) throws IdInvalidException {
     Profile liker = profileService.getProfileById(likerId);
 
-    Post post = handleGetPostByIdAndProfileId(postId, profileId);
+    Post post = handleGetPostById(postId);
 
     if (this.postRepository.isPostLikedByProfile(postId, likerId) == 0) {
       post.getUserLikes().add(liker);
@@ -156,10 +162,10 @@ public class PostServiceImpl implements PostService {
 
   @Override
   @Transactional
-  public void unlikePost(long profileId, long postId, long likerId) throws IdInvalidException {
+  public void unlikePost(long postId, long likerId) throws IdInvalidException {
     Profile liker = profileService.getProfileById(likerId);
 
-    Post post = handleGetPostByIdAndProfileId(postId, profileId);
+    Post post = handleGetPostById(postId);
 
     if (this.postRepository.isPostLikedByProfile(postId, likerId) > 0) {
       post.getUserLikes().remove(liker);
@@ -208,4 +214,8 @@ public class PostServiceImpl implements PostService {
     return createPaginationResult(posts, pageable);
   }
 
+  @Override
+  public void savePost(Post post) {
+    this.postRepository.save(post);
+  }
 }

@@ -9,7 +9,7 @@ import com.thaihoc.miniinsta.model.Profile;
 
 public interface ProfileService {
 
-  Profile handleGetCurrentUserProfile() throws IdInvalidException;
+  Profile handleGetCurrentUserProfile();
 
   Profile getProfileById(long id) throws IdInvalidException;
 
@@ -35,5 +35,5 @@ public interface ProfileService {
 
   void saveProfile(Profile profile);
 
-  ResultPaginationDTO getPostLikers(long profileId, long postId, Pageable pageable);
+  ResultPaginationDTO getPostLikers(long postId, Pageable pageable);
 }

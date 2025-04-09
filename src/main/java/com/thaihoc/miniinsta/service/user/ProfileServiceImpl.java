@@ -29,7 +29,7 @@ public class ProfileServiceImpl implements ProfileService {
   }
 
   @Override
-  public Profile handleGetCurrentUserProfile() throws IdInvalidException {
+  public Profile handleGetCurrentUserProfile() {
     String email = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
     User currentUser = this.userService.getUserByEmail(email);
     return currentUser != null ? currentUser.getProfile() : null;
@@ -206,8 +206,8 @@ public class ProfileServiceImpl implements ProfileService {
   }
 
   @Override
-  public ResultPaginationDTO getPostLikers(long profileId, long postId, Pageable pageable) {
-    Page<Profile> postLikers = this.profileRepository.findPostLikers(profileId, postId, pageable);
+  public ResultPaginationDTO getPostLikers(long postId, Pageable pageable) {
+    Page<Profile> postLikers = this.profileRepository.findPostLikers(postId, pageable);
     return createPaginationResult(postLikers, pageable);
   }
 

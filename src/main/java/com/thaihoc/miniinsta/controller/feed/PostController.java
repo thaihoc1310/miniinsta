@@ -63,21 +63,19 @@ public class PostController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("profiles/{profileId}/posts/{postId}/likes")
+    @PostMapping("posts/{postId}/likes")
     public ResponseEntity<Void> likePost(
-            @PathVariable long profileId,
             @PathVariable long postId,
             @Valid @RequestBody LikePostRequest request) throws IdInvalidException {
-        postService.likePost(profileId, postId, request.getLikerId());
+        postService.likePost(postId, request.getLikerId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("profiles/{profileId}/posts/{postId}/likes/{likerId}")
+    @DeleteMapping("posts/{postId}/likes/{likerId}")
     public ResponseEntity<Void> unlikePost(
-            @PathVariable long profileId,
             @PathVariable long postId,
             @PathVariable long likerId) throws IdInvalidException {
-        postService.unlikePost(profileId, postId, likerId);
+        postService.unlikePost(postId, likerId);
         return ResponseEntity.noContent().build();
     }
 
@@ -124,11 +122,10 @@ public class PostController {
     // pageable));
     // }
 
-    @GetMapping("profiles/{profileId}/posts/{postId}/likes")
+    @GetMapping("posts/{postId}/likes")
     public ResponseEntity<ResultPaginationDTO> getPostLikers(
-            @PathVariable long profileId,
             @PathVariable long postId,
             Pageable pageable) throws IdInvalidException {
-        return ResponseEntity.ok(this.profileService.getPostLikers(profileId, postId, pageable));
+        return ResponseEntity.ok(this.profileService.getPostLikers(postId, pageable));
     }
 }
