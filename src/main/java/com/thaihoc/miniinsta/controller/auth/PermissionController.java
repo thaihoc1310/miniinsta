@@ -1,8 +1,8 @@
 package com.thaihoc.miniinsta.controller.auth;
 
 import com.thaihoc.miniinsta.model.Permission;
+import com.thaihoc.miniinsta.service.auth.PermissionService;
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
-import com.thaihoc.miniinsta.service.role.PermissionService;
 import com.thaihoc.miniinsta.util.annotation.ApiMessage;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 
@@ -20,6 +20,7 @@ import com.turkraft.springfilter.boot.Filter;
 
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +37,7 @@ public class PermissionController {
     @PostMapping
     @ApiMessage("Create a permission")
     public ResponseEntity<Permission> createnewPermission(@Valid @RequestBody Permission permission)
-            throws IdInvalidException {
+            throws IdInvalidException, MethodArgumentNotValidException {
         Permission newPermission = this.permissionService.handleCreatePermission(permission);
         return ResponseEntity.status(HttpStatus.CREATED).body(newPermission);
     }
@@ -44,7 +45,7 @@ public class PermissionController {
     @PutMapping
     @ApiMessage("Update a permission")
     public ResponseEntity<Permission> updatePermission(@Valid @RequestBody Permission permission)
-            throws IdInvalidException {
+            throws IdInvalidException, MethodArgumentNotValidException {
         Permission updatedPermission = this.permissionService.handleUpdatePermission(permission);
         return ResponseEntity.status(HttpStatus.OK).body(updatedPermission);
     }

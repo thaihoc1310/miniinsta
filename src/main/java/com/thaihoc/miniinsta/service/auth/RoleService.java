@@ -1,16 +1,14 @@
-package com.thaihoc.miniinsta.service.role;
+package com.thaihoc.miniinsta.service.auth;
 
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Role;
 
-@Service
 public interface RoleService {
     public Role handleCreateRole(Role role) throws IdInvalidException;
 

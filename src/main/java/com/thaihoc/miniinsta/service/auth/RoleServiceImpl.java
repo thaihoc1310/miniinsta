@@ -1,4 +1,4 @@
-package com.thaihoc.miniinsta.service.role;
+package com.thaihoc.miniinsta.service.auth;
 
 import java.util.List;
 import java.util.Set;

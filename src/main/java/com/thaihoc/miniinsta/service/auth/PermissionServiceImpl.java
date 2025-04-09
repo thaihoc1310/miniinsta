@@ -1,4 +1,4 @@
-package com.thaihoc.miniinsta.service.role;
+package com.thaihoc.miniinsta.service.auth;
 
 import java.util.List;
 import java.util.Set;
@@ -87,7 +87,7 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     public void handleDeletePermission(Long id) {
         Permission permission = this.getPermissionById(id);
-        List<Role> roles = permission.getRoles();
+        Set<Role> roles = permission.getRoles();
         roles.forEach(role -> {
             role.getPermissions().remove(permission);
         });

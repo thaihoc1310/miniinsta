@@ -1,5 +1,6 @@
 package com.thaihoc.miniinsta.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thaihoc.miniinsta.model.base.BaseEntity;
 
 import jakarta.persistence.*;
@@ -63,5 +64,6 @@ public class User extends BaseEntity {
     private Role role;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Profile profile;
 }

@@ -19,17 +19,19 @@ public interface UserService {
 
     User getUserByEmail(String email);
 
+    UserResponse handleGetUserByEmail(String email) throws IdInvalidException;
+
     UserResponse handleUpdateUser(UpdateUserRequest request) throws IdInvalidException;
 
     ResultPaginationDTO handleGetAllUsers(Specification<User> spec, Pageable pageable);
 
     UserResponse handleGetUserResponseById(UUID id) throws IdInvalidException;
 
-    void handleUpdateUserToken(String email, String token) throws IdInvalidException;
+    void handleUpdateUserToken(String email, String token);
 
     void handleDeleteUserById(UUID id) throws IdInvalidException;
 
-    User handleGetUserByRefreshTokenAndEmail(String token, String email) throws IdInvalidException;
+    User getUserByRefreshTokenAndEmail(String token, String email);
 
     boolean existsByEmail(String email);
 }

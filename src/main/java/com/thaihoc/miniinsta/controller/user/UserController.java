@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -40,7 +41,7 @@ public class UserController {
     @PostMapping
     @ApiMessage("Create a user")
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request)
-            throws IdInvalidException {
+            throws IdInvalidException, MethodArgumentNotValidException {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.handleCreateUser(request));
     }
 

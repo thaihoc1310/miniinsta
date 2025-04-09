@@ -2,8 +2,6 @@ package com.thaihoc.miniinsta.util;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import javax.crypto.SecretKey;
@@ -28,7 +26,7 @@ import com.nimbusds.jose.util.Base64;
 import com.thaihoc.miniinsta.dto.auth.RestLoginDTO;
 
 @Service
-public class SecurityUtil {
+public final class SecurityUtil {
     @Value("${thaihoc.jwt.base64secret}")
     private String jwtKey;
 
@@ -51,18 +49,12 @@ public class SecurityUtil {
         Instant now = Instant.now();
         Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS);
 
-        // hard code permission for testing
-        List<String> authorities = new ArrayList<>();
-        authorities.add("ROLE_USER_CREATE");
-        authorities.add("ROLE_USER_UPDATE");
-
         // @formatter:off 
         JwtClaimsSet claims = JwtClaimsSet.builder() 
-            .issuedAt(now) 
+            .issuedAt(now)
             .expiresAt(validity) 
             .subject(email) 
             .claim("user", userToken) 
-            .claim("permission", authorities)
             .build(); 
  
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build(); 

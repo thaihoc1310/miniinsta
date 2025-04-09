@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
@@ -49,7 +50,8 @@ public class ProfileController {
 
     @PatchMapping
     @ApiMessage("Update a profile")
-    public ResponseEntity<Profile> updateProfile(@Valid @RequestBody Profile profile) throws IdInvalidException {
+    public ResponseEntity<Profile> updateProfile(@Valid @RequestBody Profile profile)
+            throws IdInvalidException, MethodArgumentNotValidException {
         Profile updatedProfile = profileService.handleUpdateProfile(profile);
         return ResponseEntity.ok(updatedProfile);
     }
@@ -89,14 +91,16 @@ public class ProfileController {
 
     @PostMapping("/followers")
     @ApiMessage("Follow a profile")
-    public ResponseEntity<Void> followProfile(@RequestBody FollowProfileRequest request) throws IdInvalidException {
+    public ResponseEntity<Void> followProfile(@Valid @RequestBody FollowProfileRequest request)
+            throws IdInvalidException, MethodArgumentNotValidException {
         profileService.followProfile(request.getProfileId(), request.getFollowerId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/followers")
     @ApiMessage("Unfollow a profile")
-    public ResponseEntity<Void> unfollowProfile(@RequestBody FollowProfileRequest request) throws IdInvalidException {
+    public ResponseEntity<Void> unfollowProfile(@Valid @RequestBody FollowProfileRequest request)
+            throws IdInvalidException, MethodArgumentNotValidException {
         profileService.unfollowProfile(request.getProfileId(), request.getFollowerId());
         return ResponseEntity.noContent().build();
     }

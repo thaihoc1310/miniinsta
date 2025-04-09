@@ -1,5 +1,7 @@
 package com.thaihoc.miniinsta.dto.auth;
 
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.thaihoc.miniinsta.model.Role;
 
@@ -20,7 +22,7 @@ public class RestLoginDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class UserLogin {
-        private long id;
+        private UUID id;
         private String email;
         private String name;
         private Role role;
@@ -40,7 +42,7 @@ public class RestLoginDTO {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class UserInsideToken {
-        private long id;
+        private UUID id;
         private String email;
         private String name;
     }

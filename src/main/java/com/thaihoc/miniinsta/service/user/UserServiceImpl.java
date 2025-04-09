@@ -1,7 +1,6 @@
 package com.thaihoc.miniinsta.service.user;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -21,9 +20,9 @@ import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.model.Role;
 import com.thaihoc.miniinsta.model.User;
 import com.thaihoc.miniinsta.repository.UserRepository;
-import com.thaihoc.miniinsta.service.role.RoleService;
+import com.thaihoc.miniinsta.service.auth.PermissionService;
+import com.thaihoc.miniinsta.service.auth.RoleService;
 import com.thaihoc.miniinsta.util.SecurityUtil;
-import com.thaihoc.miniinsta.service.role.PermissionService;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -43,28 +42,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(UUID id) throws IdInvalidException {
-        Optional<User> user = userRepository.findById(id);
-        return this.getUserFromOptional(user);
+    public User getUserById(UUID id) {
+        return userRepository.findById(id).orElse(null);
     }
 
     @Override
     public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(null);
+        return userRepository.findByEmail(email).orElse(null);
     }
 
-    private User getUserFromOptional(Optional<User> user) throws IdInvalidException {
-        if (user.isPresent()) {
-            return user.get();
+    @Override
+    public UserResponse handleGetUserByEmail(String email) throws IdInvalidException {
+        User user = this.getUserByEmail(email);
+        if (user != null) {
+            return this.convertToUserResponse(user);
         }
         throw new IdInvalidException("User not found");
     }
 
     @Override
-    public void handleUpdateUserToken(String email, String token) throws IdInvalidException {
+    public void handleUpdateUserToken(String email, String token) {
         User user = this.getUserByEmail(email);
-        user.setRefreshToken(token);
-        this.userRepository.save(user);
+        if (user != null) {
+            user.setRefreshToken(token);
+            this.userRepository.save(user);
+        }
     }
 
     @Override
@@ -140,7 +142,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse handleGetUserResponseById(UUID id) throws IdInvalidException {
         User user = this.getUserById(id);
-        return this.convertToUserResponse(user);
+        if (user != null) {
+            return this.convertToUserResponse(user);
+        }
+        throw new IdInvalidException("User not found");
     }
 
     private UserResponse convertToUserResponse(User user) {
@@ -156,10 +161,6 @@ public class UserServiceImpl implements UserService {
                 .role(user.getRole())
                 .profile(user.getProfile())
                 .build();
-    }
-
-    public User getUserByRefreshTokenAndEmail(String refreshToken, String email) throws IdInvalidException {
-        return this.getUserFromOptional(userRepository.findByRefreshTokenAndEmail(refreshToken, email));
     }
 
     @Override
@@ -187,7 +188,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User handleGetUserByRefreshTokenAndEmail(String token, String email) throws IdInvalidException {
-        return this.getUserFromOptional(userRepository.findByRefreshTokenAndEmail(token, email));
+    public User getUserByRefreshTokenAndEmail(String token, String email) {
+        return userRepository.findByRefreshTokenAndEmail(token, email).orElse(null);
     }
 }
