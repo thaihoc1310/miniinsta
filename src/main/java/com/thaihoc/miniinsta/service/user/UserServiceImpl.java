@@ -1,5 +1,6 @@
 package com.thaihoc.miniinsta.service.user;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -108,16 +109,23 @@ public class UserServiceImpl implements UserService {
         if (this.profileService.existsByUsername(request.getUsername())) {
             throw new IdInvalidException("Username already exists");
         }
-        User user = new User();
-        user.setEmail(request.getEmail());
-        user.setPassword(this.passwordEncoder.encode(request.getPassword()));
-        user.setName(request.getName());
-        user.setDateOfBirth(request.getDateOfBirth());
-        user.setId(UUID.randomUUID());
-        Profile profile = new Profile();
-        profile.setUsername(request.getUsername());
-        profile.setDisplayName(request.getName());
-        profile.setUser(user);
+        User user = User.builder()
+                .email(request.getEmail())
+                .password(this.passwordEncoder.encode(request.getPassword()))
+                .name(request.getName())
+                .dateOfBirth(request.getDateOfBirth())
+                .id(UUID.randomUUID())
+                .build();
+        Profile profile = Profile.builder()
+                .username(request.getUsername())
+                .displayName(request.getName())
+                .user(user)
+                .followers(new ArrayList<>())
+                .following(new ArrayList<>())
+                .followersCount(0)
+                .followingCount(0)
+                .postsCount(0)
+                .build();
         user.setProfile(profile);
         User createdUser = this.userRepository.save(user);
         return this.convertToUserResponse(createdUser);

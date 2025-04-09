@@ -63,6 +63,7 @@ public class Post extends BaseEntity {
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "post_hashtags", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "hashtag_id"))
+  @JsonIgnore
   private List<Hashtag> hashtags;
 
   @Column(name = "like_count")

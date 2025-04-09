@@ -36,7 +36,7 @@ public class PermissionController {
 
     @PostMapping
     @ApiMessage("Create a permission")
-    public ResponseEntity<Permission> createnewPermission(@Valid @RequestBody Permission permission)
+    public ResponseEntity<Permission> createNewPermission(@Valid @RequestBody Permission permission)
             throws IdInvalidException, MethodArgumentNotValidException {
         Permission newPermission = this.permissionService.handleCreatePermission(permission);
         return ResponseEntity.status(HttpStatus.CREATED).body(newPermission);

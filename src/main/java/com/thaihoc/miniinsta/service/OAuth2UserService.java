@@ -48,13 +48,14 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private User registerNewUser(OAuth2UserRequest oAuth2UserRequest, Oauth2UserInfoDto userInfoDto) {
-        User user = new User();
-        user.setProvider(oAuth2UserRequest.getClientRegistration().getRegistrationId());
-        user.setProviderId(userInfoDto.getId());
-        user.setName(userInfoDto.getName());
-        user.setEmail(userInfoDto.getEmail());
-        user.setPicture(userInfoDto.getPicture());
-        user.setId(UUID.randomUUID());
+        User user = User.builder()
+                .provider(oAuth2UserRequest.getClientRegistration().getRegistrationId())
+                .providerId(userInfoDto.getId())
+                .name(userInfoDto.getName())
+                .email(userInfoDto.getEmail())
+                .picture(userInfoDto.getPicture())
+                .id(UUID.randomUUID())
+                .build();
         // Profile profile = new Profile();
         // profile.setUsername(userInfoDto.getName());
         // profile.setDisplayName(userInfoDto.getName());

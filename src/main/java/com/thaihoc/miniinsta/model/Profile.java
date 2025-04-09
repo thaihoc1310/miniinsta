@@ -56,6 +56,10 @@ public class Profile extends BaseEntity {
   @JsonIgnore
   private List<Post> posts;
 
+  @ManyToMany(mappedBy = "userLikes", fetch = FetchType.LAZY)
+  @JsonIgnore
+  private List<Post> likedPosts;
+
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "profile_followers", joinColumns = @JoinColumn(name = "profile_id"), inverseJoinColumns = @JoinColumn(name = "follower_id"))
   @JsonIgnore

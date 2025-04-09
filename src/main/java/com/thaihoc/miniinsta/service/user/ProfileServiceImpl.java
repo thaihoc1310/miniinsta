@@ -32,7 +32,7 @@ public class ProfileServiceImpl implements ProfileService {
   public Profile handleGetCurrentUserProfile() throws IdInvalidException {
     String email = SecurityUtil.getCurrentUserLogin().isPresent() ? SecurityUtil.getCurrentUserLogin().get() : "";
     User currentUser = this.userService.getUserByEmail(email);
-    return currentUser.getProfile();
+    return currentUser != null ? currentUser.getProfile() : null;
   }
 
   @Override
@@ -104,16 +104,7 @@ public class ProfileServiceImpl implements ProfileService {
   @Override
   public ResultPaginationDTO handleGetAllProfiles(Specification<Profile> spec, Pageable pageable) {
     Page<Profile> pageProfile = this.profileRepository.findAll(spec, pageable);
-    ResultPaginationDTO rs = new ResultPaginationDTO();
-    ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
-    mt.setPage(pageable.getPageNumber() + 1);
-    mt.setPageSize(pageable.getPageSize());
-    mt.setPages(pageProfile.getTotalPages());
-    mt.setTotal(pageProfile.getTotalElements());
-    rs.setMeta(mt);
-    List<Profile> listProfile = pageProfile.getContent();
-    rs.setResult(listProfile);
-    return rs;
+    return createPaginationResult(pageProfile, pageable);
   }
 
   @Override
@@ -151,29 +142,24 @@ public class ProfileServiceImpl implements ProfileService {
   @Override
   public ResultPaginationDTO handleGetFollowers(long profileId, Pageable pageable, String q) {
     Page<Profile> followers = profileRepository.findFollowerProfiles(q, profileId, pageable);
-    ResultPaginationDTO rs = new ResultPaginationDTO();
-    ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
-    mt.setPage(pageable.getPageNumber() + 1);
-    mt.setPageSize(pageable.getPageSize());
-    mt.setPages(followers.getTotalPages());
-    mt.setTotal(followers.getTotalElements());
-    rs.setMeta(mt);
-    List<Profile> listProfile = followers.getContent();
-    rs.setResult(listProfile);
-    return rs;
+    return createPaginationResult(followers, pageable);
   }
 
   @Override
   public ResultPaginationDTO handleGetFollowing(long profileId, Pageable pageable, String q) {
     Page<Profile> following = profileRepository.findFollowingProfiles(q, profileId, pageable);
+    return createPaginationResult(following, pageable);
+  }
+
+  private ResultPaginationDTO createPaginationResult(Page<Profile> page, Pageable pageable) {
     ResultPaginationDTO rs = new ResultPaginationDTO();
     ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
     mt.setPage(pageable.getPageNumber() + 1);
     mt.setPageSize(pageable.getPageSize());
-    mt.setPages(following.getTotalPages());
-    mt.setTotal(following.getTotalElements());
+    mt.setPages(page.getTotalPages());
+    mt.setTotal(page.getTotalElements());
     rs.setMeta(mt);
-    List<Profile> listProfile = following.getContent();
+    List<Profile> listProfile = page.getContent();
     rs.setResult(listProfile);
     return rs;
   }
@@ -212,6 +198,17 @@ public class ProfileServiceImpl implements ProfileService {
       this.profileRepository.save(profileToUnfollow);
       this.profileRepository.save(follower);
     }
+  }
+
+  @Override
+  public void saveProfile(Profile profile) {
+    this.profileRepository.save(profile);
+  }
+
+  @Override
+  public ResultPaginationDTO getPostLikers(long profileId, long postId, Pageable pageable) {
+    Page<Profile> postLikers = this.profileRepository.findPostLikers(profileId, postId, pageable);
+    return createPaginationResult(postLikers, pageable);
   }
 
 }
