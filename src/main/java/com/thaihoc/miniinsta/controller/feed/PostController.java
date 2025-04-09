@@ -19,7 +19,7 @@ import com.thaihoc.miniinsta.service.feed.PostService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/posts")
+@RequestMapping("/api/v1/")
 
 public class PostController {
 
@@ -29,193 +29,84 @@ public class PostController {
         this.postService = postService;
     }
 
-    /**
-     * Create new post
-     */
-    @PostMapping
+    @PostMapping("profiles/{profileId}/posts")
     public ResponseEntity<PostResponse> createPost(
-            Authentication authentication,
             @Valid @RequestBody CreatePostRequest request) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Post post = postService.createPost(userPrincipal, request);
+        Post post = postService.createPost(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(postService.getPost(userPrincipal, post.getId()));
+                .body());
     }
 
-    /**
-     * Update post
-     */
-    @PutMapping("/{id}")
+    @PutMapping("profiles/{profileId}/posts/{postId}")
     public ResponseEntity<PostResponse> updatePost(
-            Authentication authentication,
-            @PathVariable int id,
             @Valid @RequestBody UpdatePostRequest request) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        Post post = postService.updatePost(userPrincipal, id, request);
-        return ResponseEntity.ok(postService.getPost(userPrincipal, post.getId()));
+        Post post = postService.updatePost(id, request);
+        return ResponseEntity.ok(postService.getPost(post.getId()));
     }
 
-    /**
-     * Get post details by ID
-     */
-    @GetMapping("/{id}")
-    public ResponseEntity<PostResponse> getPost(
-            Authentication authentication,
+    @GetMapping("profiles/{profileId}/posts/{postId}")
+    public ResponseEntity<PostResponse> getPostById(
             @PathVariable int id) {
-        if (authentication != null && authentication.isAuthenticated()) {
-            UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            return ResponseEntity.ok(postService.getPost(userPrincipal, id));
-        }
-        return ResponseEntity.ok(postService.getPost(id));
+        return ResponseEntity.ok(postService.getPostById(id));
     }
 
-    /**
-     * Delete post
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(
-            Authentication authentication,
+    @DeleteMapping("profiles/{profileId}/posts/{postId}")
+    public ResponseEntity<Void> deletePostById(
             @PathVariable int id) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        postService.deletePost(userPrincipal, id);
+        postService.deletePostById(id);
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Like post
-     */
-    @PostMapping("/{id}/likes")
+    @PostMapping("profiles/{profileId}/posts/{postId}/likes")
     public ResponseEntity<Void> likePost(
-            Authentication authentication,
             @PathVariable int id) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        postService.likePost(userPrincipal, id);
+        postService.likePost(id);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    /**
-     * Unlike post
-     */
-    @DeleteMapping("/{id}/likes")
+    @DeleteMapping("profiles/{profileId}/posts/{postId}/likes")
     public ResponseEntity<Void> unlikePost(
-            Authentication authentication,
             @PathVariable int id) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        postService.unlikePost(userPrincipal, id);
+        postService.unlikePost(id);
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Check if post is liked
-     */
-    @GetMapping("/{id}/likes/status")
-    public ResponseEntity<Boolean> isPostLiked(
-            Authentication authentication,
-            @PathVariable int id) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(postService.isPostLiked(userPrincipal, id));
-    }
-
-    /**
-     * Get posts by user ID
-     */
-    @GetMapping("/users/{profileId}")
-    public ResponseEntity<Page<PostResponse>> getUserPosts(
-            Authentication authentication,
+    @GetMapping("profiles/{profileId}/posts")
+    public ResponseEntity<Page<PostResponse>> getAllPostsByProfileId(
             @PathVariable int profileId,
             Pageable pageable) {
-        UserPrincipal userPrincipal = null;
-        if (authentication != null && authentication.isAuthenticated()) {
-            userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        }
-        return ResponseEntity.ok(postService.getUserPosts(userPrincipal, profileId, pageable));
+        return ResponseEntity.ok(postService.getAllPostsByProfileId(profileId, pageable));
     }
 
-    /**
-     * Get current user's posts
-     */
-    @GetMapping("/users/me")
-    public ResponseEntity<Page<PostResponse>> getCurrentUserPosts(
-            Authentication authentication,
-            Pageable pageable) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(postService.getCurrentUserPosts(userPrincipal, pageable));
-    }
-
-    /**
-     * Get posts liked by current user
-     */
-    @GetMapping("/users/me/likes")
+    @GetMapping("profiles/{profileId}/liked_posts")
     public ResponseEntity<Page<PostResponse>> getLikedPosts(
-            Authentication authentication,
             Pageable pageable) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(postService.getLikedPosts(userPrincipal, pageable));
+        return ResponseEntity.ok(postService.getLikedPosts(pageable));
     }
 
-    /**
-     * Search posts
-     */
-    @GetMapping
-    public ResponseEntity<Page<PostResponse>> searchPosts(
-            Authentication authentication,
-            @RequestParam String q,
-            Pageable pageable) {
-        UserPrincipal userPrincipal = null;
-        if (authentication != null && authentication.isAuthenticated()) {
-            userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        }
-        return ResponseEntity.ok(postService.searchPosts(userPrincipal, q, pageable));
-    }
-
-    /**
-     * Get posts by hashtag
-     */
-    @GetMapping("/hashtags/{hashtag}")
-    public ResponseEntity<Page<PostResponse>> getPostsByHashtag(
-            Authentication authentication,
+    @GetMapping("hashtags/{hashtag}/posts")
+    public ResponseEntity<Page<PostResponse>> getAllPostsByHashtag(
             @PathVariable String hashtag,
             Pageable pageable) {
-        UserPrincipal userPrincipal = null;
-        if (authentication != null && authentication.isAuthenticated()) {
-            userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        }
-        return ResponseEntity.ok(postService.getPostsByHashtag(userPrincipal, hashtag, pageable));
+        return ResponseEntity.ok(postService.getPostsByHashtag(hashtag, pageable));
     }
 
-    /**
-     * Get posts by location
-     */
-    @GetMapping("/locations/{location}")
-    public ResponseEntity<Page<PostResponse>> getPostsByLocation(
-            Authentication authentication,
-            @PathVariable String location,
-            Pageable pageable) {
-        UserPrincipal userPrincipal = null;
-        if (authentication != null && authentication.isAuthenticated()) {
-            userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        }
-        return ResponseEntity.ok(postService.getPostsByLocation(userPrincipal, location, pageable));
-    }
+    // /**
+    // * Get popular posts
+    // */
+    // @GetMapping("/popular")
+    // public ResponseEntity<Page<PostResponse>> getPopularPosts(
+    // Authentication authentication,
+    // Pageable pageable) {
+    // UserPrincipal userPrincipal = null;
+    // if (authentication != null && authentication.isAuthenticated()) {
+    // userPrincipal = (UserPrincipal) authentication.getPrincipal();
+    // }
+    // return ResponseEntity.ok(postService.getPopularPosts(userPrincipal,
+    // pageable));
+    // }
 
-    /**
-     * Get popular posts
-     */
-    @GetMapping("/popular")
-    public ResponseEntity<Page<PostResponse>> getPopularPosts(
-            Authentication authentication,
-            Pageable pageable) {
-        UserPrincipal userPrincipal = null;
-        if (authentication != null && authentication.isAuthenticated()) {
-            userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        }
-        return ResponseEntity.ok(postService.getPopularPosts(userPrincipal, pageable));
-    }
-
-    /**
-     * Get list of users who liked the post
-     */
-    @GetMapping("/{id}/likes")
+    @GetMapping("profiles/{profileId}/posts/{postId}/likes")
     public ResponseEntity<List<Integer>> getPostLikers(
             @PathVariable int id,
             @RequestParam(defaultValue = "10") int limit) {

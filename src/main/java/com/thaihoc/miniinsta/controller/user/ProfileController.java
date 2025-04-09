@@ -89,19 +89,21 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.handleGetFollowing(id, pageable, q));
     }
 
-    @PostMapping("/followers")
+    @PostMapping("{profileId}/followers")
     @ApiMessage("Follow a profile")
-    public ResponseEntity<Void> followProfile(@Valid @RequestBody FollowProfileRequest request)
+    public ResponseEntity<Void> followProfile(@PathVariable int profileId,
+            @Valid @RequestBody FollowProfileRequest request)
             throws IdInvalidException, MethodArgumentNotValidException {
-        profileService.followProfile(request.getProfileId(), request.getFollowerId());
+        profileService.followProfile(profileId, request.getFollowerId());
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @DeleteMapping("/followers")
+    @DeleteMapping("{profileId}/followers/{followerId}")
     @ApiMessage("Unfollow a profile")
-    public ResponseEntity<Void> unfollowProfile(@Valid @RequestBody FollowProfileRequest request)
-            throws IdInvalidException, MethodArgumentNotValidException {
-        profileService.unfollowProfile(request.getProfileId(), request.getFollowerId());
+    public ResponseEntity<Void> unfollowProfile(@PathVariable int profileId,
+            @PathVariable int followerId)
+            throws IdInvalidException {
+        profileService.unfollowProfile(profileId, followerId);
         return ResponseEntity.noContent().build();
     }
 }

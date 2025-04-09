@@ -21,7 +21,5 @@ public class CreatePostRequest {
   @Size(max = 2200, message = "Caption cannot exceed 2200 characters")
   private String caption;
 
-  private String location;
-
   private List<String> hashtags;
 }

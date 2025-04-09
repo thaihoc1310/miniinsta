@@ -113,6 +113,7 @@ public class UserServiceImpl implements UserService {
         user.setPassword(this.passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName());
         user.setDateOfBirth(request.getDateOfBirth());
+        user.setId(UUID.randomUUID());
         Profile profile = new Profile();
         profile.setUsername(request.getUsername());
         profile.setDisplayName(request.getName());

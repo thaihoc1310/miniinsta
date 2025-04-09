@@ -12,7 +12,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FollowProfileRequest {
     @Positive
-    private long profileId;
-    @Positive
     private long followerId;
 }

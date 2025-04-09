@@ -44,7 +44,7 @@ public class Profile extends BaseEntity {
   @Column(name = "profile_picture_url", length = 1000)
   private String profilePictureUrl;
 
-  @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   private List<Website> websites;
 
   private boolean isPrivate;
@@ -52,10 +52,8 @@ public class Profile extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private GenderEnum gender;
 
-  // private boolean isVerified;
-
+  @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
   @JsonIgnore
-  @OneToMany(mappedBy = "createdBy")
   private List<Post> posts;
 
   @ManyToMany(fetch = FetchType.LAZY)

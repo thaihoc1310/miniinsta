@@ -1,11 +1,12 @@
 package com.thaihoc.miniinsta.model;
 
+import java.util.List;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.thaihoc.miniinsta.model.base.BaseEntity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -38,30 +40,31 @@ import lombok.EqualsAndHashCode;
 public class Comment extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
-  private int id;
+  private long id;
 
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne
   @JoinColumn(name = "profile_id", nullable = false)
-  @JsonProperty("createdBy")
-  private Profile createdBy;
+  private Profile author;
 
   @NotNull
-  @Column(name = "comment", length = 1000, nullable = false)
+  @Column(length = 1000, nullable = false)
   private String comment;
 
   @ManyToOne
   @JoinColumn(name = "post_id", nullable = false)
-  @JsonIgnore
   private Post post;
 
   @ManyToOne
   @JoinColumn(name = "parent_comment_id")
-  @JsonIgnore
   private Comment parentComment;
+
+  @OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @JsonIgnore
+  private List<Comment> replies;
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "comment_likes", joinColumns = @JoinColumn(name = "comment_id"), inverseJoinColumns = @JoinColumn(name = "profile_id"))
+  @JsonIgnore
   private Set<Profile> likes;
 
   @Column(name = "like_count")

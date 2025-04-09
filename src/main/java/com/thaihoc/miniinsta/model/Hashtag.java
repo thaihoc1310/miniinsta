@@ -7,6 +7,7 @@ import com.thaihoc.miniinsta.model.base.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,7 +40,7 @@ public class Hashtag extends BaseEntity {
     private String name;
 
     @JsonIgnore
-    @ManyToMany(mappedBy = "hashtags")
+    @ManyToMany(mappedBy = "hashtags", fetch = FetchType.LAZY)
     private Set<Post> posts;
 
     @Column(name = "post_count")
