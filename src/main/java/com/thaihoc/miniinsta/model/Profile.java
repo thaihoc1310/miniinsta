@@ -12,10 +12,9 @@ import lombok.*;
 
 @Entity
 @Table(name = "profiles")
-// @SQLRestriction("deleted = false")
 @Getter
 @Setter
-// @ToString
+@ToString
 @EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor

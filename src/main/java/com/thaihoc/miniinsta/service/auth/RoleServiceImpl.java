@@ -1,7 +1,6 @@
 package com.thaihoc.miniinsta.service.auth;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.thaihoc.miniinsta.model.Permission;
 import com.thaihoc.miniinsta.model.Role;
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.dto.auth.CreateRoleRequest;
 import com.thaihoc.miniinsta.repository.RoleRepository;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 
@@ -26,15 +26,20 @@ public class RoleServiceImpl implements RoleService {
         this.permissionService = permissionService;
     }
 
-    public Role handleCreateRole(Role role) throws IdInvalidException {
+    public Role handleCreateRole(CreateRoleRequest request) throws IdInvalidException {
+        Role role = Role.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .active(request.isActive())
+                .build();
         if (isRoleExist(role)) {
             throw new IdInvalidException("Role name already exists");
 
         }
-        Set<Long> permissionIds = role.getPermissions().stream().map(permission -> {
-            return permission.getId();
-        }).collect(Collectors.toSet());
-        Set<Permission> permissions = this.permissionService.getPermissionsByIds(permissionIds);
+        List<Long> permissionIds = request.getPermissionIds().stream().map(permissionId -> {
+            return permissionId;
+        }).toList();
+        List<Permission> permissions = this.permissionService.getPermissionsByIds(permissionIds);
         role.setPermissions(permissions);
         return this.roleRepository.save(role);
     }
@@ -54,10 +59,10 @@ public class RoleServiceImpl implements RoleService {
         roleInDB.setName(role.getName());
         roleInDB.setDescription(role.getDescription());
         roleInDB.setActive(role.isActive());
-        Set<Long> permissionIds = role.getPermissions().stream().map(permission -> {
+        List<Long> permissionIds = role.getPermissions().stream().map(permission -> {
             return permission.getId();
-        }).collect(Collectors.toSet());
-        Set<Permission> permissions = this.permissionService.getPermissionsByIds(permissionIds);
+        }).toList();
+        List<Permission> permissions = this.permissionService.getPermissionsByIds(permissionIds);
         roleInDB.setPermissions(permissions);
         return this.roleRepository.save(roleInDB);
     }

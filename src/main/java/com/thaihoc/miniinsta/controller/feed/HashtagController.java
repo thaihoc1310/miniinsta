@@ -42,4 +42,9 @@ public class HashtagController {
         return ResponseEntity.ok(hashtagService.searchHashtags(q, pageable));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteHashtag(@PathVariable long id) throws IdInvalidException {
+        hashtagService.deleteHashtag(id);
+        return ResponseEntity.noContent().build();
+    }
 }

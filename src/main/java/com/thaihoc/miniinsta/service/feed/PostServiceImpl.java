@@ -1,6 +1,6 @@
 package com.thaihoc.miniinsta.service.feed;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -83,7 +83,7 @@ public class PostServiceImpl implements PostService {
         .content(request.getCaption())
         .likeCount(0)
         .commentCount(0)
-        .userLikes(new HashSet<>())
+        .userLikes(new ArrayList<>())
         .build();
 
     if (request.getCaption() != null && !request.getCaption().isEmpty()) {

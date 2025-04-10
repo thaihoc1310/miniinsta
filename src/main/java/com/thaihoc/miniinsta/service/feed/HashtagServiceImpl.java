@@ -107,4 +107,9 @@ public class HashtagServiceImpl implements HashtagService {
         }
     }
 
+    @Override
+    public void deleteHashtag(long id) throws IdInvalidException {
+        Hashtag hashtag = this.getHashtagById(id);
+        hashtagRepository.delete(hashtag);
+    }
 }

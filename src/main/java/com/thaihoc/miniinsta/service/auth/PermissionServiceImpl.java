@@ -1,7 +1,6 @@
 package com.thaihoc.miniinsta.service.auth;
 
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -10,8 +9,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import com.thaihoc.miniinsta.model.Permission;
-import com.thaihoc.miniinsta.model.Role;
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.dto.auth.CreatePermissionRequest;
 import com.thaihoc.miniinsta.repository.PermissionRepository;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 
@@ -30,10 +29,15 @@ public class PermissionServiceImpl implements PermissionService {
                 permission.getMethod());
     }
 
-    public Permission handleCreatePermission(Permission permission) throws IdInvalidException {
+    public Permission handleCreatePermission(CreatePermissionRequest request) throws IdInvalidException {
+        Permission permission = Permission.builder()
+                .name(request.getName())
+                .apiPath(request.getApiPath())
+                .method(request.getMethod())
+                .module(request.getModule())
+                .build();
         if (isPermissionExist(permission)) {
             throw new IdInvalidException("Permission already exists");
-
         }
         return this.permissionRepository.save(permission);
     }
@@ -80,17 +84,17 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public Set<Permission> getPermissionsByIds(Set<Long> permissionIds) {
-        return this.permissionRepository.findAllById(permissionIds).stream().collect(Collectors.toSet());
+    public List<Permission> getPermissionsByIds(List<Long> permissionIds) {
+        return this.permissionRepository.findAllById(permissionIds);
     }
 
     @Override
     public void handleDeletePermission(Long id) {
-        Permission permission = this.getPermissionById(id);
-        Set<Role> roles = permission.getRoles();
-        roles.forEach(role -> {
-            role.getPermissions().remove(permission);
-        });
+        // Permission permission = this.getPermissionById(id);
+        // List<Role> roles = permission.getRoles();
+        // roles.forEach(role -> {
+        // role.getPermissions().remove(permission);
+        // });
         this.permissionRepository.deleteById(id);
     }
 

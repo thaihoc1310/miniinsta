@@ -1,6 +1,7 @@
 package com.thaihoc.miniinsta.model;
 
 import com.thaihoc.miniinsta.model.base.BaseEntity;
+import com.thaihoc.miniinsta.model.enums.EntityType;
 import com.thaihoc.miniinsta.model.enums.NotificationType;
 
 import jakarta.persistence.Column;
@@ -34,29 +35,28 @@ public class Notification extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  private int id;
+  private long id;
 
   @ManyToOne
-  @JoinColumn(name = "recipient_id", nullable = false)
+  @JoinColumn(nullable = false)
   private Profile recipient;
 
   @ManyToOne
-  @JoinColumn(name = "sender_id", nullable = false)
-  private Profile sender;
+  @JoinColumn(nullable = false)
+  private Profile actor;
 
-  @Column(name = "content", nullable = false)
+  @Column(nullable = false)
   private String content;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "type", nullable = false)
+  @Column(nullable = false)
   private NotificationType type;
 
-  @Column(name = "related_post_id")
-  private Integer relatedPostId;
+  private long entityId;
 
-  @Column(name = "related_comment_id")
-  private Integer relatedCommentId;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private EntityType entityType;
 
-  @Column(name = "is_read")
   private boolean isRead;
 }

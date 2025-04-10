@@ -1,7 +1,6 @@
 package com.thaihoc.miniinsta.model;
 
 import java.util.List;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thaihoc.miniinsta.model.base.BaseEntity;
@@ -59,7 +58,7 @@ public class Post extends BaseEntity {
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "profile_id"))
   @JsonIgnore
-  private Set<Profile> userLikes;
+  private List<Profile> userLikes;
 
   @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(name = "post_hashtags", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "hashtag_id"))

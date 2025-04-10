@@ -3,6 +3,7 @@ package com.thaihoc.miniinsta.controller.auth;
 import com.thaihoc.miniinsta.model.Permission;
 import com.thaihoc.miniinsta.service.auth.PermissionService;
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.dto.auth.CreatePermissionRequest;
 import com.thaihoc.miniinsta.util.annotation.ApiMessage;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 
@@ -36,9 +37,9 @@ public class PermissionController {
 
     @PostMapping
     @ApiMessage("Create a permission")
-    public ResponseEntity<Permission> createNewPermission(@Valid @RequestBody Permission permission)
+    public ResponseEntity<Permission> createNewPermission(@Valid @RequestBody CreatePermissionRequest request)
             throws IdInvalidException, MethodArgumentNotValidException {
-        Permission newPermission = this.permissionService.handleCreatePermission(permission);
+        Permission newPermission = this.permissionService.handleCreatePermission(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(newPermission);
     }
 

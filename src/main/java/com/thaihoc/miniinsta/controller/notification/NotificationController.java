@@ -1,20 +1,27 @@
 package com.thaihoc.miniinsta.controller.notification;
 
-import java.util.List;
-
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.thaihoc.miniinsta.dto.UserPrincipal;
-import com.thaihoc.miniinsta.dto.notification.NotificationResponse;
-import com.thaihoc.miniinsta.model.enums.NotificationType;
+import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.dto.notification.CreateNotificationRequest;
+import com.thaihoc.miniinsta.exception.IdInvalidException;
+import com.thaihoc.miniinsta.model.Notification;
 import com.thaihoc.miniinsta.service.notification.NotificationService;
 
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("/api/v1/notifications")
+@RequestMapping("/api/v1/")
 public class NotificationController {
 
     private final NotificationService notificationService;
@@ -23,81 +30,36 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-    /**
-     * Get all notifications of the current user
-     */
-    @GetMapping
-    public ResponseEntity<Page<NotificationResponse>> getUserNotifications(
-            Authentication authentication,
+    @PostMapping("profiles/{profileId}/notifications")
+    public ResponseEntity<Notification> createNotification(
+            @PathVariable long profileId,
+            @Valid @RequestBody CreateNotificationRequest request) throws IdInvalidException {
+        Notification createdNotification = notificationService.createNotification(profileId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdNotification);
+    }
+
+    @GetMapping("profiles/{profileId}/notifications")
+    public ResponseEntity<ResultPaginationDTO> getAllNotifications(@PathVariable long profileId,
             Pageable pageable) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(notificationService.getUserNotifications(userPrincipal, pageable));
+        return ResponseEntity.ok(notificationService.getAllNotifications(profileId, pageable));
     }
 
-    /**
-     * Get unread notifications
-     */
-    @GetMapping("/unread")
-    public ResponseEntity<List<NotificationResponse>> getUnreadNotifications(
-            Authentication authentication) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(notificationService.getUnreadNotifications(userPrincipal));
+    @PatchMapping("profiles/{profileId}/notifications/all-read")
+    public ResponseEntity<Void> markAllAsRead(@PathVariable long profileId) {
+        notificationService.markAllAsRead(profileId);
+        return ResponseEntity.ok().build();
     }
 
-    /**
-     * Count unread notifications
-     */
-    @GetMapping("/unread/count")
-    public ResponseEntity<Long> countUnreadNotifications(
-            Authentication authentication) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(notificationService.countUnreadNotifications(userPrincipal));
+    @GetMapping("profiles/{profileId}/unread-count")
+    public ResponseEntity<Integer> getUnreadCount(@PathVariable long profileId) {
+        return ResponseEntity.ok(notificationService.getUnreadCount(profileId));
     }
 
-    /**
-     * Get notifications by type
-     */
-    @GetMapping("/types/{type}")
-    public ResponseEntity<Page<NotificationResponse>> getNotificationsByType(
-            Authentication authentication,
-            @PathVariable NotificationType type,
-            Pageable pageable) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        return ResponseEntity.ok(notificationService.getNotificationsByType(userPrincipal, type, pageable));
-    }
-
-    /**
-     * Mark notification as read
-     */
-    @PatchMapping("/{id}/read")
-    public ResponseEntity<Void> markNotificationAsRead(
-            Authentication authentication,
-            @PathVariable int id) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        notificationService.markNotificationAsRead(userPrincipal, id);
+    @DeleteMapping("profiles/{profileId}/notifications/{id}")
+    public ResponseEntity<Void> deleteNotification(@PathVariable long profileId, @PathVariable Long id)
+            throws IdInvalidException {
+        notificationService.deleteNotification(profileId, id);
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Mark all notifications as read
-     */
-    @PatchMapping("/read-all")
-    public ResponseEntity<Void> markAllNotificationsAsRead(
-            Authentication authentication) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        notificationService.markAllNotificationsAsRead(userPrincipal);
-        return ResponseEntity.noContent().build();
-    }
-
-    /**
-     * Delete a notification
-     */
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNotification(
-            Authentication authentication,
-            @PathVariable int id) {
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        notificationService.deleteNotification(userPrincipal, id);
-        return ResponseEntity.noContent().build();
-    }
 }

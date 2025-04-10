@@ -1,6 +1,6 @@
 package com.thaihoc.miniinsta.model;
 
-import java.util.Set;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thaihoc.miniinsta.model.base.BaseEntity;
@@ -15,12 +15,16 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "permissions")
+@EqualsAndHashCode(callSuper = true)
+@ToString
 @Getter
 @Setter
 @Builder
@@ -52,6 +56,6 @@ public class Permission extends BaseEntity {
 
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "permissions")
     @JsonIgnore
-    private Set<Role> roles;
+    private List<Role> roles;
 
 }

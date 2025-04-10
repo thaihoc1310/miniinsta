@@ -45,7 +45,7 @@ public class PostController {
                 .body(postService.createPost(profileId, request));
     }
 
-    @PutMapping("profiles/{profileId}/posts/{postId}")
+    @PatchMapping("profiles/{profileId}/posts/{postId}")
     public ResponseEntity<Post> updatePost(
             @PathVariable long profileId,
             @PathVariable long postId,

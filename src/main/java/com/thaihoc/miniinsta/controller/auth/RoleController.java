@@ -20,6 +20,7 @@ import jakarta.validation.Valid;
 import com.thaihoc.miniinsta.model.Role;
 import com.thaihoc.miniinsta.service.auth.RoleService;
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.dto.auth.CreateRoleRequest;
 import com.thaihoc.miniinsta.util.annotation.ApiMessage;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 
@@ -34,9 +35,9 @@ public class RoleController {
 
     @PostMapping
     @ApiMessage("Create a role")
-    public ResponseEntity<Role> createNewRole(@Valid @RequestBody Role role)
+    public ResponseEntity<Role> createNewRole(@Valid @RequestBody CreateRoleRequest request)
             throws IdInvalidException, MethodArgumentNotValidException {
-        Role newRole = this.roleService.handleCreateRole(role);
+        Role newRole = this.roleService.handleCreateRole(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(newRole);
     }
 

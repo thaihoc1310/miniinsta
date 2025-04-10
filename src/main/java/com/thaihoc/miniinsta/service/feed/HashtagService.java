@@ -22,4 +22,6 @@ public interface HashtagService {
     ResultPaginationDTO searchHashtags(String q, Pageable pageable);
 
     void updateHashtagPostCount(List<Hashtag> hashtags, int quantity);
+
+    void deleteHashtag(long id) throws IdInvalidException;
 }

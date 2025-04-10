@@ -6,11 +6,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.dto.auth.CreateRoleRequest;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Role;
 
 public interface RoleService {
-    public Role handleCreateRole(Role role) throws IdInvalidException;
+    public Role handleCreateRole(CreateRoleRequest request) throws IdInvalidException;
 
     public Role handleUpdateRole(Role role) throws IdInvalidException;
 
