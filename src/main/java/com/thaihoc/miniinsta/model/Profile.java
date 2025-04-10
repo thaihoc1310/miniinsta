@@ -70,9 +70,9 @@ public class Profile extends BaseEntity {
   @JsonIgnore
   private List<Profile> following;
 
-  private int followersCount;
+  private long followersCount;
 
-  private int followingCount;
+  private long followingCount;
 
-  private int postsCount;
+  private long postsCount;
 }

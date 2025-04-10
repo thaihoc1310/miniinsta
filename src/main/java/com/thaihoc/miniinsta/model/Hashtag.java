@@ -33,16 +33,14 @@ import lombok.ToString;
 public class Hashtag extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private int id;
+    private long id;
 
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @JsonIgnore
     @ManyToMany(mappedBy = "hashtags", fetch = FetchType.LAZY)
     private Set<Post> posts;
 
-    @Column(name = "post_count")
-    private int postCount;
+    private long postCount;
 }

@@ -20,6 +20,10 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT COUNT(c) FROM Comment c JOIN c.likes l WHERE l.id = :profileId AND c.id = :commentId")
     int isCommentLikedByProfile(@Param("commentId") Long commentId, @Param("profileId") Long profileId);
 
-    @Query("SELECT c FROM Comment c WHERE c.post.id = :postId ORDER BY SIZE(c.likes) DESC")
+    @Query("SELECT c FROM Comment c WHERE c.post.id = :postId ORDER BY c.likeCount DESC")
     Page<Comment> findMostLikedComments(@Param("postId") Long postId, Pageable pageable);
+
+    @Query("SELECT c FROM Comment c WHERE c.parentComment.id = :parentCommentId ORDER BY c.createdAt DESC")
+    Page<Comment> findByParentCommentOrderByCreatedAtDesc(@Param("parentCommentId") Long parentCommentId,
+            Pageable pageable);
 }

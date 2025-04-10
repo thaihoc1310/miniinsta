@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.exception.AlreadyExistsException;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
-import com.thaihoc.miniinsta.exception.UsernameAlreadyExistsException;
 import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.model.User;
 import com.thaihoc.miniinsta.repository.ProfileRepository;
@@ -60,7 +60,7 @@ public class ProfileServiceImpl implements ProfileService {
   // }
 
   @Override
-  public Profile handleUpdateProfile(Profile profile) throws IdInvalidException {
+  public Profile handleUpdateProfile(Profile profile) throws IdInvalidException, AlreadyExistsException {
     Profile updatedProfile = this.getProfileById(profile.getId());
     if (updatedProfile == null) {
       throw new IdInvalidException("Profile not found");
@@ -68,7 +68,7 @@ public class ProfileServiceImpl implements ProfileService {
     // Check if username already exists
     if (!profile.getUsername().equals(updatedProfile.getUsername()) &&
         profileRepository.findByUsername(profile.getUsername()).isPresent()) {
-      throw new UsernameAlreadyExistsException("Username is already taken");
+      throw new AlreadyExistsException("Username is already taken");
     }
 
     if (profile.getBio() != null && !profile.getBio().equals(updatedProfile.getBio())) {
@@ -109,12 +109,12 @@ public class ProfileServiceImpl implements ProfileService {
 
   @Override
   public boolean existsByUsername(String username) {
-    return this.profileRepository.findByUsername(username).isPresent();
+    return this.profileRepository.existsByUsername(username);
   }
 
   @Override
   public boolean existsById(long id) {
-    return this.profileRepository.findById(id).isPresent();
+    return this.profileRepository.existsById(id);
   }
 
   @Override

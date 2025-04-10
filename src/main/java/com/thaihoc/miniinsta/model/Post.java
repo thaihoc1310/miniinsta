@@ -67,8 +67,8 @@ public class Post extends BaseEntity {
   private List<Hashtag> hashtags;
 
   @Column(name = "like_count")
-  private int likeCount;
+  private long likeCount;
 
   @Column(name = "comment_count")
-  private int commentCount;
+  private long commentCount;
 }

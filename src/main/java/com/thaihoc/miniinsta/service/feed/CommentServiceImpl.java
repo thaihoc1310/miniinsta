@@ -159,15 +159,15 @@ public class CommentServiceImpl implements CommentService {
 
   @Override
   public ResultPaginationDTO getAllComments(long postId, Pageable pageable) throws IdInvalidException {
-    Post post = postService.handleGetPostById(postId);
-    Page<Comment> comments = commentRepository.findByPost(post, pageable);
+    // Post post = postService.handleGetPostById(postId);
+    Page<Comment> comments = commentRepository.findMostLikedComments(postId, pageable);
     return createPaginationResult(comments, pageable);
   }
 
   @Override
   public ResultPaginationDTO getAllCommentReplies(long commentId, Pageable pageable) throws IdInvalidException {
-    Comment comment = handleGetCommentById(commentId);
-    Page<Comment> replies = commentRepository.findByParentComment(comment, pageable);
+    // Comment comment = handleGetCommentById(commentId);
+    Page<Comment> replies = commentRepository.findByParentCommentOrderByCreatedAtDesc(commentId, pageable);
     return createPaginationResult(replies, pageable);
   }
 

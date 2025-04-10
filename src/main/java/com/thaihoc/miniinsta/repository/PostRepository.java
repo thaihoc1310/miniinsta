@@ -1,5 +1,6 @@
 package com.thaihoc.miniinsta.repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -19,7 +20,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
 
   Optional<Post> findByIdAndAuthor(Long id, Profile author);
 
-  @Query("SELECT p FROM Post p JOIN p.hashtags h WHERE h = :hashtag")
+  @Query("SELECT p FROM Post p JOIN p.hashtags h WHERE h = :hashtag ORDER BY p.likeCount DESC")
   Page<Post> findByHashtag(@Param("hashtag") Hashtag hashtag, Pageable pageable);
 
   Page<Post> findByAuthor(Profile author, Pageable pageable);
@@ -33,4 +34,6 @@ public interface PostRepository extends JpaRepository<Post, Long>, JpaSpecificat
   @Query("SELECT p FROM Post p WHERE SIZE(p.userLikes) > 0 ORDER BY SIZE(p.userLikes) DESC")
   Page<Post> findPopularPosts(Pageable pageable);
 
+  @Query("SELECT p FROM Post p WHERE p.id IN :postIds")
+  List<Post> findByIdIn(@Param("postIds") List<Long> postIds);
 }

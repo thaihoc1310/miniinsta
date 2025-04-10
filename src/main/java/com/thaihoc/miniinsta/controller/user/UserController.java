@@ -19,6 +19,7 @@ import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.user.CreateUserRequest;
 import com.thaihoc.miniinsta.dto.user.UpdateUserRequest;
 import com.thaihoc.miniinsta.dto.user.UserResponse;
+import com.thaihoc.miniinsta.exception.AlreadyExistsException;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.User;
 import com.thaihoc.miniinsta.service.user.UserService;
@@ -41,7 +42,7 @@ public class UserController {
     @PostMapping
     @ApiMessage("Create a user")
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request)
-            throws IdInvalidException, MethodArgumentNotValidException {
+            throws IdInvalidException, MethodArgumentNotValidException, AlreadyExistsException {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.handleCreateUser(request));
     }
 

@@ -14,6 +14,7 @@ import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.user.CreateUserRequest;
 import com.thaihoc.miniinsta.dto.user.UpdateUserRequest;
 import com.thaihoc.miniinsta.dto.user.UserResponse;
+import com.thaihoc.miniinsta.exception.AlreadyExistsException;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.exception.PermissionDeniedException;
 import com.thaihoc.miniinsta.model.Permission;
@@ -75,9 +76,8 @@ public class UserServiceImpl implements UserService {
         User userUpdate = this.getUserById(request.getId());
         if (userUpdate != null) {
             // check role
-            Role curRole = userUpdate.getRole();
-            if (curRole != null) {
-                Role dbRole = this.roleService.getRoleById(curRole.getId());
+            if (request.getRole() != null) {
+                Role dbRole = this.roleService.getRoleById(request.getRole().getId());
                 userUpdate.setRole(dbRole);
             }
             if (request.getName() != null && !userUpdate.getName().equals(request.getName())) {
@@ -89,12 +89,6 @@ public class UserServiceImpl implements UserService {
             if (request.getPhoneNumber() != null && !userUpdate.getPhoneNumber().equals(request.getPhoneNumber())) {
                 userUpdate.setPhoneNumber(request.getPhoneNumber());
             }
-            if (request.getProvider() != null && !userUpdate.getProvider().equals(request.getProvider())) {
-                userUpdate.setProvider(request.getProvider());
-            }
-            if (request.getProviderId() != null) {
-                userUpdate.setProviderId(request.getProviderId());
-            }
             User updatedUser = this.userRepository.save(userUpdate);
             return this.convertToUserResponse(updatedUser);
         }
@@ -102,12 +96,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse handleCreateUser(CreateUserRequest request) throws IdInvalidException {
+    public UserResponse handleCreateUser(CreateUserRequest request) throws AlreadyExistsException {
         if (this.existsByEmail(request.getEmail())) {
-            throw new IdInvalidException("Email already exists");
+            throw new AlreadyExistsException("Email already exists");
         }
         if (this.profileService.existsByUsername(request.getUsername())) {
-            throw new IdInvalidException("Username already exists");
+            throw new AlreadyExistsException("Username already exists");
         }
         User user = User.builder()
                 .email(request.getEmail())
@@ -164,8 +158,6 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .phoneNumber(user.getPhoneNumber())
                 .dateOfBirth(user.getDateOfBirth())
-                .provider(user.getProvider())
-                .providerId(user.getProviderId())
                 .picture(user.getPicture())
                 .role(user.getRole())
                 .profile(user.getProfile())

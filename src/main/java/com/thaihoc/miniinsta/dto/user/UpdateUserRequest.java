@@ -23,10 +23,6 @@ public class UpdateUserRequest {
 
     private LocalDate dateOfBirth;
 
-    private String provider;
-
-    private String providerId;
-
     private UpdateRoleRequest role;
 
     @Getter

@@ -6,10 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
-import com.thaihoc.miniinsta.dto.feed.CommentResponse;
 import com.thaihoc.miniinsta.dto.feed.CreateCommentRequest;
 import com.thaihoc.miniinsta.dto.feed.LikeCommentRequest;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
+import com.thaihoc.miniinsta.model.Comment;
 import com.thaihoc.miniinsta.service.feed.CommentService;
 
 import jakarta.validation.Valid;
@@ -26,7 +26,7 @@ public class CommentController {
     }
 
     @PostMapping("posts/{postId}/comments")
-    public ResponseEntity<CommentResponse> createComment(
+    public ResponseEntity<Comment> createComment(
             @PathVariable long postId,
             @Valid @RequestBody CreateCommentRequest request) throws IdInvalidException {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.commentService.createComment(postId,
@@ -34,7 +34,7 @@ public class CommentController {
     }
 
     @PostMapping("comments/{commentId}/replies")
-    public ResponseEntity<CommentResponse> replyToComment(
+    public ResponseEntity<Comment> replyToComment(
             @PathVariable long commentId,
             @Valid @RequestBody CreateCommentRequest request) throws IdInvalidException {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.commentService.replyToComment(commentId,
@@ -73,23 +73,17 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * Get all comments of a post
-     */
     @GetMapping("posts/{postId}/comments")
     public ResponseEntity<ResultPaginationDTO> getAllComments(
             @PathVariable long postId,
-            Pageable pageable) {
+            Pageable pageable) throws IdInvalidException {
         return ResponseEntity.ok(commentService.getAllComments(postId, pageable));
     }
 
-    /**
-     * Get replies for a comment
-     */
     @GetMapping("comments/{commentId}/replies")
     public ResponseEntity<ResultPaginationDTO> getAllReplies(
             @PathVariable long commentId,
-            Pageable pageable) {
+            Pageable pageable) throws IdInvalidException {
         return ResponseEntity.ok(commentService.getAllCommentReplies(commentId, pageable));
     }
 

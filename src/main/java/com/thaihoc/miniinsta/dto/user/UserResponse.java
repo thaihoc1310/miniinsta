@@ -19,8 +19,6 @@ public class UserResponse {
     private String email;
     private String phoneNumber;
     private LocalDate dateOfBirth;
-    private String provider;
-    private String providerId;
     private String picture;
     private Role role;
     private Profile profile;

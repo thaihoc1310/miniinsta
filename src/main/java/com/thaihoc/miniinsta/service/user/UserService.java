@@ -9,11 +9,12 @@ import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.user.CreateUserRequest;
 import com.thaihoc.miniinsta.dto.user.UpdateUserRequest;
 import com.thaihoc.miniinsta.dto.user.UserResponse;
+import com.thaihoc.miniinsta.exception.AlreadyExistsException;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.User;
 
 public interface UserService {
-    UserResponse handleCreateUser(CreateUserRequest request) throws IdInvalidException;
+    UserResponse handleCreateUser(CreateUserRequest request) throws AlreadyExistsException;
 
     User getUserById(UUID id) throws IdInvalidException;
 

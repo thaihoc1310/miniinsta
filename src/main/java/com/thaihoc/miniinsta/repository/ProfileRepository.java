@@ -24,6 +24,8 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>, JpaSpec
 
         Optional<Profile> findByUsername(String username);
 
+        boolean existsByUsername(String username);
+
         /**
          * Search profile by username or displayName
          */

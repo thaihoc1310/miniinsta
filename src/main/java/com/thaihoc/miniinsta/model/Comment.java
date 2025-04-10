@@ -68,6 +68,6 @@ public class Comment extends BaseEntity {
   private Set<Profile> likes;
 
   @Column(name = "like_count")
-  private int likeCount;
+  private long likeCount;
 
 }

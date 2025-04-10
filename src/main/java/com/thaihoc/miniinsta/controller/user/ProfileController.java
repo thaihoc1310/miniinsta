@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.user.FollowProfileRequest;
+import com.thaihoc.miniinsta.exception.AlreadyExistsException;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Profile;
 import com.thaihoc.miniinsta.service.user.ProfileService;
@@ -51,7 +52,7 @@ public class ProfileController {
     @PatchMapping
     @ApiMessage("Update a profile")
     public ResponseEntity<Profile> updateProfile(@Valid @RequestBody Profile profile)
-            throws IdInvalidException, MethodArgumentNotValidException {
+            throws IdInvalidException, MethodArgumentNotValidException, AlreadyExistsException {
         Profile updatedProfile = profileService.handleUpdateProfile(profile);
         return ResponseEntity.ok(updatedProfile);
     }

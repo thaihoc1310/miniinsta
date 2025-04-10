@@ -1,6 +1,5 @@
 package com.thaihoc.miniinsta.service.feed;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
@@ -14,10 +13,12 @@ import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.feed.CreatePostRequest;
 import com.thaihoc.miniinsta.dto.feed.PostResponse;
 import com.thaihoc.miniinsta.dto.feed.UpdatePostRequest;
+import com.thaihoc.miniinsta.exception.AlreadyExistsException;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Hashtag;
 import com.thaihoc.miniinsta.model.Post;
 import com.thaihoc.miniinsta.model.Profile;
+import com.thaihoc.miniinsta.repository.FeedRepository;
 import com.thaihoc.miniinsta.repository.PostRepository;
 import com.thaihoc.miniinsta.service.FileService;
 import com.thaihoc.miniinsta.service.user.ProfileService;
@@ -32,12 +33,15 @@ public class PostServiceImpl implements PostService {
 
   private ProfileService profileService;
 
+  private FeedRepository feedRepository;
+
   public PostServiceImpl(FileService fileService, HashtagService hashtagService, PostRepository postRepository,
-      ProfileService profileService) {
+      ProfileService profileService, FeedRepository feedRepository) {
     this.fileService = fileService;
     this.hashtagService = hashtagService;
     this.postRepository = postRepository;
     this.profileService = profileService;
+    this.feedRepository = feedRepository;
   }
 
   private Post handleGetPostByIdAndProfileId(long postId, long profileId) throws IdInvalidException {
@@ -52,7 +56,8 @@ public class PostServiceImpl implements PostService {
         .orElseThrow(() -> new IdInvalidException("Post not found"));
   }
 
-  private PostResponse convertToPostResponse(Post post) throws IdInvalidException {
+  @Override
+  public PostResponse convertToPostResponse(Post post) throws IdInvalidException {
     Profile profile = profileService.handleGetCurrentUserProfile();
     boolean likedByCurrentUser = profile == null ? false
         : this.postRepository.isPostLikedByProfile(post.getId(),
@@ -65,7 +70,8 @@ public class PostServiceImpl implements PostService {
 
   @Override
   @Transactional
-  public Post createPost(long profileId, CreatePostRequest request) throws IdInvalidException {
+  public Post createPost(long profileId, CreatePostRequest request)
+      throws IdInvalidException, AlreadyExistsException {
     Profile profile = profileService.getProfileById(profileId);
     profile.setPostsCount(profile.getPostsCount() + 1);
     this.profileService.saveProfile(profile);
@@ -80,16 +86,12 @@ public class PostServiceImpl implements PostService {
         .userLikes(new HashSet<>())
         .build();
 
-    List<Hashtag> hashtags = new ArrayList<>();
     if (request.getCaption() != null && !request.getCaption().isEmpty()) {
-      hashtags.addAll(hashtagService.extractHashtagsFromText(request.getCaption()));
+      post.setHashtags(hashtagService.extractHashtagsFromText(request.getCaption()));
+      this.hashtagService.updateHashtagPostCount(post.getHashtags(), 1);
     }
-    post.setHashtags(hashtags);
 
-    // // Add to explore if profile is not private
-    // if (!profile.isPrivate()) {
-    // feedRepository.addPostToExplore((long) savedPost.getId());
-    // }
+    addPostToFollowersFeeds(post.getId(), profileId);
 
     // // Send message to RabbitMQ to process feed updates
     // rabbitTemplate.convertAndSend(MessageQueueConfig.AFTER_CREATE_POST_QUEUE,
@@ -98,20 +100,28 @@ public class PostServiceImpl implements PostService {
     return this.postRepository.save(post);
   }
 
+  private void addPostToFollowersFeeds(long postId, long profileId) throws IdInvalidException {
+    List<Profile> followers = profileService.getProfileById(profileId).getFollowers();
+    for (Profile follower : followers) {
+      feedRepository.addPostToFeed(postId, follower.getId());
+    }
+    feedRepository.addPostToFeed(postId, profileId);
+  }
+
   @Override
   @Transactional
-  public Post updatePost(long profileId, long postId, UpdatePostRequest request) throws IdInvalidException {
+  public Post updatePost(long profileId, long postId, UpdatePostRequest request)
+      throws IdInvalidException, AlreadyExistsException {
     Post post = handleGetPostByIdAndProfileId(postId, profileId);
 
     if (request.getContent() != null && !request.getContent().equals(post.getContent())) {
       post.setContent(request.getContent());
 
-      List<Hashtag> hashtags = new ArrayList<>();
-      if (request.getContent() != null && !request.getContent().isEmpty()) {
-        hashtags.addAll(hashtagService.extractHashtagsFromText(request.getContent()));
-      }
-
-      post.setHashtags(hashtags);
+      List<Hashtag> oldHashtags = post.getHashtags();
+      List<Hashtag> newHashtags = hashtagService.extractHashtagsFromText(request.getContent());
+      post.setHashtags(newHashtags);
+      this.hashtagService.updateHashtagPostCount(oldHashtags, -1);
+      this.hashtagService.updateHashtagPostCount(newHashtags, 1);
 
       this.postRepository.save(post);
     }
@@ -202,13 +212,18 @@ public class PostServiceImpl implements PostService {
   }
 
   @Override
+  public List<Post> getPostsByIds(List<Long> postIds) {
+    return postRepository.findByIdIn(postIds);
+  }
+
+  @Override
   public ResultPaginationDTO getLikedPostsByProfileId(long profileId, Pageable pageable) {
     Page<Post> likedPosts = postRepository.findLikedPosts(profileId, pageable);
     return createPaginationResult(likedPosts, pageable);
   }
 
   @Override
-  public ResultPaginationDTO getPostsByHashtag(String hashtag, Pageable pageable) {
+  public ResultPaginationDTO getPostsByHashtag(String hashtag, Pageable pageable) throws IdInvalidException {
     Hashtag hashtagEntity = hashtagService.getHashtagByName(hashtag);
     Page<Post> posts = postRepository.findByHashtag(hashtagEntity, pageable);
     return createPaginationResult(posts, pageable);

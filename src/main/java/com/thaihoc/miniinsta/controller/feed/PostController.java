@@ -11,8 +11,10 @@ import com.thaihoc.miniinsta.dto.feed.CreatePostRequest;
 import com.thaihoc.miniinsta.dto.feed.LikePostRequest;
 import com.thaihoc.miniinsta.dto.feed.PostResponse;
 import com.thaihoc.miniinsta.dto.feed.UpdatePostRequest;
+import com.thaihoc.miniinsta.exception.AlreadyExistsException;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Post;
+import com.thaihoc.miniinsta.service.feed.FeedService;
 import com.thaihoc.miniinsta.service.feed.PostService;
 import com.thaihoc.miniinsta.service.user.ProfileService;
 import com.turkraft.springfilter.boot.Filter;
@@ -26,16 +28,19 @@ public class PostController {
 
     private final PostService postService;
     private final ProfileService profileService;
+    private final FeedService feedService;
 
-    public PostController(PostService postService, ProfileService profileService) {
+    public PostController(PostService postService, ProfileService profileService, FeedService feedService) {
         this.postService = postService;
         this.profileService = profileService;
+        this.feedService = feedService;
     }
 
     @PostMapping("profiles/{profileId}/posts")
     public ResponseEntity<Post> createPost(
             @PathVariable long profileId,
-            @Valid @RequestBody CreatePostRequest request) throws IdInvalidException {
+            @Valid @RequestBody CreatePostRequest request)
+            throws IdInvalidException, AlreadyExistsException {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(postService.createPost(profileId, request));
     }
@@ -44,7 +49,8 @@ public class PostController {
     public ResponseEntity<Post> updatePost(
             @PathVariable long profileId,
             @PathVariable long postId,
-            @Valid @RequestBody UpdatePostRequest request) throws IdInvalidException {
+            @Valid @RequestBody UpdatePostRequest request)
+            throws IdInvalidException, AlreadyExistsException {
         return ResponseEntity.ok(postService.updatePost(profileId, postId, request));
     }
 
@@ -127,5 +133,12 @@ public class PostController {
             @PathVariable long postId,
             Pageable pageable) throws IdInvalidException {
         return ResponseEntity.ok(this.profileService.getPostLikers(postId, pageable));
+    }
+
+    @GetMapping("profiles/{profileId}/feed")
+    public ResponseEntity<ResultPaginationDTO> getFeed(
+            @PathVariable long profileId,
+            Pageable pageable) throws IdInvalidException {
+        return ResponseEntity.ok(this.feedService.getFeedByProfileId(pageable, profileId));
     }
 }

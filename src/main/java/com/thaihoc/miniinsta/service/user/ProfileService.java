@@ -4,6 +4,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.exception.AlreadyExistsException;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Profile;
 
@@ -15,7 +16,7 @@ public interface ProfileService {
 
   Profile getProfileByUsername(String username) throws IdInvalidException;
 
-  Profile handleUpdateProfile(Profile profile) throws IdInvalidException;
+  Profile handleUpdateProfile(Profile profile) throws IdInvalidException, AlreadyExistsException;
 
   ResultPaginationDTO handleGetAllProfiles(Specification<Profile> spec, Pageable pageable);
 
