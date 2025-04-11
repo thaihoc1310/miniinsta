@@ -24,6 +24,8 @@ public interface ProfileRepository extends JpaRepository<Profile, Long>, JpaSpec
 
         Optional<Profile> findByUsername(String username);
 
+        Page<Profile> findAllByFollowing(Profile following, Pageable pageable);
+
         boolean existsByUsername(String username);
 
         /**

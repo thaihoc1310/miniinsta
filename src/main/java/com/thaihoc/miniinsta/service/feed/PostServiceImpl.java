@@ -3,6 +3,8 @@ package com.thaihoc.miniinsta.service.feed;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,6 +15,8 @@ import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.feed.CreatePostRequest;
 import com.thaihoc.miniinsta.dto.feed.PostResponse;
 import com.thaihoc.miniinsta.dto.feed.UpdatePostRequest;
+import com.thaihoc.miniinsta.dto.notification.PostCreatedEvent;
+import com.thaihoc.miniinsta.dto.notification.PostLikedEvent;
 import com.thaihoc.miniinsta.exception.AlreadyExistsException;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Hashtag;
@@ -35,13 +39,22 @@ public class PostServiceImpl implements PostService {
 
   private FeedRepository feedRepository;
 
+  private RabbitTemplate rabbitTemplate;
+
+  @Value("${rabbitmq.exchange.name}")
+  private String notificationExchange;
+
+  private final String RK_POST_CREATED = "post.notification.created";
+  private final String RK_POST_LIKED = "post.notification.liked";
+
   public PostServiceImpl(FileService fileService, HashtagService hashtagService, PostRepository postRepository,
-      ProfileService profileService, FeedRepository feedRepository) {
+      ProfileService profileService, FeedRepository feedRepository, RabbitTemplate rabbitTemplate) {
     this.fileService = fileService;
     this.hashtagService = hashtagService;
     this.postRepository = postRepository;
     this.profileService = profileService;
     this.feedRepository = feedRepository;
+    this.rabbitTemplate = rabbitTemplate;
   }
 
   private Post handleGetPostByIdAndProfileId(long postId, long profileId) throws IdInvalidException {
@@ -93,9 +106,9 @@ public class PostServiceImpl implements PostService {
 
     addPostToFollowersFeeds(post.getId(), profileId);
 
-    // // Send message to RabbitMQ to process feed updates
-    // rabbitTemplate.convertAndSend(MessageQueueConfig.AFTER_CREATE_POST_QUEUE,
-    // savedPost.getId());
+    PostCreatedEvent postCreatedEvent = new PostCreatedEvent(profileId, profileId, post.getId(),
+        profile.getDisplayName());
+    rabbitTemplate.convertAndSend(notificationExchange, RK_POST_CREATED, postCreatedEvent);
 
     return this.postRepository.save(post);
   }
@@ -163,10 +176,9 @@ public class PostServiceImpl implements PostService {
       post.setLikeCount(post.getLikeCount() + 1);
       this.postRepository.save(post);
 
-      // // Send notification to post author
-      // if (profileId != likerId) {
-      // log.info("Like notification would be sent here");
-      // }
+      PostLikedEvent postLikedEvent = new PostLikedEvent(liker.getId(), post.getAuthor().getId(), postId,
+          liker.getDisplayName());
+      rabbitTemplate.convertAndSend(notificationExchange, RK_POST_LIKED, postLikedEvent);
     }
   }
 

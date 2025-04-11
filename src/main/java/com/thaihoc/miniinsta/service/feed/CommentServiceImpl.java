@@ -1,5 +1,7 @@
 package com.thaihoc.miniinsta.service.feed;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.feed.CommentResponse;
 import com.thaihoc.miniinsta.dto.feed.CreateCommentRequest;
+import com.thaihoc.miniinsta.dto.notification.CommentLikedEvent;
+import com.thaihoc.miniinsta.dto.notification.CommentRepliedEvent;
+import com.thaihoc.miniinsta.dto.notification.PostCommentedEvent;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Comment;
 import com.thaihoc.miniinsta.model.Post;
@@ -26,12 +31,23 @@ public class CommentServiceImpl implements CommentService {
   private final PostService postService;
   private final ProfileService profileService;
 
+  private RabbitTemplate rabbitTemplate;
+
+  @Value("${rabbitmq.exchange.name}")
+  private String notificationExchange;
+
+  public static final String RK_POST_COMMENTED = "post.notification.commented";
+  public static final String RK_COMMENT_LIKED = "comment.notification.liked";
+  public static final String RK_COMMENT_REPLIED = "comment.notification.replied";
+
   public CommentServiceImpl(CommentRepository commentRepository,
       PostService postService,
-      ProfileService profileService) {
+      ProfileService profileService,
+      RabbitTemplate rabbitTemplate) {
     this.commentRepository = commentRepository;
     this.postService = postService;
     this.profileService = profileService;
+    this.rabbitTemplate = rabbitTemplate;
   }
 
   private Comment handleGetCommentById(long commentId) throws IdInvalidException {
@@ -69,6 +85,10 @@ public class CommentServiceImpl implements CommentService {
     post.setCommentCount(post.getCommentCount() + 1);
     postService.savePost(post);
 
+    PostCommentedEvent postCommentedEvent = new PostCommentedEvent(profile.getId(), post.getAuthor().getId(),
+        post.getId(), profile.getDisplayName());
+    rabbitTemplate.convertAndSend(notificationExchange, RK_POST_COMMENTED, postCommentedEvent);
+
     return commentRepository.save(comment);
   }
 
@@ -92,6 +112,11 @@ public class CommentServiceImpl implements CommentService {
     Post post = parentComment.getPost();
     post.setCommentCount(post.getCommentCount() + 1);
     postService.savePost(post);
+
+    CommentRepliedEvent commentRepliedEvent = new CommentRepliedEvent(profile.getId(),
+        parentComment.getAuthor().getId(),
+        commentId, profile.getDisplayName());
+    rabbitTemplate.convertAndSend(notificationExchange, RK_COMMENT_REPLIED, commentRepliedEvent);
 
     return commentRepository.save(reply);
   }
@@ -141,6 +166,10 @@ public class CommentServiceImpl implements CommentService {
       comment.getLikes().add(liker);
       comment.setLikeCount(comment.getLikeCount() + 1);
       commentRepository.save(comment);
+
+      CommentLikedEvent commentLikedEvent = new CommentLikedEvent(liker.getId(), comment.getAuthor().getId(),
+          commentId, liker.getDisplayName());
+      rabbitTemplate.convertAndSend(notificationExchange, RK_COMMENT_LIKED, commentLikedEvent);
     }
   }
 

@@ -44,9 +44,9 @@ thaihoc:
 
 rabbitmq:
     queue:
-        notification: miniinsta_notification_queue
+        notification: NOTIFICATION_QUEUE
     exchange:
-        name: miniinsta_notification_exchange
+        name: NOTIFICATION_EXCHANGE
 
 springdoc:
     api-docs:

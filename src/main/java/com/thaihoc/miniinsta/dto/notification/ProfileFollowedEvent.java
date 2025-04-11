@@ -1,11 +1,10 @@
 package com.thaihoc.miniinsta.dto.notification;
 
-import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
-public class ProfileFollowedEvent extends CreateNotificationRequest {
-    private final String type = "NEW_FOLLOWER";
-    private final String entityType = "PROFILE";
+public class ProfileFollowedEvent extends BaseEvent {
+    public ProfileFollowedEvent(long actorId, long recipientId, long entityId, String actorName) {
+        super(actorId, recipientId, entityId, "NEW_FOLLOWER", "PROFILE", actorName + " started following you");
+    }
 }

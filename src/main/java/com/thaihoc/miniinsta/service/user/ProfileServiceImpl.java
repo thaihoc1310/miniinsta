@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
-import com.thaihoc.miniinsta.dto.notification.CreateNotificationRequest;
+import com.thaihoc.miniinsta.dto.notification.ProfileFollowedEvent;
 import com.thaihoc.miniinsta.exception.AlreadyExistsException;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Profile;
@@ -190,13 +190,10 @@ public class ProfileServiceImpl implements ProfileService {
 
       this.profileRepository.save(profileToFollow);
       this.profileRepository.save(follower);
-      CreateNotificationRequest request = CreateNotificationRequest.builder()
-          .actorId(follower.getId())
-          .content(follower.getDisplayName() + " started following you")
-          .type("NEW_FOLLOWER")
-          .entityId(profileToFollow.getId())
-          .entityType("PROFILE")
-          .build();
+
+      ProfileFollowedEvent request = new ProfileFollowedEvent(follower.getId(), profileToFollow.getId(),
+          profileToFollow.getId(), profileToFollow.getDisplayName());
+
       rabbitTemplate.convertAndSend(notificationExchange, RK_PROFILE_FOLLOWED, request);
     }
   }
@@ -230,4 +227,9 @@ public class ProfileServiceImpl implements ProfileService {
     return createPaginationResult(postLikers, pageable);
   }
 
+  @Override
+  public Page<Profile> getFollowersProfiles(long profileId, Pageable pageable) throws IdInvalidException {
+    Profile profile = this.getProfileById(profileId);
+    return this.profileRepository.findAllByFollowing(profile, pageable);
+  }
 }

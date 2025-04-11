@@ -1,5 +1,6 @@
 package com.thaihoc.miniinsta.service.user;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -37,4 +38,6 @@ public interface ProfileService {
   void saveProfile(Profile profile);
 
   ResultPaginationDTO getPostLikers(long postId, Pageable pageable);
+
+  Page<Profile> getFollowersProfiles(long profileId, Pageable pageable) throws IdInvalidException;
 }
