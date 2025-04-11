@@ -42,6 +42,12 @@ thaihoc:
         access-token-validity-in-seconds: 86400
         refresh-token-validity-in-seconds: 8640000
 
+rabbitmq:
+    queue:
+        notification: miniinsta_notification_queue
+    exchange:
+        name: miniinsta_notification_exchange
+
 springdoc:
     api-docs:
         path: /api-docs

@@ -14,6 +14,7 @@ import com.thaihoc.miniinsta.dto.auth.ReqLoginDTO;
 import com.thaihoc.miniinsta.dto.auth.RestLoginDTO;
 import com.thaihoc.miniinsta.dto.user.CreateUserRequest;
 import com.thaihoc.miniinsta.dto.user.UserResponse;
+import com.thaihoc.miniinsta.exception.AlreadyExistsException;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.service.auth.AuthService;
 import com.thaihoc.miniinsta.service.user.UserService;
@@ -57,7 +58,7 @@ public class AuthController {
   @PostMapping("/register")
   @ApiMessage("Register a new account")
   public ResponseEntity<UserResponse> register(@Valid @RequestBody CreateUserRequest registerUser)
-      throws MethodArgumentNotValidException, IdInvalidException {
+      throws MethodArgumentNotValidException, IdInvalidException, AlreadyExistsException {
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(this.userService.handleCreateUser(registerUser));
   }

@@ -2,6 +2,9 @@ package com.thaihoc.miniinsta.service.user;
 
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -9,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.dto.notification.CreateNotificationRequest;
 import com.thaihoc.miniinsta.exception.AlreadyExistsException;
 import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Profile;
@@ -22,10 +26,17 @@ public class ProfileServiceImpl implements ProfileService {
   private FileService fileService;
   private UserService userService;
   private ProfileRepository profileRepository;
+  private RabbitTemplate rabbitTemplate;
 
-  public ProfileServiceImpl(UserService userService, ProfileRepository profileRepository) {
+  private final String RK_PROFILE_FOLLOWED = "profile.notification.followed";
+  @Value("${rabbitmq.exchange.name}")
+  private String notificationExchange;
+
+  public ProfileServiceImpl(UserService userService, ProfileRepository profileRepository,
+      RabbitTemplate rabbitTemplate) {
     this.userService = userService;
     this.profileRepository = profileRepository;
+    this.rabbitTemplate = rabbitTemplate;
   }
 
   @Override
@@ -179,6 +190,14 @@ public class ProfileServiceImpl implements ProfileService {
 
       this.profileRepository.save(profileToFollow);
       this.profileRepository.save(follower);
+      CreateNotificationRequest request = CreateNotificationRequest.builder()
+          .actorId(follower.getId())
+          .content(follower.getDisplayName() + " started following you")
+          .type("NEW_FOLLOWER")
+          .entityId(profileToFollow.getId())
+          .entityType("PROFILE")
+          .build();
+      rabbitTemplate.convertAndSend(notificationExchange, RK_PROFILE_FOLLOWED, request);
     }
   }
 

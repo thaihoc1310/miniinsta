@@ -1,9 +1,9 @@
 package com.thaihoc.miniinsta.dto.notification;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class CreateNotificationRequest {
     @NotBlank(message = "Actor ID is required")
     private long actorId;
