@@ -74,4 +74,12 @@ public class Profile extends BaseEntity {
   private long followingCount;
 
   private long postsCount;
+
+  @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @JsonIgnore
+  private List<Participant> participations;
+
+  @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @JsonIgnore
+  private List<Message> messages;
 }

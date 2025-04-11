@@ -1,17 +1,21 @@
 package com.thaihoc.miniinsta.model;
 
-import com.thaihoc.miniinsta.model.base.BaseEntity;
-import com.thaihoc.miniinsta.model.enums.MessageType;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.thaihoc.miniinsta.model.base.BaseEntity;
+import com.thaihoc.miniinsta.model.enums.ConversationType;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,35 +23,31 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Entity
-@Table(name = "messages")
+@Table(name = "conversations")
 @Getter
 @Setter
-@ToString
 @EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Message extends BaseEntity {
+public class Conversation extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private long id;
-
-    @Column(nullable = false)
-    private String content;
-
-    @ManyToOne
-    @JoinColumn(nullable = false)
-    private Conversation conversation;
-
-    @ManyToOne
-    @JoinColumn(name = "sender_id", nullable = false)
-    private Profile sender;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private MessageType type;
+    private ConversationType type;
+
+    @Column(nullable = false)
+    private String name;
+
+    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Message> messages;
+
+    @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Participant> participants;
 }

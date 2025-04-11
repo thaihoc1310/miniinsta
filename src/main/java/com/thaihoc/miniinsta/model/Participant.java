@@ -1,12 +1,10 @@
 package com.thaihoc.miniinsta.model;
 
-import com.thaihoc.miniinsta.model.base.BaseEntity;
-import com.thaihoc.miniinsta.model.enums.MessageType;
+import java.time.Instant;
 
-import jakarta.persistence.Column;
+import com.thaihoc.miniinsta.model.base.BaseEntity;
+
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,7 +20,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "messages")
+@Table(name = "participants")
 @Getter
 @Setter
 @ToString
@@ -30,24 +28,21 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Message extends BaseEntity {
+public class Participant extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private long id;
 
-    @Column(nullable = false)
-    private String content;
+    @ManyToOne
+    @JoinColumn(name = "profile_id", nullable = false)
+    private Profile profile;
 
     @ManyToOne
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "conversation_id", nullable = false)
     private Conversation conversation;
 
-    @ManyToOne
-    @JoinColumn(name = "sender_id", nullable = false)
-    private Profile sender;
+    private String nickname;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private MessageType type;
+    private Instant lastReadTimestamp;
+
 }

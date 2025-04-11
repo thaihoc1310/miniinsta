@@ -22,7 +22,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "hashtag")
+@Table(name = "hashtags")
 @Getter
 @Setter
 @ToString

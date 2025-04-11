@@ -29,7 +29,7 @@ import lombok.ToString;
 import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "comment")
+@Table(name = "comments")
 @Getter
 @Setter
 @ToString
@@ -67,7 +67,6 @@ public class Comment extends BaseEntity {
   @JsonIgnore
   private Set<Profile> likes;
 
-  @Column(name = "like_count")
   private long likeCount;
 
 }
