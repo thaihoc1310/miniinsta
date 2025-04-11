@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
@@ -21,10 +22,13 @@ public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final ProfileService profileService;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, ProfileService profileService) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository, ProfileService profileService,
+            SimpMessagingTemplate messagingTemplate) {
         this.notificationRepository = notificationRepository;
         this.profileService = profileService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Override
@@ -42,7 +46,15 @@ public class NotificationServiceImpl implements NotificationService {
                 .isRead(false)
                 .build();
 
-        return notificationRepository.save(notification);
+        Notification savedNotification = notificationRepository.save(notification);
+
+        int unreadCount = getUnreadCount(recipient.getId());
+        messagingTemplate.convertAndSendToUser(
+                recipient.getUsername(),
+                "/queue/unread-notifications",
+                unreadCount);
+
+        return savedNotification;
     }
 
     private Notification getNotificationById(long id) throws IdInvalidException {

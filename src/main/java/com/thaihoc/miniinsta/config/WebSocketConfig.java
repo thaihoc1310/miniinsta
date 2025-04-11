@@ -29,15 +29,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 				.setRelayHost(relayHost)
 				.setRelayPort(relayPort)
 				.setClientLogin(relayLogin)
-				.setClientPasscode(relayPasscode)
-				.setUserDestinationBroadcast("/topic/unresolved-user")
-				.setUserRegistryBroadcast("/topic/registry-broadcast");
+				.setClientPasscode(relayPasscode);
 		config.setApplicationDestinationPrefixes("/app");
+		config.setUserDestinationPrefix("/user");
 	}
 
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
-		registry.addEndpoint("/ws");
+		registry.addEndpoint("/ws").withSockJS();
 	}
 
 }
