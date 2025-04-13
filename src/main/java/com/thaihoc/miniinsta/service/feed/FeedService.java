@@ -2,11 +2,11 @@ package com.thaihoc.miniinsta.service.feed;
 
 import org.springframework.data.domain.Pageable;
 
-import com.thaihoc.miniinsta.dto.UserPrincipal;
-import com.thaihoc.miniinsta.dto.feed.GetFeedResponse;
+import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
+import com.thaihoc.miniinsta.exception.IdInvalidException;
 
 public interface FeedService {
-  GetFeedResponse getFeed(UserPrincipal userPrincipal, int limit, int page);
 
-  GetFeedResponse getFeed(UserPrincipal userPrincipal, Pageable pageable);
+  ResultPaginationDTO getFeedByProfileId(Pageable pageable, long profileId) throws IdInvalidException;
+
 }

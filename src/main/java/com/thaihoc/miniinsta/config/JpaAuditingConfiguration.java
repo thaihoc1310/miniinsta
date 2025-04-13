@@ -10,14 +10,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.thaihoc.miniinsta.dto.UserPrincipal;
 
 import java.util.Optional;
-import java.util.UUID;
 
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 public class JpaAuditingConfiguration {
 
     @Bean
-    public AuditorAware<UUID> auditorProvider() {
+    public AuditorAware<String> auditorProvider() {
         return () -> {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication == null || !authentication.isAuthenticated() ||
@@ -26,7 +25,7 @@ public class JpaAuditingConfiguration {
             }
 
             UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-            return Optional.ofNullable(userPrincipal.getId());
+            return Optional.ofNullable(userPrincipal.getUsername());
         };
     }
 }

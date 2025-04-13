@@ -13,23 +13,22 @@ public class FeedRepository {
     @Autowired
     private RedisTemplate<String, Long> redisTemplate;
 
-    public Long getFeedSize(int profileId) {
+    public Long getFeedSize(long profileId) {
         String feedKey = FEED_KEY_PREFIX + profileId;
         return redisTemplate.opsForList().size(feedKey);
     }
 
-    public void addPostToFeed(int postId, int profileId) {
+    public void addPostToFeed(long postId, long profileId) {
         String feedKey = FEED_KEY_PREFIX + profileId;
-        redisTemplate.opsForList().leftPush(feedKey, Long.valueOf(postId));
-        // uncomment if need to limit the number of posts in the feed
-        // redisTemplate.opsForList().trim(feedKey, 0, 1000); // Keep only the latest
-        // 1000 posts
+        redisTemplate.opsForList().leftPush(feedKey, postId);
+        redisTemplate.opsForList().trim(feedKey, 0, 999);
     }
 
-    public List<Long> getFeed(int profileId, int limit, int page) {
+    public List<Long> getFeed(long profileId, int limit, int page) {
         String feedKey = FEED_KEY_PREFIX + profileId;
         int start = (page - 1) * limit;
         int end = start + limit - 1;
         return redisTemplate.opsForList().range(feedKey, start, end);
     }
+
 }

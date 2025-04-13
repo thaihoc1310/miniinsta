@@ -1,75 +1,144 @@
 package com.thaihoc.miniinsta.controller.feed;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.thaihoc.miniinsta.dto.UserPrincipal;
+import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.feed.CreatePostRequest;
-import com.thaihoc.miniinsta.dto.feed.CreatePostResponse;
-import com.thaihoc.miniinsta.dto.feed.DeletePostResponse;
-import com.thaihoc.miniinsta.dto.feed.GetPostResponse;
-import com.thaihoc.miniinsta.dto.feed.GetUserPostResponse;
+import com.thaihoc.miniinsta.dto.feed.LikePostRequest;
+import com.thaihoc.miniinsta.dto.feed.PostResponse;
+import com.thaihoc.miniinsta.dto.feed.UpdatePostRequest;
+import com.thaihoc.miniinsta.exception.AlreadyExistsException;
+import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Post;
+import com.thaihoc.miniinsta.service.feed.FeedService;
 import com.thaihoc.miniinsta.service.feed.PostService;
+import com.thaihoc.miniinsta.service.user.ProfileService;
+import com.turkraft.springfilter.boot.Filter;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@Slf4j
-@RequestMapping(path = "api/v1/posts")
+@RequestMapping("/api/v1/")
+
 public class PostController {
-  @Autowired
-  private PostService postService;
 
-  @PostMapping()
-  public ResponseEntity<CreatePostResponse> createPost(
-      @Valid @RequestBody CreatePostRequest request, Authentication authentication) {
-    UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-    Post post = postService.createPost(userPrincipal, request);
-    return ResponseEntity.ok().body(CreatePostResponse.builder().post(post).build());
-  }
+    private final PostService postService;
+    private final ProfileService profileService;
+    private final FeedService feedService;
 
-  @GetMapping("/{id}")
-  public ResponseEntity<GetPostResponse> getPost(@PathVariable int id) {
-    Post post = postService.getPost(id);
-    return ResponseEntity.ok().body(GetPostResponse.builder().post(post).build());
-  }
+    public PostController(PostService postService, ProfileService profileService, FeedService feedService) {
+        this.postService = postService;
+        this.profileService = profileService;
+        this.feedService = feedService;
+    }
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<DeletePostResponse> deletePost(@PathVariable int id, Authentication authentication) {
-    UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-    postService.deletePost(userPrincipal, id);
-    return ResponseEntity.ok().build();
-  }
+    @PostMapping("profiles/{profileId}/posts")
+    public ResponseEntity<Post> createPost(
+            @PathVariable long profileId,
+            @Valid @RequestBody CreatePostRequest request)
+            throws IdInvalidException, AlreadyExistsException {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(postService.createPost(profileId, request));
+    }
 
-  @PostMapping("/like/{id}")
-  public ResponseEntity<GetPostResponse> likePost(@PathVariable int id, Authentication authentication) {
-    UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-    Post post = postService.likePost(userPrincipal, id);
-    return ResponseEntity.ok().body(GetPostResponse.builder().post(post).build());
-  }
+    @PatchMapping("profiles/{profileId}/posts/{postId}")
+    public ResponseEntity<Post> updatePost(
+            @PathVariable long profileId,
+            @PathVariable long postId,
+            @Valid @RequestBody UpdatePostRequest request)
+            throws IdInvalidException, AlreadyExistsException {
+        return ResponseEntity.ok(postService.updatePost(profileId, postId, request));
+    }
 
-  @DeleteMapping("/like/{id}")
-  public ResponseEntity<GetPostResponse> unlikePost(@PathVariable int id, Authentication authentication) {
-    UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-    Post post = postService.unlikePost(userPrincipal, id);
-    return ResponseEntity.ok().body(GetPostResponse.builder().post(post).build());
-  }
+    @GetMapping("profiles/{profileId}/posts/{postId}")
+    public ResponseEntity<PostResponse> getPostById(
+            @PathVariable long profileId,
+            @PathVariable long postId) throws IdInvalidException {
+        return ResponseEntity.ok(postService.getPostById(postId, profileId));
+    }
 
-  @GetMapping("/user/{id}")
-  public ResponseEntity<GetUserPostResponse> getUserPosts(@PathVariable int id) {
-    List<Post> posts = postService.getUserPosts(id);
-    return ResponseEntity.ok().body(GetUserPostResponse.builder().posts(posts).build());
-  }
+    @DeleteMapping("profiles/{profileId}/posts/{postId}")
+    public ResponseEntity<Void> deletePostById(
+            @PathVariable long profileId,
+            @PathVariable long postId) throws IdInvalidException {
+        postService.deletePostById(profileId, postId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("posts/{postId}/likes")
+    public ResponseEntity<Void> likePost(
+            @PathVariable long postId,
+            @Valid @RequestBody LikePostRequest request) throws IdInvalidException {
+        postService.likePost(postId, request.getLikerId());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("posts/{postId}/likes/{likerId}")
+    public ResponseEntity<Void> unlikePost(
+            @PathVariable long postId,
+            @PathVariable long likerId) throws IdInvalidException {
+        postService.unlikePost(postId, likerId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("profiles/{profileId}/posts")
+    public ResponseEntity<ResultPaginationDTO> getAllPostsByProfileId(
+            @PathVariable long profileId,
+            Pageable pageable) throws IdInvalidException {
+        return ResponseEntity.ok(postService.getAllPostsByProfileId(profileId, pageable));
+    }
+
+    @GetMapping("posts")
+    public ResponseEntity<ResultPaginationDTO> getAllPosts(
+            @Filter Specification<Post> spec,
+            Pageable pageable) throws IdInvalidException {
+        return ResponseEntity.ok(postService.getAllPosts(spec, pageable));
+    }
+
+    @GetMapping("profiles/{profileId}/liked_posts")
+    public ResponseEntity<ResultPaginationDTO> getLikedPosts(
+            @PathVariable long profileId,
+            Pageable pageable) throws IdInvalidException {
+        return ResponseEntity.ok(postService.getLikedPostsByProfileId(profileId, pageable));
+    }
+
+    @GetMapping("hashtags/{hashtag}/posts")
+    public ResponseEntity<ResultPaginationDTO> getAllPostsByHashtag(
+            @PathVariable String hashtag,
+            Pageable pageable) throws IdInvalidException {
+        return ResponseEntity.ok(postService.getPostsByHashtag(hashtag, pageable));
+    }
+
+    // /**
+    // * Get popular posts
+    // */
+    // @GetMapping("/popular")
+    // public ResponseEntity<Page<PostResponse>> getPopularPosts(
+    // Authentication authentication,
+    // Pageable pageable) {
+    // UserPrincipal userPrincipal = null;
+    // if (authentication != null && authentication.isAuthenticated()) {
+    // userPrincipal = (UserPrincipal) authentication.getPrincipal();
+    // }
+    // return ResponseEntity.ok(postService.getPopularPosts(userPrincipal,
+    // pageable));
+    // }
+
+    @GetMapping("posts/{postId}/likes")
+    public ResponseEntity<ResultPaginationDTO> getPostLikers(
+            @PathVariable long postId,
+            Pageable pageable) throws IdInvalidException {
+        return ResponseEntity.ok(this.profileService.getPostLikers(postId, pageable));
+    }
+
+    @GetMapping("profiles/{profileId}/feed")
+    public ResponseEntity<ResultPaginationDTO> getFeed(
+            @PathVariable long profileId,
+            Pageable pageable) throws IdInvalidException {
+        return ResponseEntity.ok(this.feedService.getFeedByProfileId(pageable, profileId));
+    }
 }

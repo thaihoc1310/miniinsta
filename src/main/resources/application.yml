@@ -28,11 +28,27 @@ spring:
             client:
                 registration:
                     google:
-                        client-id: 
-                        client-secret: 
+                        client-id:
+                        client-secret:
                         scope:
                             - email
                             - profile
+
+
+
+# JWT Configuration
+thaihoc:
+    jwt:
+        base64secret: YdxXwszT0vC2pT7i9NZcZyzwU9hbGQPp06+MDjxCeVVF1KLVlP9FfFZ/oju804SYOhcmgD/FncBWVK/9trTb7Q==
+        # expiration: 1 day (seconds)
+        access-token-validity-in-seconds: 86400
+        refresh-token-validity-in-seconds: 8640000
+
+rabbitmq:
+    queue:
+        notification: NOTIFICATION_QUEUE
+    exchange:
+        name: NOTIFICATION_EXCHANGE
 
 springdoc:
     api-docs:

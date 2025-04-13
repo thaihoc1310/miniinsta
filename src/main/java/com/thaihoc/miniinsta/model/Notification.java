@@ -1,10 +1,8 @@
 package com.thaihoc.miniinsta.model;
 
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.thaihoc.miniinsta.model.constraint.NotificationType;
+import com.thaihoc.miniinsta.model.base.BaseEntity;
+import com.thaihoc.miniinsta.model.enums.EntityType;
+import com.thaihoc.miniinsta.model.enums.NotificationType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,43 +14,49 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
 
 @Entity
-@Table(name = "notification")
-@Data
+@Table(name = "notifications")
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(callSuper = true)
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Notification {
+public class Notification extends BaseEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id")
-  private int id;
+  private long id;
 
   @ManyToOne
-  @JoinColumn(name = "from_user", nullable = false)
-  @JsonProperty("from_user")
-  Profile fromUser;
+  @JoinColumn(nullable = false)
+  private Profile recipient;
 
   @ManyToOne
-  @JoinColumn(name = "to_user", nullable = false)
-  @JsonProperty("to_user")
-  Profile toUser;
+  @JoinColumn(nullable = false)
+  private Profile actor;
 
-  @NotNull
+  @Column(nullable = false)
+  private String content;
+
   @Enumerated(EnumType.STRING)
-  NotificationType notificationType;
+  @Column(nullable = false)
+  private NotificationType type;
 
-  @NotNull
-  private Date createdAt;
+  private long entityId;
 
-  @ManyToOne
-  @JoinColumn(name = "post_id", nullable = false)
-  @JsonIgnore
-  private Post post;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private EntityType entityType;
+
+  private boolean isRead;
 }

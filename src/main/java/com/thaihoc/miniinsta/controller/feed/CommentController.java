@@ -1,43 +1,106 @@
 package com.thaihoc.miniinsta.controller.feed;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.thaihoc.miniinsta.dto.UserPrincipal;
+import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.feed.CreateCommentRequest;
-import com.thaihoc.miniinsta.dto.feed.GetPostResponse;
-import com.thaihoc.miniinsta.model.Post;
+import com.thaihoc.miniinsta.dto.feed.LikeCommentRequest;
+import com.thaihoc.miniinsta.exception.IdInvalidException;
+import com.thaihoc.miniinsta.model.Comment;
 import com.thaihoc.miniinsta.service.feed.CommentService;
 
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 
 @RestController
-@Slf4j
-@RequestMapping(path = "api/v1/comments")
+@RequestMapping("/api/v1/")
+
 public class CommentController {
-  @Autowired
-  CommentService commentService;
 
-  @PostMapping()
-  public ResponseEntity<GetPostResponse> createComment(
-      @Valid @RequestBody CreateCommentRequest request, Authentication authentication) {
-    UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-    Post post = commentService.createComment(userPrincipal, request);
-    return ResponseEntity.ok().body(GetPostResponse.builder().post(post).build());
-  }
+    private final CommentService commentService;
 
-  @DeleteMapping("/{id}")
-  public ResponseEntity<GetPostResponse> deleteComment(@PathVariable int id, Authentication authentication) {
-    UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-    Post post = commentService.deleteComment(userPrincipal, id);
-    return ResponseEntity.ok().body(GetPostResponse.builder().post(post).build());
-  }
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
+
+    @PostMapping("posts/{postId}/comments")
+    public ResponseEntity<Comment> createComment(
+            @PathVariable long postId,
+            @Valid @RequestBody CreateCommentRequest request) throws IdInvalidException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.commentService.createComment(postId,
+                request));
+    }
+
+    @PostMapping("comments/{commentId}/replies")
+    public ResponseEntity<Comment> replyToComment(
+            @PathVariable long commentId,
+            @Valid @RequestBody CreateCommentRequest request) throws IdInvalidException {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.commentService.replyToComment(commentId,
+                request));
+    }
+
+    @DeleteMapping("posts/{postId}/comments/{commentId}")
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable long postId,
+            @PathVariable long commentId) throws IdInvalidException {
+        this.commentService.deleteComment(postId, commentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("comments/{commentId}/replies/{replyId}")
+    public ResponseEntity<Void> deleteReply(
+            @PathVariable long commentId,
+            @PathVariable long replyId) throws IdInvalidException {
+        this.commentService.deleteReply(commentId, replyId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("comments/{commentId}/likes")
+    public ResponseEntity<Void> likeComment(
+            @PathVariable long commentId,
+            @Valid @RequestBody LikeCommentRequest request) throws IdInvalidException {
+        this.commentService.likeComment(commentId, request.getLikerId());
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("comments/{commentId}/likes/{likerId}")
+    public ResponseEntity<Void> unlikeComment(
+            @PathVariable long commentId,
+            @PathVariable long likerId) throws IdInvalidException {
+        this.commentService.unlikeComment(commentId, likerId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("posts/{postId}/comments")
+    public ResponseEntity<ResultPaginationDTO> getAllComments(
+            @PathVariable long postId,
+            Pageable pageable) throws IdInvalidException {
+        return ResponseEntity.ok(commentService.getAllComments(postId, pageable));
+    }
+
+    @GetMapping("comments/{commentId}/replies")
+    public ResponseEntity<ResultPaginationDTO> getAllReplies(
+            @PathVariable long commentId,
+            Pageable pageable) throws IdInvalidException {
+        return ResponseEntity.ok(commentService.getAllCommentReplies(commentId, pageable));
+    }
+
+    // /**
+    // * Get top comments of a post
+    // */
+    // @GetMapping("/posts/{postId}/top")
+    // public ResponseEntity<Page<CommentResponse>> getTopComments(
+    // Authentication authentication,
+    // @PathVariable int postId,
+    // Pageable pageable) {
+    // UserPrincipal userPrincipal = null;
+    // if (authentication != null && authentication.isAuthenticated()) {
+    // userPrincipal = (UserPrincipal) authentication.getPrincipal();
+    // }
+    // return ResponseEntity.ok(commentService.getTopComments(userPrincipal, postId,
+    // pageable));
+    // }
+
 }

@@ -2,20 +2,45 @@ package com.thaihoc.miniinsta.service.feed;
 
 import java.util.List;
 
-import com.thaihoc.miniinsta.dto.UserPrincipal;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+
+import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.feed.CreatePostRequest;
+import com.thaihoc.miniinsta.dto.feed.PostResponse;
+import com.thaihoc.miniinsta.dto.feed.UpdatePostRequest;
+import com.thaihoc.miniinsta.exception.AlreadyExistsException;
+import com.thaihoc.miniinsta.exception.IdInvalidException;
 import com.thaihoc.miniinsta.model.Post;
 
 public interface PostService {
-  Post createPost(UserPrincipal userPrincipal, CreatePostRequest request);
+  Post createPost(long profileId, CreatePostRequest request) throws IdInvalidException, AlreadyExistsException;
 
-  Post getPost(int postId);
+  Post updatePost(long profileId, long postId, UpdatePostRequest request)
+      throws IdInvalidException, AlreadyExistsException;
 
-  void deletePost(UserPrincipal userPrincipal, int postId);
+  PostResponse getPostById(long postId, long profileId) throws IdInvalidException;
 
-  Post likePost(UserPrincipal userPrincipal, int postId);
+  void deletePostById(long profileId, long postId) throws IdInvalidException;
 
-  Post unlikePost(UserPrincipal userPrincipal, int postId);
+  void likePost(long postId, long likerId) throws IdInvalidException;
 
-  List<Post> getUserPosts(int userId);
+  void unlikePost(long postId, long likerId) throws IdInvalidException;
+
+  ResultPaginationDTO getAllPosts(Specification<Post> spec, Pageable pageable);
+
+  ResultPaginationDTO getAllPostsByProfileId(long profileId, Pageable pageable) throws IdInvalidException;
+
+  ResultPaginationDTO getLikedPostsByProfileId(long profileId, Pageable pageable);
+
+  ResultPaginationDTO getPostsByHashtag(String hashtag, Pageable pageable) throws IdInvalidException;
+
+  void savePost(Post post);
+
+  Post handleGetPostById(long postId) throws IdInvalidException;
+
+  List<Post> getPostsByIds(List<Long> postIds);
+
+  PostResponse convertToPostResponse(Post post) throws IdInvalidException;
+
 }

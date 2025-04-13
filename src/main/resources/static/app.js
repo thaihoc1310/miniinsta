@@ -1,75 +1,87 @@
-const hostWithPort = window.location.host
+// const hostWithPort = window.location.host
 
-const stompClient = new StompJs.Client({    
-    brokerURL: `ws://${hostWithPort}/ws`
-});
+// const stompClient = new StompJs.Client({
+//     brokerURL: `ws://${hostWithPort}/ws`
+// });
 
-stompClient.onConnect = (frame) => {
-    setConnected(true);
-    console.log('Connected: ' + frame);
-    stompClient.subscribe('/user/queue/messages', (greeting) => {
-        console.log("got msg", JSON.parse(greeting.body));
-        appendNewMessage(JSON.parse(greeting.body).content);
-    });
-};
+// stompClient.onConnect = (frame) => {
+//     setConnected(true);
+//     console.log('Connected: ' + frame);
+//     stompClient.subscribe('/user/queue/messages', (message) => {
+//         const messageData = JSON.parse(message.body);
+//         console.log("Received message:", messageData);
 
-stompClient.onWebSocketError = (error) => {
-    console.error('Error with websocket', error);
-};
+//         // Check if message is from current user or another user
+//         const isMine = messageData.sender === $("#userId").val();
+//         appendNewMessage(messageData, isMine);
+//     });
+// };
 
-stompClient.onStompError = (frame) => {
-    console.error('Broker reported error: ' + frame.headers['message']);
-    console.error('Additional details: ' + frame.body);
-};
+// stompClient.onWebSocketError = (error) => {
+//     console.error('Error with websocket', error);
+// };
 
-function setConnected(connected) {
-    $("#connect").prop("disabled", connected);
-    $("#disconnect").prop("disabled", !connected);
-    if (connected) {
-        $("#conversation").show();
-    }
-    else {
-        $("#conversation").hide();
-    }
-    $("#greetings").html("");
-}
+// stompClient.onStompError = (frame) => {
+//     console.error('Broker reported error: ' + frame.headers['message']);
+//     console.error('Additional details: ' + frame.body);
+// };
 
-function connect() {
-    stompClient.activate();
-}
+// function setConnected(connected) {
+//     $("#connect").prop("disabled", connected);
+//     $("#disconnect").prop("disabled", !connected);
+//     if (connected) {
+//         $("#conversation").show();
+//     }
+//     else {
+//         $("#conversation").hide();
+//     }
+//     $("#greetings").html("");
+// }
 
-function disconnect() {
-    stompClient.deactivate();
-    setConnected(false);
-    console.log("Disconnected");
-}
+// function connect() {
+//     stompClient.activate();
+// }
 
-function sendMessage() {
-    const chatMessage = {
-        'receiver': $("#userId").val(),
-        'content': $("#messageContent").val(),
-    };
-    stompClient.publish({
-        destination: "/app/chat",
-        body: JSON.stringify(chatMessage)
-    });
-}
+// function disconnect() {
+//     stompClient.deactivate();
+//     setConnected(false);
+//     console.log("Disconnected");
+// }
 
-function sendName() {
-    stompClient.publish({
-        destination: "/app/hello",
-        body: JSON.stringify({ 'name': $("#messageContent").val() })
-    });
-}
+// function sendMessage() {
+//     const chatMessage = {
+//         'receiver': $("#userId").val(),
+//         'content': $("#messageContent").val(),
+//     };
+//     stompClient.publish({
+//         destination: "/app/chat",
+//         body: JSON.stringify(chatMessage)
+//     });
+// }
 
-function appendNewMessage(message) {
-    $("#greetings").append("<tr><td>" + message + "</td></tr>");
-}
+// function sendName() {
+//     stompClient.publish({
+//         destination: "/app/hello",
+//         body: JSON.stringify({ 'name': $("#messageContent").val() })
+//     });
+// }
 
-$(function () {
-    $("form").on('submit', (e) => e.preventDefault());
-    $("#connect").click(() => connect());
-    $("#disconnect").click(() => disconnect());
-    $("#send").click(() => sendMessage());
-});
+// function appendNewMessage(messageData, isMine) {
+//     const messageClass = isMine ? "my-message" : "their-message";
+//     const sender = messageData.sender || "Unknown";
+//     const content = messageData.content || "";
+
+//     $("#greetings").append(
+//         `<tr class="${messageClass}">
+//             <td><strong>${sender}:</strong> ${content}</td>
+//         </tr>`
+//     );
+// }
+
+// $(function () {
+//     $("form").on('submit', (e) => e.preventDefault());
+//     $("#connect").click(() => connect());
+//     $("#disconnect").click(() => disconnect());
+//     $("#send").click(() => sendMessage());
+// });
 
