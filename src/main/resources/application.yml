@@ -28,11 +28,13 @@ spring:
             client:
                 registration:
                     google:
-                        client-id: 
-                        client-secret: 
+                        client-id:
+                        client-secret:
                         scope:
                             - email
                             - profile
+
+
 
 # JWT Configuration
 thaihoc:

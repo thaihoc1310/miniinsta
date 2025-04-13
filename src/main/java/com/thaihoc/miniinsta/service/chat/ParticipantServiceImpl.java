@@ -2,6 +2,7 @@ package com.thaihoc.miniinsta.service.chat;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.Lazy;
 
 import com.thaihoc.miniinsta.dto.chat.CreateParticipantRequest;
 import com.thaihoc.miniinsta.dto.chat.UpdateParticipantRequest;
@@ -21,7 +22,7 @@ public class ParticipantServiceImpl implements ParticipantService {
     private final ConversationService conversationService;
 
     public ParticipantServiceImpl(ParticipantRepository participantRepository, ProfileService profileService,
-            ConversationService conversationService) {
+            @Lazy ConversationService conversationService) {
         this.participantRepository = participantRepository;
         this.profileService = profileService;
         this.conversationService = conversationService;

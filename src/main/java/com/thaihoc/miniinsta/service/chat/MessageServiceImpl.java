@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Lazy;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.chat.CreateMessageRequest;
@@ -24,7 +25,7 @@ public class MessageServiceImpl implements MessageService {
     private final ProfileService profileService;
     private final FileService fileService;
 
-    public MessageServiceImpl(MessageRepository messageRepository, ConversationService conversationService,
+    public MessageServiceImpl(MessageRepository messageRepository, @Lazy ConversationService conversationService,
             ProfileService profileService, FileService fileService) {
         this.messageRepository = messageRepository;
         this.conversationService = conversationService;

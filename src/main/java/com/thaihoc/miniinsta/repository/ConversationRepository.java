@@ -13,7 +13,7 @@ import com.thaihoc.miniinsta.model.Conversation;
 public interface ConversationRepository
                 extends JpaRepository<Conversation, Long>, JpaSpecificationExecutor<Conversation> {
 
-        @Query("SELECT c FROM Conversation c WHERE c.participants.profile.id = :profileId AND LOWER(c.name) LIKE LOWER(CONCAT('%', :q, '%'))")
+        @Query("SELECT c FROM Conversation c JOIN c.participants p WHERE p.profile.id = :profileId AND LOWER(c.name) LIKE LOWER(CONCAT('%', :q, '%'))")
         Page<Conversation> getAllByParticipantsByProfileIdAndNameContaining(long profileId, String q,
                         Pageable pageable);
 

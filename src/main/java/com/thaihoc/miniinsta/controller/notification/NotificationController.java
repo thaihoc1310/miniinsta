@@ -40,7 +40,7 @@ public class NotificationController {
 
     @GetMapping("profiles/{profileId}/notifications")
     public ResponseEntity<ResultPaginationDTO> getAllNotifications(@PathVariable long profileId,
-            Pageable pageable) {
+            Pageable pageable) throws IdInvalidException {
         return ResponseEntity.ok(notificationService.getAllNotifications(profileId, pageable));
     }
 

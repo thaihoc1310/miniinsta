@@ -20,34 +20,38 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-  private final OAuth2UserService oAuth2UserService;
+        private final OAuth2UserService oAuth2UserService;
 
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http,
-      CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
-      OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) throws Exception {
-    String[] whiteList = {
-        "/", "/api/v1/auth/login", "/api/v1/auth/refresh", "api/v1/auth/register",
-        "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
-    };
-    log.warn("Configuring http filterChain");
-    http
-        .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers(whiteList).permitAll()
-            .anyRequest().authenticated())
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http,
+                        CustomAuthenticationEntryPoint customAuthenticationEntryPoint,
+                        OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) throws Exception {
+                String[] whiteList = {
+                                "/", "/api/v1/auth/login", "/api/v1/auth/refresh", "/api/v1/auth/register",
+                                "/api-docs/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**", "/swagger-ui.html"
+                };
+                log.warn("Configuring http filterChain");
+                http
+                                .authorizeHttpRequests(authorize -> authorize
+                                                .requestMatchers(whiteList).permitAll()
+                                                .anyRequest().authenticated())
 
-        .oauth2Login(oauth2 -> oauth2
-            .userInfoEndpoint(infoEndpoint -> infoEndpoint.userService(oAuth2UserService))
-            .successHandler(oAuth2LoginSuccessHandler))
+                                .oauth2Login(oauth2 -> oauth2
+                                                .userInfoEndpoint(infoEndpoint -> infoEndpoint
+                                                                .userService(oAuth2UserService))
+                                                .successHandler(oAuth2LoginSuccessHandler))
 
-        .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
-            .authenticationEntryPoint(customAuthenticationEntryPoint))
+                                .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults())
+                                                .authenticationEntryPoint(customAuthenticationEntryPoint))
 
-        .csrf(csrf -> csrf.disable())
-        .cors(Customizer.withDefaults())
-        .formLogin(formLogin -> formLogin.disable())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                                .csrf(csrf -> csrf.disable())
+                                .cors(Customizer.withDefaults())
+                                .formLogin(formLogin -> formLogin.disable())
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-    return http.build();
-  }
+                return http.build();
+        }
 }

@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.Lazy;
 
 import com.thaihoc.miniinsta.dto.ResultPaginationDTO;
 import com.thaihoc.miniinsta.dto.notification.ProfileFollowedEvent;
@@ -24,6 +25,7 @@ import com.thaihoc.miniinsta.util.SecurityUtil;
 @Service
 public class ProfileServiceImpl implements ProfileService {
   private FileService fileService;
+
   private UserService userService;
   private ProfileRepository profileRepository;
   private RabbitTemplate rabbitTemplate;
@@ -32,7 +34,7 @@ public class ProfileServiceImpl implements ProfileService {
   @Value("${rabbitmq.exchange.name}")
   private String notificationExchange;
 
-  public ProfileServiceImpl(UserService userService, ProfileRepository profileRepository,
+  public ProfileServiceImpl(@Lazy UserService userService, ProfileRepository profileRepository,
       RabbitTemplate rabbitTemplate) {
     this.userService = userService;
     this.profileRepository = profileRepository;

@@ -37,7 +37,6 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "MEDIUMTEXT")
     private String refreshToken;
 
-    @NotBlank(message = "Password is required")
     private String password;
 
     @NotBlank(message = "Name is required")
@@ -59,7 +58,7 @@ public class User extends BaseEntity {
 
     private String providerId;
 
-    @ManyToOne /* eager by default */
+    @ManyToOne
     @JoinColumn(name = "role_id")
     private Role role;
 
